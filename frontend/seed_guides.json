@@ -1,0 +1,218 @@
+[
+  {
+    "id": "guide-004",
+    "title": "Conditional Sentences",
+    "description": "Learn to form and use conditional sentences for hypothetical situations",
+    "cover_emoji": "❓",
+    "cefr_level": "B1",
+    "concept_tags": ["conditionals", "grammar", "verb-tenses"],
+    "estimated_minutes": 20,
+    "content": {
+      "introduction": "Los condicionales se usan para hablar de situaciones hipotéticas. Hay tres tipos principales: First Conditional (probable), Second Conditional (poco probable), y Third Conditional (imposible porque ya pasó).",
+      "key_structures": [
+        {
+          "structure": "First Conditional: If + Present Simple + Will + Verb",
+          "example": "If you study hard, you will pass the exam.",
+          "explanation": "Se usa para hablar de algo que probablemente suceda en el futuro si se cumple una condición."
+        },
+        {
+          "structure": "Second Conditional: If + Past Simple + Would + Verb",
+          "example": "If I had more time, I would travel more.",
+          "explanation": "Se usa para hablar de situaciones imaginarias o poco probables en el presente."
+        },
+        {
+          "structure": "Third Conditional: If + Had + Past Participle + Would have + Past Participle",
+          "example": "If I had known about the party, I would have gone.",
+          "explanation": "Se usa para hablar de situaciones imposibles que no sucedieron en el pasado."
+        }
+      ],
+      "common_expressions": [
+        "If + you/he/she/it/they",
+        "Unless (unless = if not)",
+        "In case (por si acaso)",
+        "Provided that (siempre que)",
+        "As long as (mientras que)"
+      ],
+      "exercises": [
+        {
+          "question": "Complete: 'If she doesn't arrive soon, we ____ (leave) without her.'",
+          "correct_answer": "will leave",
+          "alternatives": ["leave", "are leaving"]
+        }
+      ]
+    },
+    "mission_connection": "m-009",
+    "story_connection": "story-008",
+    "scene_concepts": ["conditionals", "hypothetical"],
+    "created_at": "2026-03-18T10:00:00Z",
+    "is_published": true
+  },
+  {
+    "id": "guide-005",
+    "title": "Passive Voice",
+    "description": "Master the passive voice for objective descriptions and formal writing",
+    "cover_emoji": "🔄",
+    "cefr_level": "B2",
+    "concept_tags": ["passive-voice", "grammar", "formal-english"],
+    "estimated_minutes": 25,
+    "content": {
+      "introduction": "La voz pasiva se forma con 'to be' + past participle. Se usa cuando queremos enfatizar la acción o el objeto en lugar del sujeto que realiza la acción.",
+      "key_structures": [
+        {
+          "structure": "Subject + to be + Past Participle (+ by + agent)",
+          "example": "The letter was written by John (Active: John wrote the letter)",
+          "explanation": "La forma pasiva enfatiza que la carta fue escrita, no quién la escribió (aunque puedes mencionarlo con 'by')."
+        },
+        {
+          "structure": "Passive in different tenses",
+          "example": "Present: is written, Past: was written, Future: will be written, Perfect: has been written",
+          "explanation": "El verbo 'to be' cambia de tiempo, pero el past participle siempre es el mismo."
+        },
+        {
+          "structure": "Passive with modals",
+          "example": "This must be done carefully / This can be improved",
+          "explanation": "Los modales (must, can, should) van entre 'to be' y el past participle."
+        }
+      ],
+      "common_expressions": [
+        "It is said that... (Se dice que...)",
+        "It is known that... (Se sabe que...)",
+        "It is believed that... (Se cree que...)",
+        "It is reported that... (Se reporta que...)"
+      ],
+      "exercises": []
+    },
+    "mission_connection": "m-002",
+    "story_connection": "story-003",
+    "scene_concepts": ["formal-writing", "complex-structures"],
+    "created_at": "2026-03-18T10:00:00Z",
+    "is_published": true
+  },
+  {
+    "id": "guide-006",
+    "title": "Modal Verbs",
+    "description": "Use modal verbs correctly to express possibility, ability, permission, and obligation",
+    "cover_emoji": "💪",
+    "cefr_level": "B1",
+    "concept_tags": ["modal-verbs", "grammar", "meaning"],
+    "estimated_minutes": 22,
+    "content": {
+      "introduction": "Los verbos modales (can, could, may, might, must, should, ought to, will, would) se usan para expresar habilidad, posibilidad, permiso, obligación, etc. Nunca se conjugan y siempre van seguidos del infinitivo sin 'to'.",
+      "key_structures": [
+        {
+          "structure": "Can / Could + Verb (Habilidad o Posibilidad)",
+          "example": "I can speak English / Could you help me?",
+          "explanation": "'Can' es más común en presente, 'could' en pasado o formas más polidas."
+        },
+        {
+          "structure": "Must / Have to + Verb (Obligación)",
+          "example": "You must attend the meeting / You have to be on time",
+          "explanation": "'Must' expresa una obligación personal o interna; 'have to' es más externa (reglas, leyes)."
+        },
+        {
+          "structure": "Should / Ought to + Verb (Recomendación)",
+          "example": "You should exercise more / You ought to call your mother",
+          "explanation": "Expresan un consejo amable o lo correcto que debería hacer."
+        }
+      ],
+      "common_expressions": [
+        "May I...? (Formal permission)",
+        "Might (remote possibility)",
+        "Would you mind...? (Very polite request)",
+        "Shall we...? (British English, suggestion)"
+      ],
+      "exercises": []
+    },
+    "mission_connection": "m-005",
+    "story_connection": "story-004",
+    "scene_concepts": ["modal-meanings", "politeness"],
+    "created_at": "2026-03-18T10:00:00Z",
+    "is_published": true
+  },
+  {
+    "id": "guide-007",
+    "title": "Reported Speech",
+    "description": "Learn how to report what others said using reported speech",
+    "cover_emoji": "💬",
+    "cefr_level": "B2",
+    "concept_tags": ["reported-speech", "grammar", "indirect-speech"],
+    "estimated_minutes": 24,
+    "content": {
+      "introduction": "Reported Speech (discurso indirecto) se usa para contar lo que alguien dijo sin usar comillas. Los verbos y los tiempos cambian dependiendo del tiempo del verbo introductorio.",
+      "key_structures": [
+        {
+          "structure": "Direct: \"I love this movie\" → Reported: He said (that) he loved that movie",
+          "example": "Direct: \"Where are you going?\" → Reported: She asked where I was going",
+          "explanation": "El verbo se retira un tiempo atrás. Las preguntas pierden el signo de pregunta y usan 'if' o 'whether'."
+        },
+        {
+          "structure": "Say vs Tell",
+          "example": "He said (that) he was tired / He told me (that) he was tired",
+          "explanation": "'Say' no necesita objeto directo; 'tell' siempre necesita indicar a quién se le dice."
+        },
+        {
+          "structure": "Changes in pronouns and time expressions",
+          "example": "\"I will come tomorrow\" → He said he would come the next day",
+          "explanation": "Los pronombres y expresiones de tiempo cambian según la perspectiva del hablante."
+        }
+      ],
+      "common_expressions": [
+        "He said that...",
+        "She told me that...",
+        "They asked if/whether...",
+        "According to...",
+        "As ... mentioned..."
+      ],
+      "exercises": []
+    },
+    "mission_connection": "m-003",
+    "story_connection": "story-006",
+    "scene_concepts": ["reported-speech", "complex-sentences"],
+    "created_at": "2026-03-18T10:00:00Z",
+    "is_published": true
+  },
+  {
+    "id": "guide-008",
+    "title": "Question Formation",
+    "description": "Master different ways to ask questions in English",
+    "cover_emoji": "❓",
+    "cefr_level": "A2",
+    "concept_tags": ["question-words", "grammar", "sentence-structure"],
+    "estimated_minutes": 18,
+    "content": {
+      "introduction": "Hacer preguntas correctamente es fundamental en inglés. Hay varias estructuras dependiendo del tipo de pregunta: Yes/No questions, WH-questions, Tag questions, y Echo questions.",
+      "key_structures": [
+        {
+          "structure": "Yes/No Questions: Auxiliary + Subject + Verb?",
+          "example": "Do you like coffee? / Have you finished?",
+          "explanation": "El auxiliar (do, does, did, have, has) va al principio. En presente simple, usas 'do/does'."
+        },
+        {
+          "structure": "WH-Questions: WH-word + Auxiliary + Subject + Verb?",
+          "example": "Where do you live? / What time have you arrived?",
+          "explanation": "La palabra-W va primero, luego el auxiliar. Palabras-W: What, Where, When, Why, Who, Which, How."
+        },
+        {
+          "structure": "Tag Questions: Statement + Tag?",
+          "example": "You like coffee, don't you? / She didn't come, did she?",
+          "explanation": "El tag siempre es lo opuesto del verbo en la oración principal."
+        }
+      ],
+      "common_expressions": [
+        "What...?",
+        "Where...?",
+        "When...?",
+        "Why...?",
+        "How...?",
+        "Who...?",
+        "Which...?"
+      ],
+      "exercises": []
+    },
+    "mission_connection": "m-006",
+    "story_connection": "story-001",
+    "scene_concepts": ["wh-questions", "syntax"],
+    "created_at": "2026-03-18T10:00:00Z",
+    "is_published": true
+  }
+]

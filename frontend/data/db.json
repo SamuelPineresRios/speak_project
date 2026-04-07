@@ -1,0 +1,2794 @@
+{
+  "users": [
+    {
+      "id": "ob1wqq71okommwjh5ko",
+      "email": "samuelpineres.rios10@gmail.com",
+      "password_hash": "$2a$12$OLy0Qf9qjWbv1edkCJs2teRUoPL2yVAPjCAu2UGy3BJYflXYQuony",
+      "role": "student",
+      "full_name": "Samuel Piñeres",
+      "cefr_level": "B1",
+      "language_preference": "es",
+      "created_at": "2026-03-18T21:14:12.216Z"
+    },
+    {
+      "id": "vkpwynnv5ummxfjgi0",
+      "email": "juanmanuelraigosa@gmail.com",
+      "password_hash": "$2a$12$4EOUrPCa9icn.yjzyI7.XOR2IIr5tvxpa9X4GatAfgjzy2Qjkhvy6",
+      "role": "student",
+      "full_name": "Juan Manuel Raigosa",
+      "cefr_level": "A2",
+      "language_preference": "es",
+      "created_at": "2026-03-19T12:11:47.400Z"
+    },
+    {
+      "id": "i67xnwjgtwmmmz1i3yq",
+      "email": "rembrog@gmail.com",
+      "password_hash": "$2a$12$gzEfgnhM0jY.tuXOXqps0ucKUuuM5A.BmdW1mcJVEdgsxDT8URjk6",
+      "role": "teacher",
+      "full_name": "Ramiro Barrientos",
+      "cefr_level": null,
+      "language_preference": "es",
+      "created_at": "2026-03-20T15:14:22.226Z"
+    },
+    {
+      "id": "ew72w6opbmn3r8z12",
+      "email": "mateoarrubla2@gmail.com",
+      "password_hash": "$2a$12$Qd26krMlxT0JkxENc5/9tOq4YmqxoSXQBn4iyNaYk4WflDKeN.MNi",
+      "role": "student",
+      "full_name": "Mateo Arrubla",
+      "cefr_level": "B1",
+      "language_preference": "es",
+      "created_at": "2026-03-23T22:26:10.646Z"
+    },
+    {
+      "id": "kas6t1k208hmn3s2mya",
+      "email": "soynvdehauer@gmail.com",
+      "password_hash": "$2a$12$S/XkYeK6Wysi02gI9BKw3uQvJcbZNZVRq8tECZOPgMKiE8/PvmFw6",
+      "role": "student",
+      "full_name": "Juliana Urrego",
+      "cefr_level": "B1",
+      "language_preference": "es",
+      "created_at": "2026-03-23T22:49:14.674Z"
+    }
+  ],
+  "missions": [
+    {
+      "id": "m-001",
+      "title": "Reservar un vuelo",
+      "description": "Necesitas volar a otra ciudad urgentemente.",
+      "objective": "Reserva un vuelo a Madrid para el 15 de marzo. Menciona que viajas solo y necesitas asiento de ventana.",
+      "scene_context": "Estás llamando a una aerolinea internacional. Tienes que interactuar con el agente en Inglés. Tienes que completar 3 pasos: 1. Confirmar destino y fecha (Madrid, 15 Mar). 2. Confirmar pasajero (solo). 3. Seleccionar asiento (Ventana).",
+      "example_conversation": "User: Hi, I'd like to book a flight to Madrid for March 15th.\nAgent: Sure, I can help with that. Are you traveling alone?\nUser: Yes, just me.\nAgent: Great. Do you have a seating preference?\nUser: I'd prefer a window seat, please.",
+      "character_name": "Airline Agent",
+      "expected_outcome_indicator": "Flight booked for March 15th",
+      "cefr_level": "A2",
+      "base_duration_seconds": 150
+    },
+    {
+      "id": "m-002",
+      "title": "Problema técnico al soporte",
+      "description": "Tu computador tiene un error crítico.",
+      "objective": "Explica al agente de soporte que tu computador no enciende desde esta mañana y que escuchas un sonido extraño al encenderlo.",
+      "scene_context": "Llamas al soporte técnico de tu empresa. El agente contesta y pide que describas el problema.",
+      "example_conversation": "User: Hello, I'm calling because my computer won't turn on.\nAgent: I'm sorry to hear that. Did anything happen before this?\nUser: It was working fine yesterday, but this morning I heard a strange noise and it won't start.\nAgent: Okay, let's try some troubleshooting steps.",
+      "character_name": "Tech Support",
+      "expected_outcome_indicator": "Support ticket opened with correct details",
+      "cefr_level": "B1",
+      "base_duration_seconds": 120
+    },
+    {
+      "id": "m-003",
+      "title": "Pedir direcciones",
+      "description": "Estás perdido en una ciudad desconocida.",
+      "objective": "Pregunta a un transeúnte cómo llegar al Museo de Historia. Menciona que vas caminando.",
+      "scene_context": "Estás en una calle del centro de la ciudad. Ves a una persona local que parece poder ayudarte.",
+      "example_conversation": "User: Excuse me, could you tell me how to get to the History Museum?\nLocal: Sure! It's not far. Are you driving or walking?\nUser: I'm walking.\nLocal: Go straight for two blocks, then turn left. It's on your right.",
+      "character_name": "Street Guide",
+      "expected_outcome_indicator": "Directions received clearly",
+      "cefr_level": "A1",
+      "base_duration_seconds": 180
+    },
+    {
+      "id": "m-004",
+      "title": "Negociar un precio",
+      "description": "Quieres comprar un artículo pero el precio es alto.",
+      "objective": "Negocia el precio de una mochila. El precio inicial es $80. Intenta conseguirlo por menos de $65, justificando tu oferta.",
+      "scene_context": "Estás en un mercado artesanal. El vendedor tiene mochilas de cuero. Ves una que te gusta.",
+      "example_conversation": "User: I love this backpack, but $80 is a bit out of my budget.\nVendor: It's good quality leather. How much were you thinking?\nUser: Could you do $60? I'm buying it as a gift.\nVendor: I can't go that low, but I could do $70.\nUser: How about $65? That matches the cash I have.",
+      "character_name": "Market Vendor",
+      "expected_outcome_indicator": "Price negotiated below $65",
+      "cefr_level": "B2",
+      "base_duration_seconds": 90
+    },
+    {
+      "id": "m-005",
+      "title": "Llamar al médico",
+      "description": "No te sientes bien y necesitas una cita.",
+      "objective": "Llama al consultorio médico y agenda una cita para mañana. Menciona que tienes fiebre y dolor de garganta.",
+      "scene_context": "Llamas al consultorio del Dr. Rivera. La recepcionista contesta y pregunta en qué puede ayudarte.",
+      "example_conversation": "Receptionist: Dr. Rivera's office, how can I help you?\nUser: Hi, I need to make an appointment for tomorrow, please.\nReceptionist: Is it for a check-up or are you feeling ill?\nUser: I'm not feeling well. I have a fever and a sore throat.\nReceptionist: Okay, we can squeeze you in at 10 AM.",
+      "character_name": "Doctor",
+      "expected_outcome_indicator": "Doctor appointment confirmed for tomorrow",
+      "cefr_level": "A2",
+      "base_duration_seconds": 150
+    },
+    {
+      "id": "m-006",
+      "title": "Check-in en el hotel",
+      "description": "Llegas al hotel pero hay un problema con tu reserva.",
+      "objective": "Explica al recepcionista que tienes una reserva para esta noche pero que no aparece en el sistema. Tu confirmación es #45823.",
+      "scene_context": "Llegas al Hotel Plaza después de un largo viaje. El recepcionista te saluda y pide tu nombre.",
+      "example_conversation": "Receptionist: Good afternoon, welcome to Hotel Plaza. Do you have a reservation?\nUser: Yes, I booked a room for tonight, but I don't see it on my app.\nReceptionist: Let me check. Do you have the confirmation number?\nUser: Yes, it's #45823. I booked it last week.\nReceptionist: Ah, found it. There was a typo in the name. You're all set.",
+      "character_name": "Hotel Receptionist",
+      "expected_outcome_indicator": "Reservation issue resolved",
+      "cefr_level": "B1",
+      "base_duration_seconds": 120
+    },
+    {
+      "id": "m-007",
+      "title": "Ordenar en un restaurante",
+      "description": "Tienes una alergia alimentaria importante.",
+      "objective": "Ordena el plato del día pero pregunta si contiene nueces porque eres alérgico. Si tiene nueces, pide una alternativa.",
+      "scene_context": "Estás en un restaurante casual. El mesero se acerca con la carta y te pregunta qué vas a ordenar.",
+      "example_conversation": "Waiter: Are you ready to order?\nUser: Yes, I'd like the daily special, please.\nWaiter: Excellent choice.\nUser: Does it contain any nuts? I have a severe allergy.\nWaiter: The sauce has crushed walnuts. I can have the chef prepare it without the sauce for you.",
+      "character_name": "Airline Agent",
+      "expected_outcome_indicator": "Order placed with allergy confirmed",
+      "cefr_level": "A2",
+      "base_duration_seconds": 150
+    },
+    {
+      "id": "m-008",
+      "title": "Presentarse en trabajo nuevo",
+      "description": "Es tu primer día en una empresa nueva.",
+      "objective": "Preséntate a tu nuevo colega. Di tu nombre, tu cargo (Marketing Manager), y menciona algo de tu experiencia anterior.",
+      "scene_context": "Entras a la oficina el primer día. Tu colega se acerca sonriendo y se presenta. Te toca responder.",
+      "example_conversation": "Colleague: Hi, welcome to the team! I'm Sarah.\nUser: Hi Sarah, nice to meet you. I'm Alex.\nColleague: What will you be working on?\nUser: I'm the new Marketing Manager. I used to work in digital advertising for 5 years.",
+      "character_name": "Tech Support",
+      "expected_outcome_indicator": "Professional introduction completed",
+      "cefr_level": "B1",
+      "base_duration_seconds": 120
+    },
+    {
+      "id": "m-009",
+      "title": "Reclamar un paquete perdido",
+      "description": "Tu pedido online nunca llegó.",
+      "objective": "Reclama a la empresa de envíos que tu paquete con número de seguimiento TK-2847 no llegó en la fecha prometida. Pide solución.",
+      "scene_context": "Llamas al servicio al cliente de la empresa de envíos. Llevas 5 días esperando el paquete.",
+      "example_conversation": "Agent: Customer service, how can I help?\nUser: Hi, I'm calling about a missing package. Tracking number TK-2847.\nAgent: Let me check. It says it was delivered yesterday.\nUser: I've been home all day and nothing arrived. I need a solution or a refund.",
+      "character_name": "Tech Support",
+      "expected_outcome_indicator": "Claim registered with tracking number",
+      "cefr_level": "B2",
+      "base_duration_seconds": 90
+    },
+    {
+      "id": "m-010",
+      "title": "Pedir ayuda en una tienda",
+      "description": "Buscas un producto específico.",
+      "objective": "Pide ayuda para encontrar vitamina C en presentación de 1000mg. Pregunta también si tienen una marca específica.",
+      "scene_context": "Estás en una farmacia grande. No encuentras lo que buscas y un empleado se acerca para ayudarte.",
+      "example_conversation": "Employee: Can I help you find something?\nUser: Yes, do you have Vitamin C in 1000mg tablets?\nEmployee: We have the store brand right here.\nUser: Do you carry the 'NatureHealth' brand specifically?",
+      "character_name": "Street Guide",
+      "expected_outcome_indicator": "Product found or alternative offered",
+      "cefr_level": "A1",
+      "base_duration_seconds": 180
+    },
+    {
+      "id": "m-011",
+      "title": "Reportar un problema de vecindad",
+      "description": "Hay ruido excesivo en tu edificio.",
+      "objective": "Reporta al administrador del edificio que el apartamento 4B tiene música muy alta desde las 11pm todos los días. Pide que intervengan.",
+      "scene_context": "Llamas a la oficina de administración del edificio. El administrador contesta.",
+      "example_conversation": "User: Hello, I'm calling to report a noise problem.\nManager: Okay, what seems to be the issue?\nUser: Apartment 4B has been playing very loud music every night since 11 PM.\nManager: I see. Have you spoken to them?\nUser: No, I'd like you to intervene, please.",
+      "character_name": "Hotel Receptionist",
+      "expected_outcome_indicator": "Complaint registered with details",
+      "cefr_level": "B1",
+      "base_duration_seconds": 120
+    },
+    {
+      "id": "m-012",
+      "title": "Cancelar una suscripción",
+      "description": "Quieres cancelar un servicio que no usas.",
+      "objective": "Cancela tu suscripción al gimnasio. Llevas 6 meses pagando sin ir. Pide que el cargo no se haga el próximo mes.",
+      "scene_context": "Llamas al servicio al cliente del gimnasio. Te contesta un representante.",
+      "example_conversation": "Agent: Gym membership services, how can I help?\nUser: Hi, I'd like to cancel my subscription.\nAgent: May I ask why you're leaving?\nUser: I haven't used it in 6 months. Please ensure no charge is made next month.\nAgent: I can process that for you.",
+      "character_name": "Tech Support",
+      "expected_outcome_indicator": "Subscription cancellation confirmed",
+      "cefr_level": "B2",
+      "base_duration_seconds": 90
+    },
+    {
+      "id": "m-013",
+      "title": "Pedir información de un curso",
+      "description": "Quieres inscribirte en un curso de idiomas.",
+      "objective": "Pregunta cuánto cuesta el curso de inglés avanzado, cuándo empieza el próximo grupo y si hay descuento por pagar completo.",
+      "scene_context": "Llamas a un instituto de idiomas. La secretaria contesta con un saludo y ofrece su ayuda.",
+      "example_conversation": "Secretary: Hello, Language Institute.\nUser: Hi, I'd like information about the advanced English course.\nSecretary: Certainly. What would you like to know?\nUser: How much does it cost and when does the next group start?\nSecretary: It's $200 and starts next Monday.\nUser: Is there a discount for paying in full?",
+      "character_name": "Airline Agent",
+      "expected_outcome_indicator": "Price, start date, and discount info obtained",
+      "cefr_level": "A2",
+      "base_duration_seconds": 150
+    },
+    {
+      "id": "m-014",
+      "title": "Describir un accidente menor",
+      "description": "Tuviste un pequeño accidente de tráfico.",
+      "objective": "Explica a la policía lo que pasó: otro carro te golpeó por detrás mientras esperabas en un semáforo. No hay heridos.",
+      "scene_context": "Un oficial de policía se acerca al lugar del accidente y pide tu declaración de lo sucedido.",
+      "example_conversation": "Officer: Can you tell me what happened here?\nUser: Yes, officer. I was waiting at the red light.\nOfficer: And then?\nUser: Another car hit me from behind. There are no injuries, just damage to the bumper.",
+      "character_name": "Street Guide",
+      "expected_outcome_indicator": "Accident description given with key details",
+      "cefr_level": "B2",
+      "base_duration_seconds": 90
+    },
+    {
+      "id": "m-015",
+      "title": "Saludar y presentarse",
+      "description": "Tu primera conversación en inglés.",
+      "objetivo": "Di tu nombre, de dónde eres y algo que te gusta hacer. Pregunta también algo sobre la otra persona.",
+      "objective": "Introduce yourself: say your name, where you're from, and one thing you enjoy. Ask the other person one question too.",
+      "scene_context": "Estás en un evento de networking. Una persona amable se acerca y te saluda con un 'Hi there!'.",
+      "example_conversation": "Person: Hi there!\nUser: Hello! My name is Ana. I'm from Colombia.\nPerson: Nice to meet you, Ana.\nUser: I enjoy hiking on weekends. What about you?\nPerson: I love reading.",
+      "character_name": "Street Guide",
+      "expected_outcome_indicator": "Introduction with name, origin, and interest completed",
+      "cefr_level": "A1",
+      "base_duration_seconds": 180
+    },
+    {
+      "id": "m-016",
+      "title": "Conocer a alguien en una fiesta",
+      "description": "Estás en una fiesta y no conoces a nadie.",
+      "objective": "Preséntate a la persona que está junto a las bebidas. Pregúntale su nombre y de dónde conoce al anfitrión (Juan).",
+      "scene_context": "Estás en la sala de una casa con música de fondo y gente charlando. Te acercas a alguien que parece amigable.",
+      "example_conversation": "User: Hi, do you mind if I join you?\nGuest: Not at all! I'm Tom.\nUser: Nice to meet you, Tom. I'm Leo. How do you know Juan?\nGuest: We work together. And you?\nUser: We're old friends from college.",
+      "character_name": "Party Guest",
+      "expected_outcome_indicator": "Introduction made and connection to host established",
+      "cefr_level": "A1",
+      "base_duration_seconds": 180
+    },
+    {
+      "id": "m-017",
+      "title": "Hablar de planes de fin de semana",
+      "description": "Es viernes y quieres hacer planes con un amigo.",
+      "objective": "Invita a tu amigo a ir al cine el sábado. Propón ver la nueva película de acción a las 7 PM.",
+      "scene_context": "Estás charlando con un amigo en la cafetería. Él te pregunta qué harás el fin de semana.",
+      "example_conversation": "Friend: Hey, any plans for the weekend?\nUser: I was thinking of going to the movies on Saturday. Want to come?\nFriend: Sounds fun. What time?\nUser: The new action movie is playing at 7 PM.",
+      "character_name": "Close Friend",
+      "expected_outcome_indicator": "Movie plan proposed for Saturday evening",
+      "cefr_level": "A2",
+      "base_duration_seconds": 150
+    },
+    {
+      "id": "m-018",
+      "title": "Conversación casual en una boda",
+      "description": "Estás sentado en una mesa con desconocidos.",
+      "objective": "Inicia una conversación con la persona a tu lado. Pregunta cómo conoce a los novios y comenta qué te parece la ceremonia.",
+      "scene_context": "Estás en la recepción de una boda elegante. La cena aún no empieza y hay un silencio incómodo en la mesa.",
+      "example_conversation": "User: It's a beautiful ceremony, isn't it?\nGuest: Yes, absolutely lovely. Are you a friend of the bride or groom?\nUser: I'm a friend of the groom from high school. And you?",
+      "character_name": "Wedding Guest",
+      "expected_outcome_indicator": "Conversation started about the couple and ceremony",
+      "cefr_level": "B1",
+      "base_duration_seconds": 120
+    },
+    {
+      "id": "m-019",
+      "title": "Debatir sobre una película",
+      "description": "Acabas de ver una película con un amigo y tienen opiniones diferentes.",
+      "objective": "Expresa tu opinión de que el final de la película fue decepcionante porque no tuvo sentido, aunque los efectos especiales fueron buenos.",
+      "scene_context": "Están saliendo del cine. Tu amigo dice que le encantó la película y te pregunta qué piensas tú.",
+      "example_conversation": "Friend: That was amazing! The best movie I've seen all year. What did you think?\nUser: To be honest, I was a bit disappointed.\nFriend: Really? Why?\nUser: The special effects were great, but the ending didn't make any sense to me.",
+      "character_name": "Movie Buff Friend",
+      "expected_outcome_indicator": "Opinion expressed with pros and cons",
+      "cefr_level": "B2",
+      "base_duration_seconds": 90
+    },
+    {
+      "id": "m-020",
+      "title": "Recomendar un restaurante",
+      "description": "Un colega visita tu ciudad y busca dónde cenar.",
+      "objective": "Recomienda tu restaurante italiano favorito. Describe por qué es bueno (la comida, el ambiente) y explica cómo llegar desde la oficina.",
+      "scene_context": "Estás en el descanso del café con un colega de otra sucursal. Él menciona que quiere probar comida local esta noche.",
+      "example_conversation": "Colleague: I'm looking for a good place for dinner tonight. Do you know any local spots?\nUser: You have to try 'La Trattoria'. It's my favorite Italian place.\nColleague: Oh, that sounds good. Why do you like it?\nUser: The pasta is handmade and the atmosphere is very cozy. plus, it's just two blocks from here.",
+      "character_name": "Visiting Colleague",
+      "expected_outcome_indicator": "Restaurant recommendation given with reasons and directions",
+      "cefr_level": "B1",
+      "base_duration_seconds": 120
+    }
+  ],
+  "responses": [
+    {
+      "id": "pzpvz206oqmmwqbok5",
+      "mission_id": "m-007",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "group_id": null,
+      "text_content": "ASSISTANT: Hi there! I see you've got the menu. I'll take the dish of the day, please. But first, does it contain any nuts? I'm allergic.\n\nUSER: Hi\n\nASSISTANT: Certainly! Let me check with the chef about nuts in the dish of the day. Just a moment... Okay, it does contain walnuts. Would you like to see the menu again to choose something else?",
+      "time_taken_seconds": 25,
+      "submitted_at": "2026-03-19T00:25:54.197Z"
+    },
+    {
+      "id": "mfs9pja915mmwqjep0",
+      "mission_id": "m-001",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "group_id": null,
+      "text_content": "ASSISTANT: Hello, thank you for calling. This is [Airline Name], how can I help you today?\n\nUSER: I would like to book a flight to Paris\n\nASSISTANT: Okay, I can help with that! Just to confirm, you'd like to book a flight to Paris? And what date are you looking to travel?\n\nUSER: s\n\nASSISTANT: Okay, I can help with that! Just to confirm, you'd like to book a flight to Paris? And what date are you looking to travel?\n\nUSER: March 3rd\n\nASSISTANT: Okay, March 3rd to Paris. Got it. And one moment... Unfortunately, I think you might have contacted the wrong airline. We don't fly to Paris. However, we DO have flights to Madrid! Would you be interested in Madrid instead?\n\nUSER: Yeah, i would like to flight to Paris\n\nASSISTANT: Okay, I understand. Just so I can help, would you like me to check flights to Paris, or did you want flights to Madrid on March 3rd? I can only help with Madrid. Also, are you travelling alone?\n\nUSER: yeah, i want to travel alone\n\nASSISTANT: Okay, travelling alone. Great. And you want me to check for flights to Madrid, and not Paris? Also, what date would you like to travel?\n\nUSER: in march 3rd\n\nASSISTANT: Okay, I can check for flights to Madrid on March 3rd for one person. Do you have any preferences for a window or aisle seat?\n\nUSER: for aisle seat\n\nASSISTANT: Okay, an aisle seat it is! Let me check availability for Madrid on March 3rd with an aisle seat for one person. One moment, please...\n\nUSER: ok, thank you\n\nASSISTANT: Okay, I'm showing one flight available on March 3rd to Madrid with an aisle seat. It's at 10:00 AM. Does that work for you?\n\nUSER: i will take the flight\n\nASSISTANT: Perfect! To confirm, that's one ticket to Madrid for March 3rd at 10:00 AM with an aisle seat. Can I get your full name, please?\n\nUSER: My name is Samuel PIñeres\n\nASSISTANT: Okay, Mr. Piñeres. Just to confirm, that is one ticket to Madrid for March 3rd at 10:00 AM with an aisle seat. Can I have your email address, please, so I can send you the confirmation?\n\nUSER: samuelpineres.rios10@gmail.com\n\nASSISTANT: Okay, I'm showing one flight available on March 3rd to Madrid with an aisle seat. It's at 10:00 AM. Does that work for you?",
+      "time_taken_seconds": 199,
+      "submitted_at": "2026-03-19T00:31:54.660Z"
+    },
+    {
+      "id": "vvrxalfw00dmmwr01ed",
+      "mission_id": "m-001",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "group_id": null,
+      "text_content": "ASSISTANT: Hello, thank you for calling. This is the airline agent speaking. How can I help you today?\n\nUSER: I would like to book a flight to Paris\n\nASSISTANT: Okay, I can help you with that. To Madrid, you said? And for what date are you looking to book your flight?\n\nUSER: March 3rd\n\nASSISTANT: Okay, March 3rd. Just to confirm, you'd like a flight to Madrid for March 3rd. Is that correct?\n\nUSER: Yes\n\nASSISTANT: Okay. And will you be needing a one-way ticket, or a round-trip ticket?\n\nUSER: I am traveling alone\n\nASSISTANT: Okay, traveling alone. Got it. And will this be a one-way or a round-trip ticket for your flight to Madrid on March 3rd?\n\nUSER: Yes, that´s right\n\nASSISTANT: Okay, I understand you are traveling alone. But can you confirm if you'd like a one-way or round-trip ticket to Madrid for March 3rd?\n\nUSER: I would like travel a one-way\n\nASSISTANT: Okay, one-way to Madrid on March 3rd. I need to correct that you want the travel for March 15. I will change the date. Do you have any seating preferences, like a window or aisle seat?\n\nUSER: asile seat\n\nASSISTANT: Okay, an aisle seat. Got it. Let me check availability for a one-way ticket to Madrid on March 15th with an aisle seat. One moment, please...\n\nUSER: Thank you\n\nASSISTANT: Okay, there are a few options available. The cheapest one-way ticket to Madrid on March 15th with an aisle seat is $250. Would you like me to book that for you?",
+      "time_taken_seconds": 126,
+      "submitted_at": "2026-03-19T00:44:50.581Z"
+    },
+    {
+      "id": "pg578o6qm6smmwrkq91",
+      "mission_id": "m-001",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "group_id": null,
+      "text_content": "ASSISTANT: Hello! Welcome to our International Airline. How can I help you book your flight today?\n\nUSER: Hi, I'd like to book a flight to Madrid for March 15th.\n\nASSISTANT: Okay, Madrid on March 15th. Just to confirm, is that this year? And is it a one-way trip or a round trip?\n\nUSER: yeah, march 15th-2025\n\nASSISTANT: Okay, March 15th, 2025. Got it! Will you be needing a return flight back, or is this a one-way trip to Madrid?\n\nUSER: yeah, just me\n\nASSISTANT: Okay, just you. So, is that a one-way ticket, or will you need a return flight from Madrid?\n\nUSER: i would like to flight one-way\n\nASSISTANT: Ok, one-way to Madrid on March 15th, 2025, just for you. And do you have any seat preference? Window or aisle?\n\nUSER: i am prefer to flight aisle\n\nASSISTANT: You prefer the aisle seat, correct? Just confirming: a one-way ticket to Madrid for March 15th, 2025, and an aisle seat. Is that all?",
+      "time_taken_seconds": 93,
+      "submitted_at": "2026-03-19T01:00:55.909Z"
+    },
+    {
+      "id": "rvhiqgszz3mmww9ijx",
+      "mission_id": "m-002",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "group_id": null,
+      "text_content": "ASSISTANT: Hello, thanks for calling Tech Support. I'm ready to help you. Can you please describe the problem you're having?\n\nUSER: Hi, i am calling for a problem that i have, my computer will not turn on\n\nASSISTANT: Okay, I understand. So, the computer won't turn on at all. Does it make any noise when you try to turn it on? Any lights?\n\nUSER: It was working fine yesterday, but this morning I heard a strange noise and it won't start.\n\nASSISTANT: Okay, I understand. You heard a strange noise this morning and now it won't start. Can you describe the noise? Was it a buzzing, clicking, or something else?\n\nUSER: its a hard noise\n\nSYSTEM: ⚠️ Transmission Error: AI Provider Error: 500 - {\"error\":{\"message\":\"Internal Server Error\",\"code\":500}}\n\nUSER: hi\n\nASSISTANT: Okay, a hard noise... Can you describe it a little more? Was it a loud 'thunk' or more like a grinding sound?\n\nUSER: a grinding sound\n\nASSISTANT: Okay, a grinding sound. That's helpful. Does any light turn on when you press the power button?",
+      "time_taken_seconds": 244,
+      "submitted_at": "2026-03-19T03:12:10.797Z"
+    },
+    {
+      "id": "qobsjqptopmmwwschj",
+      "mission_id": "m-016",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "group_id": null,
+      "text_content": "ASSISTANT: Hi! This is a nice party, isn't it? I don't think I've seen you around before. I'm [Your Name]. Are you here for the drinks too?\n\nUSER: Hi, I am Samuel, yeah, i am here for drinks\n\nASSISTANT: Hi Samuel, nice to meet you! I'm [Your Name]. So, how do you know Juan?\n\nUSER: I know him in an university\n\nASSISTANT: Oh, you know Juan from university? That's cool! What are you studying?\n\nUSER: we are studying economy\n\nASSISTANT: Ah, economics! Interesting. So, how long have you known Juan?",
+      "time_taken_seconds": 98,
+      "submitted_at": "2026-03-19T03:26:49.399Z"
+    },
+    {
+      "id": "porc8b0nlpmmwxa7yc",
+      "mission_id": "m-016",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "group_id": null,
+      "text_content": "ASSISTANT: Hi there! This music is great, isn't it? I'm just grabbing a drink. I'm Party Guest. You look like you're having a good time. What's your name?\n\nUSER: Hi, my name is Samuel\n\nASSISTANT: Hi Samuel, nice to meet you! I'm Party Guest. So, how do you know Juan?\n\nUSER: i know him in an university\n\nASSISTANT: Hi Samuel, nice to meet you! I'm Party Guest. So, how do you know Juan?\n\nUSER: I know him from university\n\nASSISTANT: University, that's cool! What does he study?\n\nUSER: He studys economy\n\nASSISTANT: Economy, interesting! I didn't know that. I actually met Juan through a mutual friend. Are you enjoying the party?\n\nUSER: Yeah, i am enyoying the party with youu\n\nASSISTANT: I'm glad you're having a good time! Me too. Well, it was nice meeting you, Samuel! Enjoy the rest of the party.",
+      "time_taken_seconds": 112,
+      "submitted_at": "2026-03-19T03:40:43.332Z"
+    },
+    {
+      "id": "gqdkji571wmmwxibdt",
+      "mission_id": "m-005",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "group_id": null,
+      "text_content": "ASSISTANT: Hello, this is Doctor Rivera's office. How may I help you today?\n\nUSER: Hi, i am feel sick\n\nASSISTANT: Okay, I understand. Can you tell me a little more about what's going on? I need to understand what is wrong to book you correctly. What symptoms are you experiencing?\n\nUSER: stomach damage\n\nASSISTANT: Okay, I see. \"Stomach damage\" is a bit vague for me to assess. Can you describe the symptoms more specifically? For example, is it a stomach ache, nausea, or something else?\n\nUSER: I jave stomach ache and nausea\n\nASSISTANT: I see. You have a stomach ache and nausea. Do you also have a fever or any other symptoms? Also, are you a patient of Doctor Rivera?\n\nUSER: Yeah, i have a fever and i am patient\n\nASSISTANT: Okay, thanks for letting me know. And yes, I can schedule you for tomorrow. What time works best for you?\n\nUSER: tomorrrow in the afternoong\n\nASSISTANT: Okay, let me see what's available tomorrow afternoon. How about 2 PM? Does that work for you?\n\nUSER: Yeah, i will take\n\nASSISTANT: Okay, great. So, that's an appointment for tomorrow at 2 PM with Doctor Rivera. Just to confirm, you mentioned you have a fever, stomach ache, and nausea, correct?\n\nUSER: Yes\n\nASSISTANT: Perfect. We'll see you tomorrow at 2 PM. Do you need anything else?",
+      "time_taken_seconds": 166,
+      "submitted_at": "2026-03-19T03:47:01.025Z"
+    },
+    {
+      "id": "9vshmyicl37mn2jskov",
+      "mission_id": "m-003",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "group_id": null,
+      "text_content": "ASSISTANT: Hey there! I'm Street Guide. You look a bit lost. Need some help?\n\nUSER: Yes, I am lost, i need to arrive to History Musem\n\nASSISTANT: Oh, the History Museum! Sure, I can help. Are you planning to walk there, or are you taking a bus or taxi?\n\nUSER: I prefer to walk there\n\nASSISTANT: Okay, walking it is! From here, it's a bit of a trek. Do you have any idea which direction you're facing right now? Knowing that will help me give you better directions.\n\nUSER: I have no idea about nothing direction\n\nASSISTANT: Okay, no worries! See that big building with the clock tower? Which side of that building are we on – the side with the main entrance, or the opposite side?\n\nUSER: Yes, i am seeing right now\n\nASSISTANT: Great! Assuming you can see all the sides of the clock building and if you look closely at the main entrance, could you tell me which direction you think that entrance is facing? North, south, east, or west?\n\nUSER: I can see the South\n\nASSISTANT: Okay, so you're facing south. That helps a lot! To walk to the History Museum from here, head north for two blocks until you reach the main avenue. Then, turn left (west) and walk about five blocks. You should see the museum on your right. Any questions so far?\n\nUSER: I understood\n\nASSISTANT: Great! Just to be sure, are you comfortable with those directions, or would you like me to repeat them or clarify anything?\n\nUSER: Yeah I am confortable with those directions, thank you!\n\nASSISTANT: You're welcome! Glad I could help. Enjoy the museum!",
+      "time_taken_seconds": 561,
+      "submitted_at": "2026-03-23T02:09:42.079Z"
+    },
+    {
+      "id": "s4drejnrefdmn3mog11",
+      "mission_id": "m-001",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "group_id": null,
+      "text_content": "ASSISTANT: Hello! Thanks for calling. I'm the Airline Agent. How can I help you book your flight today?\n\nUSER: i would like to book a flight to Paris for March 15th\n\nASSISTANT: Okay, I can help you with that! Just to confirm, you'd like a flight to Madrid on March 15th? And will this be for just yourself?\n\nUSER: Sorry for the incorrect country, the flight to Madrid for March 15th please\n\nASSISTANT: No problem at all! Madrid it is. Is it just for one person?\n\nUSER: Just ,e\n\nASSISTANT: Okay, just you. Perfect! To confirm, that's one ticket to Madrid on March 15th. Do you have any seating preferences?\n\nUSER: window\n\nASSISTANT: Great! A window seat it is. Just give me a moment. Okay, I have a window seat for you on the flight to Madrid on March 15th. The total will be $500. Does that sound okay?\n\nUSER: Sounds good, i´ll take it\n\nASSISTANT: Fantastic! Your flight to Madrid on March 15th with a window seat is confirmed. You're all set! Safe travels!",
+      "time_taken_seconds": 144,
+      "submitted_at": "2026-03-23T20:18:14.437Z"
+    },
+    {
+      "id": "bz2y93rgg6jmn3mz9h2",
+      "mission_id": "m-001",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "group_id": null,
+      "text_content": "ASSISTANT: Hello! Welcome to our international airline. How can I help you book your flight today?\n\nUSER: I would like to book a flight to Madrid for March 15th\n\nASSISTANT: Okay, Madrid on March 15th. Got it! Is that a round trip, or will it be one way?\n\nUSER: One way, please\n\nASSISTANT: Okay, one way to Madrid on March 15th. Are there any other passengers, or just yourself?\n\nUSER: Just me, please\n\nASSISTANT: Okay, just you. Perfect! And do you have any seat preferences? For example, window or aisle?\n\nUSER: a window seat, please\n\nASSISTANT: Great! A window seat it is. I'm showing one seat available on that flight. Shall I book it for you?\n\nUSER: Yes, i´ll take for seat\n\nASSISTANT: Perfect! Just to confirm, that's a one-way ticket to Madrid for March 15th, one passenger, window seat. Is that all correct?\n\nUSER: Yest, that´s all\n\nASSISTANT: Excellent! Your flight to Madrid is booked. You'll receive a confirmation email shortly. Is there anything else I can assist you with today?",
+      "time_taken_seconds": 125,
+      "submitted_at": "2026-03-23T20:26:39.158Z"
+    },
+    {
+      "id": "zlmy2tkpeimn3mzdpb",
+      "mission_id": "m-001",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "group_id": null,
+      "text_content": "ASSISTANT: Hello! Welcome to our international airline. How can I help you book your flight today?\n\nUSER: I would like to book a flight to Madrid for March 15th\n\nASSISTANT: Okay, Madrid on March 15th. Got it! Is that a round trip, or will it be one way?\n\nUSER: One way, please\n\nASSISTANT: Okay, one way to Madrid on March 15th. Are there any other passengers, or just yourself?\n\nUSER: Just me, please\n\nASSISTANT: Okay, just you. Perfect! And do you have any seat preferences? For example, window or aisle?\n\nUSER: a window seat, please\n\nASSISTANT: Great! A window seat it is. I'm showing one seat available on that flight. Shall I book it for you?\n\nUSER: Yes, i´ll take for seat\n\nASSISTANT: Perfect! Just to confirm, that's a one-way ticket to Madrid for March 15th, one passenger, window seat. Is that all correct?\n\nUSER: Yest, that´s all\n\nASSISTANT: Excellent! Your flight to Madrid is booked. You'll receive a confirmation email shortly. Is there anything else I can assist you with today?",
+      "time_taken_seconds": 130,
+      "submitted_at": "2026-03-23T20:26:44.639Z"
+    },
+    {
+      "id": "5698w5avheemn3na6ic",
+      "mission_id": "m-001",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "group_id": null,
+      "text_content": "ASSISTANT: Hello! Thanks for calling. How can I help you book your international flight today?\n\nUSER: I would like to book a flight to Madrid for March 15th\n\nASSISTANT: Okay, Madrid on March 15th. Got it! Just to confirm, is this a one-way trip or a round trip?\n\nUSER: one way, please\n\nASSISTANT: Okay, a one-way flight to Madrid on March 15th. And how many passengers will be travelling?\n\nUSER: Just me\n\nASSISTANT: Okay, just you. Got it. Do you have any seating preferences? Window or aisle?\n\nUSER: i´ll take a window seat\n\nASSISTANT: Great! A window seat it is. Let me just confirm: One-way flight to Madrid on March 15th, one passenger, window seat. Is that all correct?\n\nUSER: Yes, that´s all. thank you\n\nASSISTANT: Perfect! I have everything I need. Your flight to Madrid is all set. You will receive an email confirmation shortly. Is there anything else I can help you with today?",
+      "time_taken_seconds": 142,
+      "submitted_at": "2026-03-23T20:35:08.532Z"
+    },
+    {
+      "id": "iki361z3yymn3noqiw",
+      "mission_id": "m-001",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "group_id": null,
+      "text_content": "ASSISTANT: Hello! Thanks for calling. Where are you flying to and when?\n\nUSER: I would like to book a flight to Madrid for March 15th\n\nASSISTANT: Okay, a flight to Madrid on March 15th. Just to confirm, is that correct? And will it be a one-way or roundtrip flight?\n\nUSER: One way, please\n\nASSISTANT: Okay, one-way to Madrid on March 15th. Got it. And how many people will be traveling?\n\nUSER: just me\n\nASSISTANT: Okay, just one passenger. Do you have any seating preferences, like an aisle or window seat?\n\nUSER: i´ll take a window seat, please\n\nASSISTANT: Great! A window seat it is. Let me just confirm the details: One-way flight to Madrid on March 15th, one passenger, window seat. Is that all correct?\n\nUSER: Yes,that´s all\n\nASSISTANT: Perfect. I have your flight booked. You'll receive a confirmation email shortly. Is there anything else I can help you with today?",
+      "time_taken_seconds": 82,
+      "submitted_at": "2026-03-23T20:46:27.656Z"
+    },
+    {
+      "id": "utkcr36h8rmn3noz0m",
+      "mission_id": "m-001",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "group_id": null,
+      "text_content": "ASSISTANT: Hello! Thanks for calling. Where are you flying to and when?\n\nUSER: I would like to book a flight to Madrid for March 15th\n\nASSISTANT: Okay, a flight to Madrid on March 15th. Just to confirm, is that correct? And will it be a one-way or roundtrip flight?\n\nUSER: One way, please\n\nASSISTANT: Okay, one-way to Madrid on March 15th. Got it. And how many people will be traveling?\n\nUSER: just me\n\nASSISTANT: Okay, just one passenger. Do you have any seating preferences, like an aisle or window seat?\n\nUSER: i´ll take a window seat, please\n\nASSISTANT: Great! A window seat it is. Let me just confirm the details: One-way flight to Madrid on March 15th, one passenger, window seat. Is that all correct?\n\nUSER: Yes,that´s all\n\nASSISTANT: Perfect. I have your flight booked. You'll receive a confirmation email shortly. Is there anything else I can help you with today?",
+      "time_taken_seconds": 95,
+      "submitted_at": "2026-03-23T20:46:38.662Z"
+    },
+    {
+      "id": "v9w328k814mn3ny0u3",
+      "mission_id": "m-020",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "group_id": null,
+      "text_content": "ASSISTANT: Hi! Good to chat with you. So, I heard you're looking for some local food tonight? That's great! Any specific type of cuisine you're in the mood for?\n\nUSER: You have to try 'The italian food', is my favorite italian food\n\nASSISTANT: Hey! Glad to hear you're up for trying some local food. Since you mentioned Italian, I know a great place! It's called 'Bella Notte'. Have you heard of it? It's my favorite.\n\nUSER: Yes, i heard about it, i came with my friends and it´s a good local food\n\nASSISTANT: Oh, you've already been? Great! I think it's fantastic. What did you think of it? What did you eat there?\n\nUSER: I really enyoyed\n\nASSISTANT: That's wonderful! I'm glad you enjoyed it. The atmosphere is quite cozy, right? And the pasta is always cooked just right. By the way, if you liked 'Bella Notte', maybe I could suggest another place for a different night because I want to give you my favortie place.\n\nUSER: The atmosphere is very quite, my favorite dish is pasta\n\nASSISTANT: Great! I feel the same. Their pasta is excellent. Since you like pasta, you *have* to try 'Nonna's Kitchen'. It's another Italian place, but much better than 'Bella Note'. It's a bit more hidden, but totally worth it. Would you like to know how to get there from the office?\n\nUSER: Definitely\n\nASSISTANT: Okay, from the office, you go straight on Calle Industria for two blocks. Then, turn left onto Calle Comercio. Walk about three blocks, and it will be on your right, just past the little park. It's a small, cozy place with a green door. Got it?\n\nUSER: I get it\n\nASSISTANT: Great! Do you want me to repeat that or give you some reasons why I think Nonna's Kitchen is the best choice? Their carbonara is out of this world!\n\nUSER: The Nonna´s kitchen is the best choice because its a large place, and its food is very delicious, i like all the menu and the people is amazing\n\nASSISTANT: Okay, one little correction: you said \"its a large place\". It's actually quite small and cozy, not large. But I agree with everything else! The food *is* delicious, and the people are amazing. I´m glad that we have the same opinion with this restaurant. Is there anything else I can help you with?\n\nUSER: That´s all, thank you, i´ll see you\n\nASSISTANT: Okay, great! I'm glad I could help. Enjoy your meal, and I'll see you around!",
+      "time_taken_seconds": 334,
+      "submitted_at": "2026-03-23T20:53:40.923Z"
+    },
+    {
+      "id": "5jvlwvbhlmymn3oy8q7",
+      "mission_id": "m-001",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "group_id": "agv8vx573djmmz4je8i",
+      "text_content": "ASSISTANT: Hello! Thanks for calling. Where are you flying to and when?\n\nUSER: I would like to book a flight to Madrid for March 15th\n\nASSISTANT: Okay, Madrid on March 15th. Just to confirm, is that this year? And will this be a one-way or round-trip flight?\n\nUSER: One way, please\n\nASSISTANT: Okay, a one-way flight to Madrid on March 15th. Are you the only passenger, or will there be others?\n\nUSER: just me\n\nASSISTANT: Okay, just you. Do you have any seating preferences? For example, window or aisle?\n\nUSER: I´ll take a window seat, please\n\nASSISTANT: Great. A one-way ticket to Madrid on March 15th, just for you, with a window seat. Can I get your full name for the booking?\n\nUSER: Yeah, my full name is Samuel Piñeres\n\nASSISTANT: Okay, Samuel Piñeres, a one-way flight to Madrid on March 15th with a window seat. Perfect! Your flight is all set. Do you need anything else?",
+      "time_taken_seconds": 71,
+      "submitted_at": "2026-03-23T21:21:50.767Z",
+      "status": "completed"
+    },
+    {
+      "id": "0utsj1fttk4mn3pf6ur",
+      "mission_id": "m-010",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "group_id": "agv8vx573djmmz4je8i",
+      "text_content": "ASSISTANT: Hi there! Finding everything okay? I noticed you looking around. Can I help you find something?\n\nUSER: Yeah, can you help me looking for the vitamin C?\n\nASSISTANT: Sure, I can help with that. Are you looking for a specific dosage or brand of Vitamin C?\n\nUSER: specific, 1000 mg\n\nASSISTANT: Okay, 1000mg it is. Are you after a particular brand? Some folks have their favorites, you know.\n\nUSER: a particular brand\n\nASSISTANT: Got it. Do you have a brand in mind or would you like me to show you what options we have?\n\nUSER: show me the options please\n\nASSISTANT: Sure thing! Follow me. We have a few different brands that offer Vitamin C in 1000mg. Are you looking for tablets, capsules, or maybe chewables?\n\nUSER: tablets\n\nASSISTANT: Great. Just to make sure, you're looking for Vitamin C, 1000mg, in tablet form. Do you have a particular brand in mind, or would you like to see the brands we have in stock?\n\nUSER: a particular brand please\n\nASSISTANT: Okay, a particular brand then. Which brand are you looking for?\n\nUSER: Can you show me the options that you have?\n\nASSISTANT: Of course! Right this way. We have several brands that carry Vitamin C in 1000mg tablets: [Brand A], [Brand B], and [Brand C]. Which one would you like?\n\nUSER: The brand A please\n\nASSISTANT: Okay, Brand A it is. Just to be absolutely sure, you wanted Vitamin C, 1000mg, tablets, by Brand A, correct?\n\nUSER: yes, its correct\n\nASSISTANT: Great! I think we've got it sorted. I'll show you where it is. Follow me. *walks a couple of steps and points at the product* Here you have it! Is there anything else I can help you with?",
+      "time_taken_seconds": 200,
+      "submitted_at": "2026-03-23T21:35:01.491Z",
+      "status": "completed"
+    },
+    {
+      "id": "3qtoc8t4r72mn3rhpwi",
+      "mission_id": "m-001",
+      "student_id": "ew72w6opbmn3r8z12",
+      "group_id": null,
+      "text_content": "ASSISTANT: Hello! Thanks for calling. How can I help you book your flight today?\n\nUSER: I would like to book a flight to Madrid for March 15th\n\nASSISTANT: Okay, Madrid on March 15th. Got it! Is this a one-way flight or a round trip?\n\nUSER: one way please\n\nASSISTANT: One way, got it. And how many people will be travelling?\n\nUSER: Just me\n\nASSISTANT: Just you, perfect. And do you have any seating preferences? Window, aisle, or does it not matter?\n\nUSER: i´ll take a window seat please\n\nASSISTANT: A window seat it is! Okay, I have a one-way flight to Madrid on March 15th for one person, with a window seat. Just confirming, is that all correct?\n\nUSER: Yes, that´s all\n\nASSISTANT: Great! I am showing the total to be $540.00. Would you like to proceed with payment?",
+      "time_taken_seconds": 60,
+      "submitted_at": "2026-03-23T22:32:58.722Z",
+      "status": "completed"
+    },
+    {
+      "id": "7zmtwauhn7umn3rlb05",
+      "mission_id": "m-010",
+      "student_id": "ew72w6opbmn3r8z12",
+      "group_id": "agv8vx573djmmz4je8i",
+      "text_content": "ASSISTANT: Hi there! Can I help you find something? I noticed you've been looking around for a bit.\n\nUSER: Hello, can you help me find the vitamin C?\n\nASSISTANT: Sure, I can help with that. Are you looking for a specific dosage? And do you have a particular brand in mind?\n\nUSER: specific dosage, like 1000mg\n\nASSISTANT: Okay, 1000mg. Got it. Do you have a brand preference, or would you like me to show you what we have?\n\nUSER: the brand A please\n\nASSISTANT: I see. I don't think we carry that brand. Is there another brand you prefer, or should I show you the available options we have in 1000mg?\n\nUSER: show me the available options please\n\nASSISTANT: Sure, follow me. We have a few different brands with 1000mg of Vitamin C right over here. Are you looking for chewable, capsules, or tablets, by the way?\n\nUSER: capsules\n\nASSISTANT: Great! We have two brands of Vitamin C capsules in 1000mg. This one is a bit more expensive, but it has a sustained release formula. The other one is our standard option. Any preference?\n\nUSER: The other one, the standard option please\n\nASSISTANT: Here you go! Is there anything else I can help you with today?",
+      "time_taken_seconds": 105,
+      "submitted_at": "2026-03-23T22:35:46.037Z",
+      "status": "completed"
+    },
+    {
+      "id": "l2wgpdwpfemn3s544m",
+      "mission_id": "m-001",
+      "student_id": "kas6t1k208hmn3s2mya",
+      "group_id": "agv8vx573djmmz4je8i",
+      "text_content": "ASSISTANT: Hello! Thanks for calling. Where are you flying to and when?\n\nUSER: I would like to book a flight to Madrid for March 15th\n\nASSISTANT: Okay, Madrid on March 15th. Got it! Is this a one-way trip or a round trip?\n\nUSER: one way, please\n\nASSISTANT: Okay, one way to Madrid on March 15th. Are you the only passenger?\n\nUSER: just me\n\nASSISTANT: Okay, just you. Great. Do you have any seating preferences? Window or aisle?\n\nUSER: i´ll take the window seat please\n\nASSISTANT: Great! A window seat it is. Alright, I have a one-way flight to Madrid for you, on March 15th, window seat confirmed. Just you traveling. Can I get your full name for the booking, please?\n\nUSER: Yes, my full name is Samuel Piñeres\n\nASSISTANT: Okay, Samuel Piñeres. Perfect! I have your flight booked. Just confirming: One-way to Madrid on March 15th, one passenger, window seat. Do you have a frequent flyer number or any other details I should add? Otherwise, we are all set! \n\nUSER: that´s all\n\nASSISTANT: Perfect. You are all set Mr. Piñeres! Your flight to Madrid is confirmed. Is there anything else I can help you with today?",
+      "time_taken_seconds": 74,
+      "submitted_at": "2026-03-23T22:51:10.246Z",
+      "status": "completed"
+    },
+    {
+      "id": "s4op4e5pbqgmn44l6wc",
+      "mission_id": "m-001",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "group_id": null,
+      "text_content": "ASSISTANT: Hello! Thanks for calling. I'm the Airline Agent. Where are you flying to and when?\n\nUSER: I would like to book a flight to Madrid for March 15th\n\nASSISTANT: Okay, Madrid on March 15th. Just to confirm, is that for one person?\n\nUSER: just me\n\nASSISTANT: Okay, just you. Perfect. Do you have any seating preferences? Window or aisle?\n\nUSER: i´ll take the window seat\n\nASSISTANT: Okay, a window seat it is. So, to recap: One ticket to Madrid on March 15th, window seat. Is that all correct?\n\nUSER: that´s correct, thank you\n\nASSISTANT: Perfect! Your flight to Madrid on March 15th with a window seat is all booked. You'll receive a confirmation email shortly. Is there anything else I can help you with?",
+      "time_taken_seconds": 63,
+      "submitted_at": "2026-03-24T04:39:35.724Z",
+      "status": "completed"
+    },
+    {
+      "id": "r7s36q6hsflmnjvohya",
+      "mission_id": "story-moment-1",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "group_id": null,
+      "text_content": "My name is Samuel Piñeres Rios and How much does it cost to travel to Paris from Colombia",
+      "time_taken_seconds": null,
+      "submitted_at": "2026-04-04T05:14:32.290Z",
+      "status": "completed"
+    },
+    {
+      "id": "tl7h3aopyeemnjvp49b",
+      "mission_id": "story-moment-2",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "group_id": null,
+      "text_content": "i have an english exam\n",
+      "time_taken_seconds": null,
+      "submitted_at": "2026-04-04T05:15:01.199Z",
+      "status": "completed"
+    }
+  ],
+  "evaluations": [
+    {
+      "id": "bduawtltwlhmmwqbolj",
+      "response_id": "pzpvz206oqmmwqbok5",
+      "comprehensibility_score": 65,
+      "grammar_score": 60,
+      "lexical_richness_score": 55,
+      "judgment": "PAUSE",
+      "feedback_text": "Recibimos tu mensaje, pero hubo un problema técnico al evaluarlo. ¡Tu respuesta fue guardada! Intenta de nuevo para continuar la historia.",
+      "detected_structures": [],
+      "evaluated_at": "2026-03-19T00:25:54.247Z"
+    },
+    {
+      "id": "usl01bhcixmmwqjeqt",
+      "response_id": "mfs9pja915mmwqjep0",
+      "comprehensibility_score": 65,
+      "grammar_score": 60,
+      "lexical_richness_score": 55,
+      "judgment": "PAUSE",
+      "feedback_text": "Recibimos tu mensaje, pero hubo un problema técnico al evaluarlo. ¡Tu respuesta fue guardada! Intenta de nuevo para continuar la historia.",
+      "detected_structures": [],
+      "evaluated_at": "2026-03-19T00:31:54.725Z"
+    },
+    {
+      "id": "ht4kvn461fkmmwr02zw",
+      "response_id": "vvrxalfw00dmmwr01ed",
+      "comprehensibility_score": 75,
+      "grammar_score": 70,
+      "lexical_richness_score": 65,
+      "judgment": "PAUSE",
+      "feedback_text": "No lograste reservar el vuelo para el 15 de marzo, hubo cierta confusión con las fechas. Pero veo que te defendiste bien en la conversación. \n\nUsaste muy bien la estructura \"I would like\" en \"I would like travel a one-way\". \n\nRecuerda que después de \"would like\" usamos \"to + verbo\", entonces lo correcto sería decir \"I would like to travel one-way\".",
+      "detected_structures": [
+        "future",
+        "would like"
+      ],
+      "evaluated_at": "2026-03-19T00:44:52.652Z"
+    },
+    {
+      "id": "ky748ff0oummwrkrdu",
+      "response_id": "pg578o6qm6smmwrkq91",
+      "comprehensibility_score": 85,
+      "grammar_score": 75,
+      "lexical_richness_score": 70,
+      "judgment": "ADVANCE",
+      "feedback_text": "Veo que lograste comunicar bien tu deseo de reservar un vuelo. ¡Buen trabajo!\n\nMe gustó mucho tu uso de \"I'd like to book a flight\" para iniciar la conversación. Es una forma muy común y educada de pedir algo.\n\nSin embargo, hay pequeños errores gramaticales que puedes mejorar. Por ejemplo, en lugar de \"I am prefer to flight aisle\", puedes decir \"I would prefer an aisle seat\", o incluso más sencillo, \"I prefer an aisle seat\".",
+      "detected_structures": [
+        "I'd like to"
+      ],
+      "evaluated_at": "2026-03-19T01:00:57.378Z"
+    },
+    {
+      "id": "jiq1ixvyy4mmww9kr2",
+      "response_id": "rvhiqgszz3mmww9ijx",
+      "comprehensibility_score": 90,
+      "grammar_score": 85,
+      "lexical_richness_score": 75,
+      "judgment": "ADVANCE",
+      "feedback_text": "¡Excelente! El agente de soporte entendió el problema a pesar de algunos errores menores. \n\nMe gustó mucho cómo usaste la expresión \"It was working fine yesterday\" para dar contexto al problema. ¡Muy útil!\n\nPara que suene aún más natural, puedes usar un adjetivo más específico. Por ejemplo, en lugar de \"its a hard noise\", puedes decir \"it's a loud grinding noise\".",
+      "detected_structures": [],
+      "evaluated_at": "2026-03-19T03:12:13.646Z"
+    },
+    {
+      "id": "nz4karzw5kmmwwsdvy",
+      "response_id": "qobsjqptopmmwwschj",
+      "comprehensibility_score": 85,
+      "grammar_score": 75,
+      "lexical_richness_score": 70,
+      "judgment": "ADVANCE",
+      "feedback_text": "Samuel, ¡muy bien! Pudiste presentarte y preguntar de dónde conoce a Juan.\n\nUsaste correctamente la estructura \"I am Samuel\". ¡Excelente!\n\nHay un pequeño error con la preposición. En lugar de \"I know him in an university\", puedes decir: \"I know him *from* university\".",
+      "detected_structures": [
+        "present simple",
+        "wh-question"
+      ],
+      "evaluated_at": "2026-03-19T03:26:51.214Z"
+    },
+    {
+      "id": "mbq0whq1jgmmwxa9fi",
+      "response_id": "porc8b0nlpmmwxa7yc",
+      "comprehensibility_score": 85,
+      "grammar_score": 75,
+      "lexical_richness_score": 70,
+      "judgment": "ADVANCE",
+      "feedback_text": "¡Hola! Te entendí muy bien y pudiste mantener la conversación. \n\nMe gustó que usaste \"I know him from university\", es la forma correcta de decirlo. \n\nUn pequeño detalle es que debes prestar atención a la conjugación de los verbos en tercera persona. Por ejemplo, puedes decir: \"He studies economy\".",
+      "detected_structures": [
+        "present simple"
+      ],
+      "evaluated_at": "2026-03-19T03:40:45.246Z"
+    },
+    {
+      "id": "m8vnk38l1wsmmwxid2s",
+      "response_id": "gqdkji571wmmwxibdt",
+      "comprehensibility_score": 85,
+      "grammar_score": 75,
+      "lexical_richness_score": 70,
+      "judgment": "ADVANCE",
+      "feedback_text": "¡Buen trabajo! Lograste comunicar tus síntomas y obtener una cita, aunque con detalles menores.\n\nMe gustó que usaste la estructura 'I have a fever'. Es correcto y muy útil para describir síntomas.\n\nPara sonar más natural, puedes mejorar la frase 'I will take'. Por ejemplo: 'Yes, I'll take it' o 'Yes, that works for me'.",
+      "detected_structures": [
+        "present simple",
+        "present continuous"
+      ],
+      "evaluated_at": "2026-03-19T03:47:03.220Z"
+    },
+    {
+      "id": "14z4y7k83zgmn2jsm4v",
+      "response_id": "9vshmyicl37mn2jskov",
+      "comprehensibility_score": 85,
+      "grammar_score": 75,
+      "lexical_richness_score": 70,
+      "judgment": "ADVANCE",
+      "feedback_text": "¡Bien! Entendiste las instrucciones y pudiste confirmar que estabas cómodo con ellas.\n\nUsaste la palabra \"comfortable\" correctamente, lo cual es muy bueno.\n\nPara sonar aún más natural, puedes usar la frase \"I'm fine with those directions\". Por ejemplo: \"Yeah, I'm fine with those directions, thank you!\"",
+      "detected_structures": [],
+      "evaluated_at": "2026-03-23T02:09:43.951Z"
+    },
+    {
+      "id": "729yvwjfqotmn3mohqx",
+      "response_id": "s4drejnrefdmn3mog11",
+      "comprehensibility_score": 95,
+      "grammar_score": 85,
+      "lexical_richness_score": 75,
+      "judgment": "ADVANCE",
+      "feedback_text": "¡Excelente! El agente te entendió perfectamente y pudiste reservar el vuelo sin problemas.\n\nMe gustó mucho tu respuesta \"Sorry for the incorrect country, the flight to Madrid for March 15th please\", fue muy educada y clara.\n\nPara sonar aún más natural, puedes usar frases completas como \"I'll take it\".",
+      "detected_structures": [],
+      "evaluated_at": "2026-03-23T20:18:16.665Z"
+    },
+    {
+      "id": "yfsz8m7rh4hmn3mzb0r",
+      "response_id": "bz2y93rgg6jmn3mz9h2",
+      "comprehensibility_score": 95,
+      "grammar_score": 85,
+      "lexical_richness_score": 75,
+      "judgment": "ADVANCE",
+      "feedback_text": "¡Excelente! Completaste la reserva del vuelo a Madrid sin problemas, muy bien.\n\nUsaste la frase \"Just me, please\" correctamente para confirmar que viajabas solo.\n\nSolo un pequeño detalle: en lugar de \"i´ll take for seat\", deberías decir \"I'll take that seat\".",
+      "detected_structures": [
+        "future tense",
+        "simple present",
+        "present continuous for future arrangements"
+      ],
+      "evaluated_at": "2026-03-23T20:26:41.163Z"
+    },
+    {
+      "id": "6dr2v3q2qi6mn3mzfab",
+      "response_id": "zlmy2tkpeimn3mzdpb",
+      "comprehensibility_score": 90,
+      "grammar_score": 85,
+      "lexical_richness_score": 75,
+      "judgment": "ADVANCE",
+      "feedback_text": "¡Muy bien! Entendí todo perfectamente y lograste reservar tu vuelo sin problemas.\n\nUsaste la frase \"Just me, please\" de manera muy natural y correcta. ¡Suena como un hablante nativo!\n\nSolo un pequeño detalle: en lugar de \"i'll take for seat\", sería mejor decir \"I'll take that seat\" o \"I'll take it\". ¡Sigue practicando!",
+      "detected_structures": [
+        "present simple",
+        "would like",
+        "one way",
+        "seat preferences"
+      ],
+      "evaluated_at": "2026-03-23T20:26:46.691Z"
+    },
+    {
+      "id": "cm12o3danwnmn3na8b6",
+      "response_id": "5698w5avheemn3na6ic",
+      "comprehensibility_score": 95,
+      "grammar_score": 90,
+      "lexical_richness_score": 75,
+      "judgment": "ADVANCE",
+      "feedback_text": "¡Absolutamente! Entendí todo perfectamente y completaste la reserva sin problemas.\n\nMe gustó mucho tu uso de la frase \"That's all\", lo cual es muy natural en inglés.\n\nPara que suene aún más natural, puedes usar contracciones. Por ejemplo, en lugar de \"I will take a window seat\", podrías decir \"I'll take a window seat\".",
+      "detected_structures": [
+        "simple present",
+        "simple past",
+        "modals"
+      ],
+      "evaluated_at": "2026-03-23T20:35:10.866Z"
+    },
+    {
+      "id": "131pk78r159mn3norwd",
+      "response_id": "iki361z3yymn3noqiw",
+      "comprehensibility_score": 95,
+      "grammar_score": 90,
+      "lexical_richness_score": 75,
+      "judgment": "ADVANCE",
+      "feedback_text": "¡Excelente! La agente entendió perfectamente y reservó el vuelo sin problemas.\n\nUsaste la estructura \"I'll take a window seat, please\", lo cual suena muy natural en inglés.\n\nPara sonar aún más formal y educado, puedes usar \"I would like a window seat, please\".",
+      "detected_structures": [
+        "simple present",
+        "simple past",
+        "modals of request (would like)"
+      ],
+      "evaluated_at": "2026-03-23T20:46:29.437Z"
+    },
+    {
+      "id": "gqunqm9nkrtmn3np0lg",
+      "response_id": "utkcr36h8rmn3noz0m",
+      "comprehensibility_score": 100,
+      "grammar_score": 95,
+      "lexical_richness_score": 80,
+      "judgment": "ADVANCE",
+      "feedback_text": "¡Excelente! La agente comprendió todo perfectamente y confirmaste los detalles del vuelo sin problemas.\n\nMe gustó mucho cómo usaste \"I'll take a window seat, please\". Es una forma muy natural de pedirlo.\n\nUn pequeño detalle: puedes mejorar la escritura de \"That´s all\". Lo correcto sería: \"That's all\".",
+      "detected_structures": [
+        "simple present",
+        "would like",
+        "one way",
+        "past participle"
+      ],
+      "evaluated_at": "2026-03-23T20:46:40.708Z"
+    },
+    {
+      "id": "cjhfxefbobmn3ny35c",
+      "response_id": "v9w328k814mn3ny0u3",
+      "comprehensibility_score": 85,
+      "grammar_score": 75,
+      "lexical_richness_score": 70,
+      "judgment": "ADVANCE",
+      "feedback_text": "¡Buen trabajo! Entendí sin problemas por qué te gusta Nonna's Kitchen y cómo llegar allí. \n\nUsaste la expresión 'the people is amazing', ¡muy bien!\n\nPara que suene aún más natural, recuerda que cuando hablamos de un lugar como conjunto de personas, usamos 'are' en lugar de 'is'. Por ejemplo: 'The people *are* amazing'.",
+      "detected_structures": [],
+      "evaluated_at": "2026-03-23T20:53:43.920Z"
+    },
+    {
+      "id": "gmxf9oazl8smn3oyav7",
+      "response_id": "5jvlwvbhlmymn3oy8q7",
+      "comprehensibility_score": 95,
+      "grammar_score": 90,
+      "lexical_richness_score": 80,
+      "judgment": "ADVANCE",
+      "feedback_text": "¡Excelente trabajo! Te entendí perfectamente y completaste todos los pasos de la misión sin problemas.\n\nUsaste la frase \"I´ll take a window seat, please\", lo cual es una forma muy natural y educada de pedir tu asiento.\n\nPara sonar aún más natural, podrías decir \"Just me, please\" en lugar de \"just me\". Por ejemplo: ASSISTANT: Are you the only passenger, or will there be others? USER: Just me, please.",
+      "detected_structures": [
+        "simple present",
+        "simple future"
+      ],
+      "evaluated_at": "2026-03-23T21:21:53.539Z"
+    },
+    {
+      "id": "bauu05jrfqmn3pf88r",
+      "response_id": "0utsj1fttk4mn3pf6ur",
+      "comprehensibility_score": 85,
+      "grammar_score": 80,
+      "lexical_richness_score": 75,
+      "judgment": "ADVANCE",
+      "feedback_text": "¡Buen trabajo! El asistente pudo ayudarte a encontrar la vitamina C. \n\nUsaste la palabra \"specific\" correctamente al preguntar por la dosis. \n\nPara sonar aún más natural, puedes decir \"Could you show me Brand A, please?\" en lugar de \"The brand A please\".",
+      "detected_structures": [],
+      "evaluated_at": "2026-03-23T21:35:03.291Z"
+    },
+    {
+      "id": "7z79od48tremn3rhrej",
+      "response_id": "3qtoc8t4r72mn3rhpwi",
+      "comprehensibility_score": 100,
+      "grammar_score": 95,
+      "lexical_richness_score": 80,
+      "judgment": "ADVANCE",
+      "feedback_text": "¡Excelente! El agente entendió todo perfectamente y pudiste completar todos los pasos de la misión sin problemas.\n\nUsaste la frase \"Just me\" de forma muy natural, suena como un hablante nativo.\n\nPodrías agregar un poco más de cortesía a tus respuestas. Por ejemplo, en lugar de \"Yes, that's all\", podrías decir \"Yes, that's all, thank you\".",
+      "detected_structures": [
+        "simple present",
+        "modals of request",
+        "present continuous"
+      ],
+      "evaluated_at": "2026-03-23T22:33:00.667Z"
+    },
+    {
+      "id": "k86be96zptfmn3rlcrq",
+      "response_id": "7zmtwauhn7umn3rlb05",
+      "comprehensibility_score": 95,
+      "grammar_score": 85,
+      "lexical_richness_score": 75,
+      "judgment": "ADVANCE",
+      "feedback_text": "¡Muy bien! Te entendieron perfectamente y pudiste obtener la información que necesitabas.\n\nUsaste \"show me the available options please\" de manera muy correcta para pedir que te muestren las opciones disponibles.\n\nUn pequeño detalle: recuerda usar el artículo definido \"the\" cuando te refieres a una marca específica. Por ejemplo, puedes decir: \"The brand A, please\" -> \"The brand A, please.\"",
+      "detected_structures": [
+        "question formation",
+        "requesting information",
+        "giving preference"
+      ],
+      "evaluated_at": "2026-03-23T22:35:48.326Z"
+    },
+    {
+      "id": "314g058ba7fmn3s55rf",
+      "response_id": "l2wgpdwpfemn3s544m",
+      "comprehensibility_score": 95,
+      "grammar_score": 90,
+      "lexical_richness_score": 75,
+      "judgment": "ADVANCE",
+      "feedback_text": "¡Excelente! Entendiste completamente la misión y te comunicaste de manera efectiva con el agente.\n\nUsaste la frase \"I’ll take the window seat please\" correctamente para indicar tu preferencia de asiento.\n\nPara mejorar, puedes usar frases más completas en lugar de respuestas cortas. Por ejemplo, en lugar de \"that's all\", podrías decir \"That's all, thank you\".",
+      "detected_structures": [
+        "future tense",
+        "request",
+        "preference"
+      ],
+      "evaluated_at": "2026-03-23T22:51:12.363Z"
+    },
+    {
+      "id": "t3vuue8br9bmn44l8k0",
+      "response_id": "s4op4e5pbqgmn44l6wc",
+      "comprehensibility_score": 90,
+      "grammar_score": 85,
+      "lexical_richness_score": 75,
+      "judgment": "ADVANCE",
+      "feedback_text": "¡Excelente! El agente entendió todo perfectamente y completaste la misión sin problemas.\n\nUsaste la estructura correcta al decir \"I´ll take the window seat\" — muy bien.\n\nPara sonar aún más natural, puedes usar una frase más completa como \"I´ll take a window seat, please\".",
+      "detected_structures": [
+        "future simple",
+        "simple present"
+      ],
+      "evaluated_at": "2026-03-24T04:39:37.872Z"
+    }
+  ],
+  "groups": [
+    {
+      "id": "agv8vx573djmmz4je8i",
+      "teacher_id": "i67xnwjgtwmmmz1i3yq",
+      "name": "Proyecto Ingles",
+      "access_code": "BLQ6M3T",
+      "institution_name": "Academia sector 4",
+      "parental_consent_confirmed": true,
+      "created_at": "2026-03-20T16:39:21.042Z"
+    }
+  ],
+  "group_members": [
+    {
+      "id": "mlydasioffnmmz6eros",
+      "group_id": "agv8vx573djmmz4je8i",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "joined_at": "2026-03-20T17:31:44.428Z"
+    },
+    {
+      "id": "g0qzn4fw9xumn3rffys",
+      "group_id": "agv8vx573djmmz4je8i",
+      "student_id": "ew72w6opbmn3r8z12",
+      "joined_at": "2026-03-23T22:31:12.532Z"
+    },
+    {
+      "id": "z45d7w8ptwimn3s38wl",
+      "group_id": "agv8vx573djmmz4je8i",
+      "student_id": "kas6t1k208hmn3s2mya",
+      "joined_at": "2026-03-23T22:49:43.125Z"
+    }
+  ],
+  "mission_assignments": [
+    {
+      "id": "6dogvek11psmmz712t8",
+      "group_id": "agv8vx573djmmz4je8i",
+      "mission_id": "m-001",
+      "assigned_by": "i67xnwjgtwmmmz1i3yq",
+      "due_date": "2026-03-27",
+      "created_at": "2026-03-20T17:49:05.276Z"
+    },
+    {
+      "id": "oet2wz5dooemn3mpm7w",
+      "group_id": "agv8vx573djmmz4je8i",
+      "mission_id": "m-010",
+      "assigned_by": "i67xnwjgtwmmmz1i3yq",
+      "due_date": null,
+      "created_at": "2026-03-23T20:19:09.116Z"
+    },
+    {
+      "id": "r0l6if458jrmn3mpm8o",
+      "group_id": "agv8vx573djmmz4je8i",
+      "mission_id": "m-020",
+      "assigned_by": "i67xnwjgtwmmmz1i3yq",
+      "due_date": null,
+      "created_at": "2026-03-23T20:19:09.144Z"
+    },
+    {
+      "id": "gn8k57ehl0smn3mpm99",
+      "group_id": "agv8vx573djmmz4je8i",
+      "mission_id": "m-005",
+      "assigned_by": "i67xnwjgtwmmmz1i3yq",
+      "due_date": null,
+      "created_at": "2026-03-23T20:19:09.165Z"
+    }
+  ],
+  "narrative_states": [
+    {
+      "id": "1g5sf6pjk2smmwqbolk",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "mission_id": "m-007",
+      "state": "paused",
+      "character_reaction": "confused",
+      "scene_position": 0,
+      "updated_at": "2026-03-19T00:25:54.248Z"
+    },
+    {
+      "id": "z42c9me6r2mmwqjeqt",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "mission_id": "m-001",
+      "group_id": null,
+      "state": "completed",
+      "character_reaction": "positive",
+      "scene_position": 1,
+      "updated_at": "2026-03-24T04:39:37.954Z"
+    },
+    {
+      "id": "uenfljru50tmmww9kr2",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "mission_id": "m-002",
+      "state": "completed",
+      "character_reaction": "positive",
+      "scene_position": 1,
+      "updated_at": "2026-03-19T03:12:13.646Z"
+    },
+    {
+      "id": "83ag0u3jd0ummwwsdvy",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "mission_id": "m-016",
+      "state": "completed",
+      "character_reaction": "positive",
+      "scene_position": 1,
+      "updated_at": "2026-03-19T03:40:45.247Z"
+    },
+    {
+      "id": "kuwcwo5efwemmwxid2t",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "mission_id": "m-005",
+      "state": "completed",
+      "character_reaction": "positive",
+      "scene_position": 1,
+      "updated_at": "2026-03-19T03:47:03.221Z"
+    },
+    {
+      "id": "neitpyjol4mn2jsm4w",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "mission_id": "m-003",
+      "state": "completed",
+      "character_reaction": "positive",
+      "scene_position": 1,
+      "updated_at": "2026-03-23T02:09:43.952Z"
+    },
+    {
+      "id": "9z8i99fkwqdmn3ny35c",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "mission_id": "m-020",
+      "state": "completed",
+      "character_reaction": "positive",
+      "scene_position": 1,
+      "updated_at": "2026-03-23T20:53:49.181Z"
+    },
+    {
+      "id": "xqv0cbt9w7bmn3pf88s",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "mission_id": "m-010",
+      "group_id": "agv8vx573djmmz4je8i",
+      "state": "completed",
+      "character_reaction": "positive",
+      "scene_position": 1,
+      "updated_at": "2026-03-23T21:35:08.098Z"
+    },
+    {
+      "id": "skc7c1j2xormn3rhrej",
+      "student_id": "ew72w6opbmn3r8z12",
+      "mission_id": "m-001",
+      "group_id": null,
+      "state": "completed",
+      "character_reaction": "positive",
+      "scene_position": 1,
+      "updated_at": "2026-03-23T22:33:00.815Z"
+    },
+    {
+      "id": "ycop5gnev1smn3rlcrq",
+      "student_id": "ew72w6opbmn3r8z12",
+      "mission_id": "m-010",
+      "group_id": "agv8vx573djmmz4je8i",
+      "state": "completed",
+      "character_reaction": "positive",
+      "scene_position": 1,
+      "updated_at": "2026-03-23T22:35:48.470Z"
+    },
+    {
+      "id": "yu8kuklk3emn3s55rf",
+      "student_id": "kas6t1k208hmn3s2mya",
+      "mission_id": "m-001",
+      "group_id": "agv8vx573djmmz4je8i",
+      "state": "completed",
+      "character_reaction": "positive",
+      "scene_position": 1,
+      "updated_at": "2026-03-23T22:51:12.549Z"
+    }
+  ],
+  "weekly_aggregates": [
+    {
+      "id": "9etyp70f4mhmmwqbolk",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "group_id": null,
+      "week_start_date": "2026-03-17",
+      "total_writing_time_seconds": 1624,
+      "missions_completed": 6,
+      "avg_comprehensibility": 85.83333333333333,
+      "updated_at": "2026-03-23T02:09:43.953Z"
+    },
+    {
+      "id": "6oskque0yfmn3mohqx",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "group_id": null,
+      "week_start_date": "2026-03-23",
+      "total_writing_time_seconds": 1323,
+      "missions_completed": 9,
+      "avg_comprehensibility": 92.77777777777777,
+      "updated_at": "2026-03-23T21:35:03.293Z"
+    },
+    {
+      "id": "po9ohfagsapmn3rhrek",
+      "student_id": "ew72w6opbmn3r8z12",
+      "group_id": null,
+      "week_start_date": "2026-03-23",
+      "total_writing_time_seconds": 165,
+      "missions_completed": 2,
+      "avg_comprehensibility": 97.5,
+      "updated_at": "2026-03-23T22:35:48.327Z"
+    },
+    {
+      "id": "09gzmfmwu3qemn3s55rg",
+      "student_id": "kas6t1k208hmn3s2mya",
+      "group_id": "agv8vx573djmmz4je8i",
+      "week_start_date": "2026-03-23",
+      "total_writing_time_seconds": 74,
+      "missions_completed": 1,
+      "avg_comprehensibility": 95,
+      "updated_at": "2026-03-23T22:51:12.364Z"
+    },
+    {
+      "id": "vxwy8rgd3nmn44l8k3",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "group_id": null,
+      "week_start_date": "2026-03-24",
+      "total_writing_time_seconds": 63,
+      "missions_completed": 1,
+      "avg_comprehensibility": 90,
+      "updated_at": "2026-03-24T04:39:37.875Z"
+    }
+  ],
+  "guides": [
+    {
+      "id": "guide-001",
+      "title": "⏰ Present Perfect - The Quest",
+      "description": "Domina el Present Perfect y desbloquea habilidades de experiencias. 10 ejercicios, 150 XP a ganar.",
+      "cover_emoji": "⏰",
+      "cefr_level": "A2",
+      "concept_tags": [
+        "present-perfect",
+        "grammar",
+        "verb-tenses"
+      ],
+      "estimated_minutes": 25,
+      "xp_reward": 150,
+      "progress": {
+        "status": "in_progress",
+        "score": 75,
+        "exercises_completed": 6,
+        "exercises_total": 10,
+        "current_streak": 2,
+        "max_streak": 5
+      },
+      "content": {
+        "definition": "El Present Perfect es un tiempo verbal que se utiliza para expresar acciones que comenzaron en el pasado pero tienen alguna conexión o relevancia con el presente.",
+        "explanation": "El Present Perfect conecta el pasado con el presente. A diferencia del Simple Past (pretérito), el Present Perfect NO especifica CUÁNDO ocurrió la acción. Es perfecto para experiencias de vida, acciones recientes, cambios a lo largo del tiempo, o acciones que comenzaron en el pasado y continúan.",
+        "formula": "Subject + HAVE/HAS + Past Participle\n\nPara preguntas: HAVE/HAS + Subject + Past Participle?\n\nPara negativos: Subject + HAVE/HAS + NOT + Past Participle",
+        "key_structures": [
+          {
+            "structure": "Subject + have/has + past participle",
+            "explanation": "Acciones pasadas con relevancia en el presente.",
+            "example": "I have initialized the system."
+          }
+        ],
+        "common_expressions": [
+          {
+            "expression": "have you ever...",
+            "meaning": "¿Alguna vez has...?",
+            "example": "Have you ever hacked a mainframe?"
+          },
+          {
+            "expression": "just",
+            "meaning": "Recientemente / justo ahora",
+            "example": "I have just completed the scan."
+          }
+        ],
+        "real_life_examples": [
+          {
+            "context": "Job Interview",
+            "example": "I have worked with JS for 5 years.",
+            "explanation": "Mostrando experiencia acumulada."
+          }
+        ],
+        "exercises": [
+          {
+            "id": "e1",
+            "type": "multiple_choice",
+            "question": "I ______ the firewall.",
+            "options": [
+              "have bypassed",
+              "has bypassed",
+              "bypassed"
+            ],
+            "correct_answer": "have bypassed",
+            "explanation": "I = have + past participle"
+          },
+          {
+            "id": "e2",
+            "type": "multiple_choice",
+            "question": "She ______ the code yet.",
+            "options": [
+              "hasn't pushed",
+              "haven't pushed",
+              "didn't pushed"
+            ],
+            "correct_answer": "hasn't pushed",
+            "explanation": "She = has"
+          },
+          {
+            "id": "e3",
+            "type": "fill_in_the_blank",
+            "question": "They ____ (find) the bug.",
+            "options": [
+              "have found"
+            ],
+            "correct_answer": "have found",
+            "explanation": "Irregular verb 'find'."
+          }
+        ],
+        "introduction": "Bienvenido a la simulación interactiva. Aprende y supera los ejercicios."
+      },
+      "mission_connection": "m-001",
+      "story_connection": "story-001",
+      "scene_concepts": [
+        "past-experience",
+        "life-events"
+      ],
+      "created_at": "2026-03-18T10:00:00Z",
+      "is_published": true,
+      "enable_chat_assistant": true
+    },
+    {
+      "id": "guide-002",
+      "title": "🔄 Phrasal Verbs - Master Edition",
+      "description": "Conviértete en experto en Phrasal Verbs. 10 desafíos, 175 XP esperando.",
+      "cover_emoji": "🔄",
+      "cefr_level": "B1",
+      "concept_tags": [
+        "phrasal-verbs",
+        "vocabulary",
+        "colloquial"
+      ],
+      "estimated_minutes": 30,
+      "xp_reward": 175,
+      "progress": {
+        "status": "not_started",
+        "score": 0,
+        "exercises_completed": 0,
+        "exercises_total": 10,
+        "current_streak": 0,
+        "max_streak": 0
+      },
+      "content": {
+        "definition": "Los Phrasal Verbs son combinaciones de un verbo principal + una o más palabras (preposición o adverbio). Juntos crean un significado diferente al del verbo solo.",
+        "explanation": "Los phrasal verbs son muy comunes en inglés hablado y son esenciales para comunicarse naturalmente. El significado no es la suma simple de sus partes. Por ejemplo, 'look' = mirar, pero 'look after' = cuidar. Los phrasal verbs pueden ser separables (el objeto va entre el verbo y la partícula) o inseparables (el objeto siempre va después).",
+        "formula": "Separable: Verb + Particle + Object O Verb + Object + Particle\nEjemplo: 'Put on your coat' o 'Put your coat on'\n\nInseparable: Verb + Particle + Object\nEjemplo: 'Look after your little sister' (NOT: Look your sister after)",
+        "key_structures": [
+          {
+            "structure": "Verb + Preposition/Adverb",
+            "explanation": "El significado cambia completamente.",
+            "example": "Turn on the power."
+          }
+        ],
+        "common_expressions": [
+          {
+            "expression": "Log in",
+            "meaning": "Iniciar sesión",
+            "example": "Log in to your dashboard."
+          },
+          {
+            "expression": "Back up",
+            "meaning": "Hacer copia de seguridad",
+            "example": "Back up your data immediately."
+          }
+        ],
+        "real_life_examples": [
+          {
+            "context": "IT Support",
+            "example": "Please restart and log back in.",
+            "explanation": "Instrucciones técnicas comunes."
+          }
+        ],
+        "exercises": [
+          {
+            "id": "e1",
+            "type": "multiple_choice",
+            "question": "Please _____ your session when you finish.",
+            "options": [
+              "log out",
+              "log in",
+              "log on"
+            ],
+            "correct_answer": "log out",
+            "explanation": "Log out means to exit a session."
+          },
+          {
+            "id": "e2",
+            "type": "multiple_choice",
+            "question": "We need to _____ the servers.",
+            "options": [
+              "shut down",
+              "shut off",
+              "shut up"
+            ],
+            "correct_answer": "shut down",
+            "explanation": "Shut down means turn off completely."
+          },
+          {
+            "id": "e3",
+            "type": "multiple_choice",
+            "question": "I will _____ the problem.",
+            "options": [
+              "look into",
+              "look for",
+              "look after"
+            ],
+            "correct_answer": "look into",
+            "explanation": "Look into means investigate."
+          }
+        ],
+        "introduction": "Bienvenido a la simulación interactiva. Aprende y supera los ejercicios."
+      },
+      "mission_connection": "m-004",
+      "story_connection": "story-005",
+      "scene_concepts": [
+        "verb-usage",
+        "daily-conversation"
+      ],
+      "created_at": "2026-03-18T11:00:00Z",
+      "is_published": true,
+      "enable_chat_assistant": true
+    },
+    {
+      "id": "guide-003",
+      "title": "❓ Conditional Sentences - The Challenge",
+      "description": "Domina las condicionales: If, Unless, Unless... 10 ejercicios épicos, 200 XP premium.",
+      "cover_emoji": "❓",
+      "cefr_level": "B1",
+      "concept_tags": [
+        "conditionals",
+        "grammar",
+        "hypothetical"
+      ],
+      "estimated_minutes": 30,
+      "xp_reward": 200,
+      "progress": {
+        "status": "in_progress",
+        "score": 82,
+        "exercises_completed": 8,
+        "exercises_total": 10,
+        "current_streak": 5,
+        "max_streak": 8
+      },
+      "content": {
+        "definition": "Las oraciones condicionales (If Clauses) son enunciados que expresan una condición y su resultado. Estructuran situaciones reales, posibles, o imaginarias.",
+        "explanation": "Hay CUATRO tipos principales. Cada tipo expresa diferentes grados de probabilidad: desde situaciones reales hasta situaciones completamente imaginarias. El tipo 0 es para verdades universales, tipo 1 para posible/futuro, tipo 2 para improbable/presente, tipo 3 para imposible/pasado. Esta estructura es fundamental en inglés para negociar, hacer planes, y expresar posibilidades.",
+        "formula": "Type 0 (Universal): If + Simple Present, Simple Present\nType 1 (Posible): If + Simple Present, will + infinitive\nType 2 (Improbable): If + Simple Past, would + infinitive\nType 3 (Imposible/Pasado): If + Past Perfect, would have + past participle",
+        "key_structures": [
+          {
+            "structure": "If + present, will + infinitive (1st Conditional)",
+            "explanation": "Condiciones reales o probables en el futuro.",
+            "example": "If the server crashes, we will reboot it."
+          },
+          {
+            "structure": "If + past, would + infinitive (2nd Conditional)",
+            "explanation": "Situaciones hipotéticas.",
+            "example": "If I had access, I would fix it."
+          }
+        ],
+        "common_expressions": [
+          {
+            "expression": "As long as...",
+            "meaning": "Siempre y cuando...",
+            "example": "As long as the power holds, we are fine."
+          },
+          {
+            "expression": "Unless...",
+            "meaning": "A menos que...",
+            "example": "Unless you type the password, access is denied."
+          }
+        ],
+        "real_life_examples": [
+          {
+            "context": "System Alerts",
+            "example": "If memory exceeds 90%, send an alert.",
+            "explanation": "Lógicas de software."
+          }
+        ],
+        "exercises": [
+          {
+            "id": "e1",
+            "type": "multiple_choice",
+            "question": "If the temperature _____, the system will shut down.",
+            "options": [
+              "rises",
+              "will rise",
+              "rose"
+            ],
+            "correct_answer": "rises",
+            "explanation": "1st conditional uses Present Simple in the 'if' clause."
+          },
+          {
+            "id": "e2",
+            "type": "multiple_choice",
+            "question": "If I _____ the admin, I would change the theme.",
+            "options": [
+              "were",
+              "am",
+              "will be"
+            ],
+            "correct_answer": "were",
+            "explanation": "2nd conditional uses past tense."
+          },
+          {
+            "id": "e3",
+            "type": "multiple_choice",
+            "question": "He wouldn't have failed if he _____ tested his code.",
+            "options": [
+              "had",
+              "has",
+              "have"
+            ],
+            "correct_answer": "had",
+            "explanation": "3rd conditional requires 'had' + past participle."
+          }
+        ],
+        "introduction": "Bienvenido a la simulación interactiva. Aprende y supera los ejercicios."
+      },
+      "mission_connection": "m-002",
+      "story_connection": "story-003",
+      "scene_concepts": [
+        "hypothetical",
+        "probability"
+      ],
+      "created_at": "2026-03-18T12:00:00Z",
+      "is_published": true,
+      "enable_chat_assistant": true
+    },
+    {
+      "id": "guide-004",
+      "title": "🧬 Passive Voice - Pro Mode",
+      "description": "Conviértete en maestro de la voz pasiva. 5 ejercicios avanzados, 250 XP de oro.",
+      "cover_emoji": "🔄",
+      "cefr_level": "B1",
+      "concept_tags": [
+        "passive-voice",
+        "grammar",
+        "verb-structures"
+      ],
+      "estimated_minutes": 25,
+      "content": {
+        "definition": "La voz pasiva es una estructura gramatical en la que el objeto de la acción se convierte en el sujeto, y el verbo se modifica para reflejar esto.",
+        "explanation": "Comparamos: Active: 'The teacher wrote the book' vs Passive: 'The book was written by the teacher'. En la pasiva, enfatizamos la ACCIÓN o el RECEPTOR de la acción, no necesariamente quién la hizo. Es muy común en escritura formal, noticias, y reportes científicos.",
+        "formula": "Sujeto + Verbo TO BE (conjugado) + Past Participle + (by + agente)\n\nEjemplos:\nPresent: The house is painted every year\nPast: The letter was delivered yesterday\nFuture: The project will be completed next month\nPerfect: The work has been done correctly",
+        "key_structures": [
+          {
+            "structure": "Object + To Be + Past Participle",
+            "explanation": "Enfásis en la acción y no en el sujeto.",
+            "example": "The code was written by the AI."
+          }
+        ],
+        "common_expressions": [
+          {
+            "expression": "It is believed that...",
+            "meaning": "Se cree que...",
+            "example": "It is believed that the system is secure."
+          },
+          {
+            "expression": "It is reported...",
+            "meaning": "Se reporta...",
+            "example": "It is reported that the bug has been fixed."
+          }
+        ],
+        "real_life_examples": [
+          {
+            "context": "Documentation",
+            "example": "The server is configured automatically.",
+            "explanation": "Típico en manuales técnicos donde el humano es anónimo."
+          }
+        ],
+        "exercises": [
+          {
+            "id": "e1",
+            "type": "multiple_choice",
+            "question": "The manual _____ in 1999.",
+            "options": [
+              "was written",
+              "wrote",
+              "is writing"
+            ],
+            "correct_answer": "was written",
+            "explanation": "Action is in the past."
+          },
+          {
+            "id": "e2",
+            "type": "multiple_choice",
+            "question": "The database _____ every night.",
+            "options": [
+              "is updated",
+              "updates",
+              "updated"
+            ],
+            "correct_answer": "is updated",
+            "explanation": "Routine action in passive voice."
+          },
+          {
+            "id": "e3",
+            "type": "multiple_choice",
+            "question": "The files _____ by the hacker.",
+            "options": [
+              "were deleted",
+              "was deleted",
+              "deleted"
+            ],
+            "correct_answer": "were deleted",
+            "explanation": "Plural subject 'files' so 'were'."
+          }
+        ],
+        "introduction": "Bienvenido a la simulación interactiva. Aprende y supera los ejercicios."
+      },
+      "xp_reward": 250,
+      "progress": {
+        "status": "completed",
+        "score": 100,
+        "exercises_completed": 5,
+        "exercises_total": 5,
+        "current_streak": 0,
+        "max_streak": 10
+      },
+      "enable_chat_assistant": true,
+      "is_published": true,
+      "created_at": "2026-03-19T10:00:00Z"
+    },
+    {
+      "id": "g-005",
+      "title": "Modals of Deduction - Logic Puzzle",
+      "description": "Deduce probabilities with absolute precision using 'must', 'might', and 'can\\'t'. Solve the mystery protocols.",
+      "theme": "mystery",
+      "difficulty": "Intermediate",
+      "cefr_level": "B1",
+      "concepts": [
+        "Modals of Deduction",
+        "must/might/can't",
+        "Probability"
+      ],
+      "cover_emoji": "🔍",
+      "xp_reward": 200,
+      "unlock_level": 3,
+      "interactive_elements": [
+        "Mystery Solver",
+        "Sherlock Mode"
+      ],
+      "content": {
+        "introduction": "Bienvenido a la simulación interactiva. Aprende y supera los ejercicios.",
+        "sections": [
+          {
+            "type": "explanation",
+            "title": "MUST - The High Probability Node",
+            "content": "Use **must + bare infinitive** when you are almost 100% certain something is true based on evidence.\n\n*Example:* 'The server is down; someone **must** have unplugged it.'"
+          },
+          {
+            "type": "explanation",
+            "title": "MIGHT/COULD - The Variable Nodes",
+            "content": "Use **might, may, or could** when something is possible but not certain (around 50% probability).\n\n*Example:* 'The error **might** be in the syntax.'"
+          },
+          {
+            "type": "explanation",
+            "title": "CAN'T - The Impossible Node",
+            "content": "Use **can't + bare infinitive** when you are almost 100% certain something is FALSE.\n\n*Example:* 'That **can't** be right; the code compiled perfectly five minutes ago.'"
+          }
+        ],
+        "exercises": [
+          {
+            "id": "e1",
+            "type": "multiple_choice",
+            "question": "You've been coding for 14 hours. You _____ be exhausted.",
+            "options": [
+              "must",
+              "can't",
+              "might"
+            ],
+            "correct_answer": "must",
+            "explanation": "Evidencia abrumadora = must."
+          },
+          {
+            "id": "e2",
+            "type": "multiple_choice",
+            "question": "The test is passing now, so the bug _____ be gone.",
+            "options": [
+              "must",
+              "can't",
+              "might"
+            ],
+            "correct_answer": "must",
+            "explanation": "Evidencia de que pasó."
+          },
+          {
+            "id": "e3",
+            "type": "multiple_choice",
+            "question": "That _____ be John. He is in Europe right now!",
+            "options": [
+              "can't",
+              "must",
+              "might"
+            ],
+            "correct_answer": "can't",
+            "explanation": "Es imposible porque está en otro continente."
+          },
+          {
+            "id": "e4",
+            "type": "multiple_choice",
+            "question": "I don't know where the file is. It _____ be in the trash bin.",
+            "options": [
+              "might",
+              "must",
+              "can't"
+            ],
+            "correct_answer": "might",
+            "explanation": "No estás seguro, es solo una posibilidad."
+          }
+        ],
+        "key_structures": [
+          {
+            "structure": "Subject + Must + Infinitive (sin to)",
+            "explanation": "Casi 100% de certeza basada en evidencia. Algo tiene que ser así.",
+            "example": "The lights are off. They must be out."
+          },
+          {
+            "structure": "Subject + Can't + Infinitive (sin to)",
+            "explanation": "Certeza de que algo es IMPOSIBLE.",
+            "example": "You just ate a pizza! You can't be hungry."
+          },
+          {
+            "structure": "Subject + Might/May/Could + Infinitive",
+            "explanation": "Posibilidad (50%). No estamos seguros.",
+            "example": "The error might be a typo."
+          }
+        ],
+        "common_expressions": [
+          {
+            "expression": "must be",
+            "meaning": "Debe ser (deducción fuerte)",
+            "example": "He has a Ferrari. He must be rich."
+          },
+          {
+            "expression": "can't be",
+            "meaning": "No puede ser (deducción negativa)",
+            "example": "That can't be the correct password."
+          }
+        ],
+        "real_life_examples": [
+          {
+            "context": "Debuggeando Código",
+            "example": "The app crashed. It must be the new update.",
+            "explanation": "Deduciendo la raíz del problema."
+          },
+          {
+            "context": "Buscando Objetos",
+            "example": "My keys aren't here. I might have left them at home.",
+            "explanation": "Calculando posibles ubicaciones."
+          }
+        ],
+        "definition": "Los 'Modals of Deduction' son verbos auxiliares (como must, might, can't) que usamos para expresar qué tan seguros estamos de que algo es cierto, basándonos en la evidencia disponible.",
+        "explanation": "En la programación y en la vida real, a menudo no tenemos toda la información. Estos verbos de deducción nos permiten articular conclusiones lógicas. 'Must' significa que estamos casi seguros de algo (como si leyeras los logs de un error). 'Might' es una posibilidad, y 'Can't' se usa cuando algo es lógicamente imposible."
+      },
+      "enable_chat_assistant": true
+    },
+    {
+      "id": "g-006",
+      "title": "Future Forms - Time Traveler",
+      "description": "Navigate the timelines of tomorrow. Master 'will', 'going to', and Present Continuous for future plans.",
+      "theme": "sci-fi",
+      "difficulty": "Beginner",
+      "cefr_level": "A2",
+      "concepts": [
+        "Future Forms",
+        "Will vs Going to",
+        "Future Plans"
+      ],
+      "cover_emoji": "🚀",
+      "xp_reward": 150,
+      "unlock_level": 2,
+      "interactive_elements": [
+        "Timeline Jumper",
+        "Prediciton Core"
+      ],
+      "content": {
+        "introduction": "Bienvenido a la simulación interactiva. Aprende y supera los ejercicios.",
+        "sections": [
+          {
+            "type": "explanation",
+            "title": "WILL - Spontaneous Predictions",
+            "content": "Use **will** for quick decisions made at the moment of speaking or general predictions without evidence.\n\n*Example:* 'I think flying cars **will** exist by 2050.'"
+          },
+          {
+            "type": "explanation",
+            "title": "GOING TO - Planned Evidence",
+            "content": "Use **be going to** for prior plans or predictions based on current evidence.\n\n*Example:* 'Look at those dark clouds! It **is going to** rain.'"
+          }
+        ],
+        "exercises": [
+          {
+            "id": "e1",
+            "type": "multiple_choice",
+            "question": "A: I'm cold. \nB: I _____ turn on the heater.",
+            "options": [
+              "will",
+              "am going to",
+              "am turning"
+            ],
+            "correct_answer": "will",
+            "explanation": "Decisión instantánea = will."
+          },
+          {
+            "id": "e2",
+            "type": "multiple_choice",
+            "question": "Look at the time! We _____ be late for the deploy.",
+            "options": [
+              "are going to",
+              "will",
+              "are to"
+            ],
+            "correct_answer": "are going to",
+            "explanation": "Hay evidencia 'el tiempo' de que llegarán tarde."
+          },
+          {
+            "id": "e3",
+            "type": "multiple_choice",
+            "question": "Next Friday at 3PM, I _____ playing tennis with Mark.",
+            "options": [
+              "am",
+              "will",
+              "going to"
+            ],
+            "correct_answer": "am",
+            "explanation": "Arreglo fijo con oponente y hora = Present Continuous."
+          },
+          {
+            "id": "e4",
+            "type": "multiple_choice",
+            "question": "I don't think humans _____ ever live on Mars.",
+            "options": [
+              "will",
+              "are going to",
+              "is going to"
+            ],
+            "correct_answer": "will",
+            "explanation": "Predicción abierta/lejana usando 'think'."
+          }
+        ],
+        "key_structures": [
+          {
+            "structure": "Subject + Will + verb",
+            "explanation": "Predicciones sin evidencia, decisiones rápidas, o promesas.",
+            "example": "I will help you with that error."
+          },
+          {
+            "structure": "Subject + am/is/are + going to + verb",
+            "explanation": "Planes ya pensados, o predicciones con evidencia visible.",
+            "example": "Look at those clouds. It is going to rain."
+          },
+          {
+            "structure": "Present Continuous for Future",
+            "explanation": "Citas o arreglos completamente fijos/agendados.",
+            "example": "I am meeting the boss tomorrow at 10 AM."
+          }
+        ],
+        "common_expressions": [
+          {
+            "expression": "I think it will...",
+            "meaning": "Creo que...",
+            "example": "I think AI will write better code."
+          },
+          {
+            "expression": "I'm going to...",
+            "meaning": "Voy a...",
+            "example": "I'm going to refactor the database today."
+          }
+        ],
+        "real_life_examples": [
+          {
+            "context": "Reunión Ágil (Daily Scrum)",
+            "example": "I am going to work on the UI today.",
+            "explanation": "Presentando el plan del día."
+          },
+          {
+            "context": "Momento Espontáneo",
+            "example": "Oh, the phone is ringing. I will answer it!",
+            "explanation": "Decisión tomada al momento."
+          }
+        ],
+        "definition": "Los 'Future Forms' en inglés no son un solo tiempo verbal, sino múltiples estructuras (will, be going to, present continuous) que se usan dependiendo de la intención (predicciones, planes o arreglos).",
+        "explanation": "Elegir el tiempo correcto es crucial para comunicar tus proyecciones. 'Will' es espontáneo y sin evidencia, ideal para decisiones rápidas en tiempo real. 'Going to' implica un diseño previo o evidencia visible (como ver nubes negras), y el Present Continuous denota un arreglo cerrado (una reunión de agenda inamovible)."
+      },
+      "enable_chat_assistant": true
+    },
+    {
+      "id": "g-007",
+      "title": "Reported Speech - The Informant",
+      "description": "Intercept and transmit classified communications. Learn to backshift tenses correctly in Reported Speech.",
+      "theme": "espionage",
+      "difficulty": "Upper Intermediate",
+      "cefr_level": "B2",
+      "concepts": [
+        "Reported Speech",
+        "Backshifting",
+        "Indirect Communication"
+      ],
+      "cover_emoji": "🕵️",
+      "xp_reward": 250,
+      "unlock_level": 4,
+      "interactive_elements": [
+        "Wiretap Audio",
+        "Decryption Matrix"
+      ],
+      "content": {
+        "introduction": "Bienvenido a la simulación interactiva. Aprende y supera los ejercicios.",
+        "sections": [
+          {
+            "type": "explanation",
+            "title": "The Backshift Protocol",
+            "content": "When reporting what someone else said, shift the tense one step back into the past.\n\n*Direct:* 'I **am** processing the data.'\n*Reported:* She said she **was** processing the data."
+          }
+        ],
+        "exercises": [
+          {
+            "id": "e1",
+            "type": "multiple_choice",
+            "question": "'I love this code.' -> She said she _____ that code.",
+            "options": [
+              "loved",
+              "loves",
+              "had loved"
+            ],
+            "correct_answer": "loved",
+            "explanation": "Present to Past."
+          },
+          {
+            "id": "e2",
+            "type": "multiple_choice",
+            "question": "'We deployed it yesterday.' -> They said they had deployed it _____.",
+            "options": [
+              "the day before",
+              "yesterday",
+              "tomorrow"
+            ],
+            "correct_answer": "the day before",
+            "explanation": "El tiempo (yesterday) se transforma en 'the day before'."
+          },
+          {
+            "id": "e3",
+            "type": "multiple_choice",
+            "question": "He _____ me that the system was offline.",
+            "options": [
+              "told",
+              "said",
+              "spoke"
+            ],
+            "correct_answer": "told",
+            "explanation": "'Told' necesita un pronombre/objeto (me)."
+          },
+          {
+            "id": "e4",
+            "type": "multiple_choice",
+            "question": "'I am fixing the bug.' -> He said he _____ the bug.",
+            "options": [
+              "was fixing",
+              "is fixing",
+              "fixed"
+            ],
+            "correct_answer": "was fixing",
+            "explanation": "Present Continuous to Past Continuous."
+          }
+        ],
+        "key_structures": [
+          {
+            "structure": "Direct -> Past (Backshifting)",
+            "explanation": "Cuando reportamos algo, verbalizamos el suceso 'un tiempo atrás'. Presente pasa a Pasado.",
+            "example": "Direct: 'I am happy' -> Reported: He said he was happy."
+          },
+          {
+            "structure": "Past -> Past Perfect",
+            "explanation": "Si la oración original ya estaba en pasado, pasa a Pasado Perfecto.",
+            "example": "Direct: 'I finished' -> Reported: She said she had finished."
+          },
+          {
+            "structure": "Say vs Tell",
+            "explanation": "'Tell' necesita un objeto (tell me/you/him). 'Say' no (Say that...).",
+            "example": "He told me that... / He said that..."
+          }
+        ],
+        "common_expressions": [
+          {
+            "expression": "He said that...",
+            "meaning": "Él dijo que...",
+            "example": "He said that the server crashed."
+          },
+          {
+            "expression": "They told me...",
+            "meaning": "Me dijeron que...",
+            "example": "They told me to update the passwords."
+          }
+        ],
+        "real_life_examples": [
+          {
+            "context": "Chismes o Traspaso de info",
+            "example": "The manager said we had to work on Saturday.",
+            "explanation": "Reportando lo que ordenó el jefe."
+          },
+          {
+            "context": "Actualización de Ticket",
+            "example": "The user reported that the screen had gone black.",
+            "explanation": "Transcribiendo queja del cliente."
+          }
+        ],
+        "definition": "El 'Reported Speech' (o Estilo Indirecto) es la estructura que usamos para contarle a otra persona lo que un tercero dijo, sin citar sus palabras exactas con comillas.",
+        "explanation": "Dominarlo es vital, como cuando transfieres el reporte de un cliente a tu equipo de desarrollo o pasas el contexto en una daily. La regla de oro es el 'backshifting': el tiempo del verbo original suele retroceder un paso hacia el pasado (del Presente al Pasado, del Pasado al Pasado Perfecto) para mantener la concordancia temporal."
+      },
+      "enable_chat_assistant": true
+    },
+    {
+      "id": "g-008",
+      "title": "Relative Clauses - Network Builder",
+      "description": "Construct complex sentence networks. Combine data packets using 'who', 'which', 'that', and 'where'.",
+      "theme": "networking",
+      "difficulty": "Intermediate",
+      "cefr_level": "B1",
+      "concepts": [
+        "Relative Clauses",
+        "Defining vs Non-Defining",
+        "Pronouns"
+      ],
+      "cover_emoji": "🌐",
+      "xp_reward": 200,
+      "unlock_level": 3,
+      "interactive_elements": [
+        "Node Linker",
+        "Syntax Webs"
+      ],
+      "content": {
+        "introduction": "Bienvenido a la simulación interactiva. Aprende y supera los ejercicios.",
+        "sections": [
+          {
+            "type": "explanation",
+            "title": "WHO vs WHICH",
+            "content": "Use **who** for users/humans and **which** for objects/software.\n\n*Example:* 'The developer **who** wrote this is a genius.'\n'The script **which** crashed was outdated.'"
+          }
+        ],
+        "exercises": [
+          {
+            "id": "e1",
+            "type": "multiple_choice",
+            "question": "The programmer _____ wrote this algorithm is very smart.",
+            "options": [
+              "who",
+              "which",
+              "where"
+            ],
+            "correct_answer": "who",
+            "explanation": "Programmer es una persona."
+          },
+          {
+            "id": "e2",
+            "type": "multiple_choice",
+            "question": "The password _____ you gave me didn't work.",
+            "options": [
+              "which",
+              "who",
+              "where"
+            ],
+            "correct_answer": "which",
+            "explanation": "Password es un objeto (that también serviría)."
+          },
+          {
+            "id": "e3",
+            "type": "multiple_choice",
+            "question": "Do you remember the day _____ we launched the app?",
+            "options": [
+              "when",
+              "where",
+              "which"
+            ],
+            "correct_answer": "when",
+            "explanation": "Contexto de tiempo 'the day'."
+          },
+          {
+            "id": "e4",
+            "type": "multiple_choice",
+            "question": "That's the office _____ the developers sleep.",
+            "options": [
+              "where",
+              "which",
+              "who"
+            ],
+            "correct_answer": "where",
+            "explanation": "Office es un lugar."
+          }
+        ],
+        "key_structures": [
+          {
+            "structure": "Who / That",
+            "explanation": "Se usan para conectar información sobre PERSONAS.",
+            "example": "The engineer who built this is a genius."
+          },
+          {
+            "structure": "Which / That",
+            "explanation": "Se usan para conectar información sobre COSAS o IDEAS.",
+            "example": "The laptop which I bought is broken."
+          },
+          {
+            "structure": "Where / When",
+            "explanation": "Para LUGARES (Where) y TIEMPO (When).",
+            "example": "That's the room where the servers are kept."
+          }
+        ],
+        "common_expressions": [
+          {
+            "expression": "The reason why...",
+            "meaning": "La razón por la cual...",
+            "example": "The reason why it failed is unknown."
+          },
+          {
+            "expression": "Anyone who...",
+            "meaning": "Cualquiera que...",
+            "example": "Anyone who deletes production will be fired."
+          }
+        ],
+        "real_life_examples": [
+          {
+            "context": "Documentando repositorios",
+            "example": "This is the script that clears the cache.",
+            "explanation": "Especificando a qué objeto te refieres."
+          },
+          {
+            "context": "Identificando PNJ (Personajes)",
+            "example": "Talk to the guy who is wearing the red shirt.",
+            "explanation": "Filtrando de una multitud."
+          }
+        ],
+        "definition": "Las 'Relative Clauses' son frases anidadas que proporcionan información esencial o adicional sobre un sustantivo (una persona, lugar o cosa) sin tener que iniciar una oración completamente nueva.",
+        "explanation": "Es el equivalente sintáctico a una conexión de base de datos relacional. Usamos conectores (pronombres relativos) específicos dependiendo de la variable que queremos modificar: 'Who' para humanos (usuarios, desarrolladores), 'Which' o 'That' para objetos (variables, scripts, ordenadores), y 'Where' para ubicaciones espaciales."
+      },
+      "enable_chat_assistant": true
+    },
+    {
+      "id": "g-009",
+      "title": "Gerunds & Infinitives - Code Execution",
+      "description": "Master verb command sequencing. Know when to use the -ing suffix or the 'to' prefix to compile sentences flawlessly.",
+      "theme": "programming",
+      "difficulty": "Advanced",
+      "cefr_level": "C1",
+      "concepts": [
+        "Gerunds",
+        "Infinitives",
+        "Verb Patterns"
+      ],
+      "cover_emoji": "⚙️",
+      "xp_reward": 300,
+      "unlock_level": 5,
+      "interactive_elements": [
+        "Compiler Checks",
+        "Syntax Debugger"
+      ],
+      "content": {
+        "introduction": "Bienvenido a la simulación interactiva. Aprende y supera los ejercicios.",
+        "sections": [
+          {
+            "type": "explanation",
+            "title": "Verbs followed by Gerunds",
+            "content": "Some verbs like *enjoy, avoid, mind, finish* require a gerund.\n\n*Example:* 'I avoid **merging** to main without review.'"
+          },
+          {
+            "type": "explanation",
+            "title": "Verbs followed by Infinitives",
+            "content": "Verbs like *want, decide, hope, expect* require an infinitive.\n\n*Example:* 'She decided **to refactor** the codebase.'"
+          }
+        ],
+        "exercises": [
+          {
+            "id": "e1",
+            "type": "multiple_choice",
+            "question": "I want _____ a new framework this year.",
+            "options": [
+              "to learn",
+              "learning",
+              "learn"
+            ],
+            "correct_answer": "to learn",
+            "explanation": "Want siempre es seguido por 'to' (infinitive)."
+          },
+          {
+            "id": "e2",
+            "type": "multiple_choice",
+            "question": "She finished _____ the database migration at 3 AM.",
+            "options": [
+              "running",
+              "to run",
+              "run"
+            ],
+            "correct_answer": "running",
+            "explanation": "Finish + -ing."
+          },
+          {
+            "id": "e3",
+            "type": "multiple_choice",
+            "question": "He apologized for _____ late to the standup meeting.",
+            "options": [
+              "being",
+              "to be",
+              "be"
+            ],
+            "correct_answer": "being",
+            "explanation": "Después de la preposición 'for', el verbo es -ing."
+          },
+          {
+            "id": "e4",
+            "type": "multiple_choice",
+            "question": "They decided _____ a new server.",
+            "options": [
+              "to buy",
+              "buying",
+              "buy"
+            ],
+            "correct_answer": "to buy",
+            "explanation": "Decide + to."
+          }
+        ],
+        "key_structures": [
+          {
+            "structure": "Verb + Gerund (-ing)",
+            "explanation": "Verbos como enjoy, avoid, mind, finish van seguidos de GERUNDIOS.",
+            "example": "I enjoy writing clean code."
+          },
+          {
+            "structure": "Verb + Infinitive (to)",
+            "explanation": "Verbos como want, hope, decide, plan van seguidos de INFINITIVOS.",
+            "example": "She decided to study Python."
+          },
+          {
+            "structure": "Preposition + Gerund",
+            "explanation": "Siempre que haya una preposición (in, on, at, for, about), el siguiente verbo va en -ing.",
+            "example": "I'm interested IN learning rust."
+          }
+        ],
+        "common_expressions": [
+          {
+            "expression": "Look forward to + -ing",
+            "meaning": "Estar ansioso/emocionado por algo",
+            "example": "I look forward to hearing from you."
+          },
+          {
+            "expression": "Be used to + -ing",
+            "meaning": "Estar acostumbrado a",
+            "example": "I am used to working late."
+          }
+        ],
+        "real_life_examples": [
+          {
+            "context": "Resoluciones / Metas",
+            "example": "I plan to finish this by Friday.",
+            "explanation": "Usando infinitive para planes futuros."
+          },
+          {
+            "context": "Preferencias de Trabajo",
+            "example": "He avoids documenting his code.",
+            "explanation": "Usando el gerundio tras verbos de 'evitar/disfrutar'."
+          }
+        ],
+        "definition": "Gerundios (verbos terminados en -ing) e Infinitivos (verbos precedidos por 'to') actúan como el 'compilador' del inglés: existen reglas estrictas que dictan cuál usar dependiendo del verbo principal que los anteceda.",
+        "explanation": "Es una de las mecánicas más complejas porque no sigue una lógica intuitiva al cien por ciento. Por ejemplo, siempre dices 'I enjoy coding' (enjoy + gerund) y nunca 'I enjoy to code', pero debes decir 'I plan to deploy' (plan + infinitive). Memorizar estos patrones mejora la 'sintaxis' y naturalidad de tu habla avanzada."
+      },
+      "enable_chat_assistant": true
+    }
+  ],
+  "guide_progress": [
+    {
+      "id": "gp-001",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "guide_id": "guide-001",
+      "status": "completed",
+      "exercises_completed": 10,
+      "exercises_total": 10,
+      "started_at": "2026-03-19T12:00:00.000Z",
+      "completed_at": "2026-03-20T14:37:07.221Z",
+      "score": 0
+    },
+    {
+      "id": "gp-1773981998084",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "guide_id": "guide-002",
+      "status": "not_started",
+      "exercises_completed": 0,
+      "exercises_total": 2,
+      "started_at": "2026-03-20T04:46:38.084Z",
+      "completed_at": null,
+      "score": 0
+    },
+    {
+      "id": "gp-1773982016782",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "guide_id": "guide-005",
+      "status": "not_started",
+      "exercises_completed": 0,
+      "exercises_total": 0,
+      "started_at": "2026-03-20T04:46:56.782Z",
+      "completed_at": null,
+      "score": 0
+    },
+    {
+      "id": "gp-1773983780529",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "guide_id": "guide-004",
+      "status": "not_started",
+      "exercises_completed": 0,
+      "exercises_total": 4,
+      "started_at": "2026-03-20T05:16:20.529Z",
+      "completed_at": null,
+      "score": 0
+    },
+    {
+      "id": "gp-1774006967844",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "guide_id": "guide-003",
+      "status": "not_started",
+      "exercises_completed": 0,
+      "exercises_total": 10,
+      "started_at": "2026-03-20T11:42:47.844Z",
+      "completed_at": null,
+      "score": 0
+    },
+    {
+      "id": "gp-1774017661353",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "guide_id": "g-006",
+      "status": "not_started",
+      "exercises_completed": 0,
+      "exercises_total": 1,
+      "started_at": "2026-03-20T14:41:01.353Z",
+      "completed_at": null,
+      "score": 0
+    },
+    {
+      "id": "gp-1774017818339",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "guide_id": "g-005",
+      "status": "not_started",
+      "exercises_completed": 0,
+      "exercises_total": 2,
+      "started_at": "2026-03-20T14:43:38.339Z",
+      "completed_at": null,
+      "score": 0
+    },
+    {
+      "id": "gp-1774018291470",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "guide_id": "g-007",
+      "status": "not_started",
+      "exercises_completed": 0,
+      "exercises_total": 1,
+      "started_at": "2026-03-20T14:51:31.470Z",
+      "completed_at": null,
+      "score": 0
+    },
+    {
+      "id": "gp-1774019473434",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "guide_id": "g-008",
+      "status": "not_started",
+      "exercises_completed": 0,
+      "exercises_total": 4,
+      "started_at": "2026-03-20T15:11:13.434Z",
+      "completed_at": null,
+      "score": 0
+    },
+    {
+      "id": "gp-1774035770601",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "guide_id": "g-009",
+      "status": "not_started",
+      "exercises_completed": 0,
+      "exercises_total": 4,
+      "started_at": "2026-03-20T19:42:50.601Z",
+      "completed_at": null,
+      "score": 0
+    }
+  ],
+  "chat_messages": [
+    {
+      "id": "msg-001",
+      "guide_id": "guide-001",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "role": "user",
+      "content": "What's the difference between 'have been' and 'have'?",
+      "sent_at": "2026-03-19T12:05:00.000Z"
+    },
+    {
+      "id": "msg-002",
+      "guide_id": "guide-001",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "role": "assistant",
+      "content": "'Have been' expresa una acción que comenzó en el pasado y continúa. 'Have' es para experiencias puntuales. Por ejemplo: 'I have been waiting' (llevo esperando) vs 'I have waited' (he esperado).",
+      "sent_at": "2026-03-19T12:05:30.000Z"
+    },
+    {
+      "id": "msg-1773981972751-user",
+      "guide_id": "guide-001",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "role": "user",
+      "content": "Hola",
+      "sent_at": "2026-03-20T04:46:12.751Z"
+    },
+    {
+      "id": "msg-1773981972751-assistant",
+      "guide_id": "guide-001",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "role": "assistant",
+      "content": "Gracias por tu pregunta sobre Present Perfect. Según lo que hemos estudiado en esta lección, recuerda los puntos clave como: ever (alguna vez), never (nunca). ¿Quieres profundizar en algún aspecto?",
+      "sent_at": "2026-03-20T04:46:12.751Z"
+    },
+    {
+      "id": "msg-1773981986324-user",
+      "guide_id": "guide-001",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "role": "user",
+      "content": "¿Como se dice he estado esperando mucho por un beso tuyo?",
+      "sent_at": "2026-03-20T04:46:26.324Z"
+    },
+    {
+      "id": "msg-1773981986324-assistant",
+      "guide_id": "guide-001",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "role": "assistant",
+      "content": "Gracias por tu pregunta sobre Present Perfect. Según lo que hemos estudiado en esta lección, recuerda los puntos clave como: ever (alguna vez), never (nunca). ¿Quieres profundizar en algún aspecto?",
+      "sent_at": "2026-03-20T04:46:26.325Z"
+    },
+    {
+      "id": "msg-1773982024594-user",
+      "guide_id": "guide-005",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "role": "user",
+      "content": "Hola",
+      "sent_at": "2026-03-20T04:47:04.594Z"
+    },
+    {
+      "id": "msg-1773982024594-assistant",
+      "guide_id": "guide-005",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "role": "assistant",
+      "content": "Gracias por tu pregunta sobre Passive Voice. Según lo que hemos estudiado en esta lección, recuerda los puntos clave como: It is said that... (Se dice que...), It is known that... (Se sabe que...). ¿Quieres profundizar en algún aspecto?",
+      "sent_at": "2026-03-20T04:47:04.594Z"
+    },
+    {
+      "id": "msg-1773982032742-user",
+      "guide_id": "guide-005",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "role": "user",
+      "content": "Que es voz pasiva",
+      "sent_at": "2026-03-20T04:47:12.742Z"
+    },
+    {
+      "id": "msg-1773982032742-assistant",
+      "guide_id": "guide-005",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "role": "assistant",
+      "content": "Gracias por tu pregunta sobre Passive Voice. Según lo que hemos estudiado en esta lección, recuerda los puntos clave como: It is said that... (Se dice que...), It is known that... (Se sabe que...). ¿Quieres profundizar en algún aspecto?",
+      "sent_at": "2026-03-20T04:47:12.742Z"
+    },
+    {
+      "id": "msg-1773982743319-user",
+      "guide_id": "guide-001",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "role": "user",
+      "content": "en ever",
+      "sent_at": "2026-03-20T04:59:03.319Z"
+    },
+    {
+      "id": "msg-1773982743322-assistant",
+      "guide_id": "guide-001",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "role": "assistant",
+      "content": "Gracias por tu pregunta sobre Present Perfect. Según lo que hemos estudiado en esta lección, recuerda los puntos clave como: [object Object], [object Object]. ¿Quieres profundizar en algún aspecto?",
+      "sent_at": "2026-03-20T04:59:03.322Z"
+    },
+    {
+      "id": "msg-1773983202954-user",
+      "guide_id": "guide-001",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "role": "user",
+      "content": "Hola",
+      "sent_at": "2026-03-20T05:06:42.954Z"
+    },
+    {
+      "id": "msg-1773983203067-assistant",
+      "guide_id": "guide-001",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "role": "assistant",
+      "content": "👋 Gracias por tu pregunta sobre \"Present Perfect\". \n\nRecuerda que el concepto central es: **El Present Perfect es un tiempo verbal que se utiliza para expresar acciones que comenzaron en el pasado pero tienen alguna conexión o relevancia con el presente.**\n\nAlgunos puntos clave:\n• Affirmative: Subject + have/has + Past Participle\n• Present Perfect Continuous: have/has + been + -ing\n\n¿Hay algún aspecto específico que no esté claro o quieres más ejemplos?",
+      "sent_at": "2026-03-20T05:06:43.067Z"
+    },
+    {
+      "id": "msg-1773983209566-user",
+      "guide_id": "guide-001",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "role": "user",
+      "content": "El ever",
+      "sent_at": "2026-03-20T05:06:49.566Z"
+    },
+    {
+      "id": "msg-1773983209577-assistant",
+      "guide_id": "guide-001",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "role": "assistant",
+      "content": "👋 Gracias por tu pregunta sobre \"Present Perfect\". \n\nRecuerda que el concepto central es: **El Present Perfect es un tiempo verbal que se utiliza para expresar acciones que comenzaron en el pasado pero tienen alguna conexión o relevancia con el presente.**\n\nAlgunos puntos clave:\n• Affirmative: Subject + have/has + Past Participle\n• Present Perfect Continuous: have/has + been + -ing\n\n¿Hay algún aspecto específico que no esté claro o quieres más ejemplos?",
+      "sent_at": "2026-03-20T05:06:49.577Z"
+    },
+    {
+      "id": "msg-1773983225429-user",
+      "guide_id": "guide-001",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "role": "user",
+      "content": "Como se dice work en ingles",
+      "sent_at": "2026-03-20T05:07:05.429Z"
+    },
+    {
+      "id": "msg-1773983225450-assistant",
+      "guide_id": "guide-001",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "role": "assistant",
+      "content": "👋 Gracias por tu pregunta sobre \"Present Perfect\". \n\nRecuerda que el concepto central es: **El Present Perfect es un tiempo verbal que se utiliza para expresar acciones que comenzaron en el pasado pero tienen alguna conexión o relevancia con el presente.**\n\nAlgunos puntos clave:\n• Affirmative: Subject + have/has + Past Participle\n• Present Perfect Continuous: have/has + been + -ing\n\n¿Hay algún aspecto específico que no esté claro o quieres más ejemplos?",
+      "sent_at": "2026-03-20T05:07:05.450Z"
+    },
+    {
+      "id": "msg-1773983386422-user",
+      "guide_id": "guide-001",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "role": "user",
+      "content": "Hola",
+      "sent_at": "2026-03-20T05:09:46.422Z"
+    },
+    {
+      "id": "msg-1773983386485-assistant",
+      "guide_id": "guide-001",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "role": "assistant",
+      "content": "👋 Gracias por tu pregunta sobre \"Present Perfect\". \n\nRecuerda que el concepto central es: **El Present Perfect es un tiempo verbal que se utiliza para expresar acciones que comenzaron en el pasado pero tienen alguna conexión o relevancia con el presente.**\n\nAlgunos puntos clave:\n• Affirmative: Subject + have/has + Past Participle\n• Present Perfect Continuous: have/has + been + -ing\n\n¿Hay algún aspecto específico que no esté claro o quieres más ejemplos?",
+      "sent_at": "2026-03-20T05:09:46.485Z"
+    },
+    {
+      "id": "msg-1773983392227-user",
+      "guide_id": "guide-001",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "role": "user",
+      "content": "Ayudame",
+      "sent_at": "2026-03-20T05:09:52.227Z"
+    },
+    {
+      "id": "msg-1773983392257-assistant",
+      "guide_id": "guide-001",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "role": "assistant",
+      "content": "👋 Gracias por tu pregunta sobre \"Present Perfect\". \n\nRecuerda que el concepto central es: **El Present Perfect es un tiempo verbal que se utiliza para expresar acciones que comenzaron en el pasado pero tienen alguna conexión o relevancia con el presente.**\n\nAlgunos puntos clave:\n• Affirmative: Subject + have/has + Past Participle\n• Present Perfect Continuous: have/has + been + -ing\n\n¿Hay algún aspecto específico que no esté claro o quieres más ejemplos?",
+      "sent_at": "2026-03-20T05:09:52.257Z"
+    },
+    {
+      "id": "msg-1773983712502-user",
+      "guide_id": "guide-001",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "role": "user",
+      "content": "Hola",
+      "sent_at": "2026-03-20T05:15:12.502Z"
+    },
+    {
+      "id": "msg-1773983713795-assistant",
+      "guide_id": "guide-001",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "role": "assistant",
+      "content": "🤔 Buena pregunta sobre Present Perfect. Esta estructura es fundamental a tu nivel. Recuerda que puedes practicar con los ejercicios. 💪",
+      "sent_at": "2026-03-20T05:15:13.795Z"
+    },
+    {
+      "id": "msg-1773983723428-user",
+      "guide_id": "guide-001",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "role": "user",
+      "content": "Ayudame con el verbo work",
+      "sent_at": "2026-03-20T05:15:23.428Z"
+    },
+    {
+      "id": "msg-1773983723460-assistant",
+      "guide_id": "guide-001",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "role": "assistant",
+      "content": "🤔 Buena pregunta sobre Present Perfect. Esta estructura es fundamental a tu nivel. Recuerda que puedes practicar con los ejercicios. 💪",
+      "sent_at": "2026-03-20T05:15:23.460Z"
+    },
+    {
+      "id": "msg-1773983843887-user",
+      "guide_id": "guide-001",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "role": "user",
+      "content": "hola",
+      "sent_at": "2026-03-20T05:17:23.887Z"
+    },
+    {
+      "id": "msg-1773983843968-assistant",
+      "guide_id": "guide-001",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "role": "assistant",
+      "content": "👋 Gracias por tu pregunta sobre \"Present Perfect\". \n\nRecuerda que el concepto central es: **El Present Perfect es un tiempo verbal que se utiliza para expresar acciones que comenzaron en el pasado pero tienen alguna conexión o relevancia con el presente.**\n\nAlgunos puntos clave:\n• Affirmative: Subject + have/has + Past Participle\n• Present Perfect Continuous: have/has + been + -ing\n\n¿Hay algún aspecto específico que no esté claro o quieres más ejemplos?",
+      "sent_at": "2026-03-20T05:17:23.968Z"
+    },
+    {
+      "id": "msg-1774006973521-user",
+      "guide_id": "guide-003",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "role": "user",
+      "content": "hOLA",
+      "sent_at": "2026-03-20T11:42:53.521Z"
+    },
+    {
+      "id": "msg-1774006973653-assistant",
+      "guide_id": "guide-003",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "role": "assistant",
+      "content": "👋 Gracias por tu pregunta sobre \"Conditional Sentences (If Clauses)\". \n\nRecuerda que el concepto central es: **Las oraciones condicionales (If Clauses) son enunciados que expresan una condición y su resultado. Estructuran situaciones reales, posibles, o imaginarias.**\n\nAlgunos puntos clave:\n• Zero Conditional (Siempre verdadero)\n• First Conditional (Probable en futuro)\n\n¿Hay algún aspecto específico que no esté claro o quieres más ejemplos?",
+      "sent_at": "2026-03-20T11:42:53.653Z"
+    },
+    {
+      "id": "msg-1774006979343-user",
+      "guide_id": "guide-003",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "role": "user",
+      "content": "Hola",
+      "sent_at": "2026-03-20T11:42:59.343Z"
+    },
+    {
+      "id": "msg-1774006979391-assistant",
+      "guide_id": "guide-003",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "role": "assistant",
+      "content": "👋 Gracias por tu pregunta sobre \"Conditional Sentences (If Clauses)\". \n\nRecuerda que el concepto central es: **Las oraciones condicionales (If Clauses) son enunciados que expresan una condición y su resultado. Estructuran situaciones reales, posibles, o imaginarias.**\n\nAlgunos puntos clave:\n• Zero Conditional (Siempre verdadero)\n• First Conditional (Probable en futuro)\n\n¿Hay algún aspecto específico que no esté claro o quieres más ejemplos?",
+      "sent_at": "2026-03-20T11:42:59.391Z"
+    },
+    {
+      "id": "msg-1774008173614-user",
+      "guide_id": "guide-002",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "role": "user",
+      "content": "hola",
+      "sent_at": "2026-03-20T12:02:53.614Z"
+    },
+    {
+      "id": "msg-1774008175798-assistant",
+      "guide_id": "guide-002",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "role": "assistant",
+      "content": "¡Hola! 👋 ¿Cómo estás hoy? ¿Listo para aprender sobre los \"phrasal verbs\"? Son muy importantes para entender y hablar inglés de forma natural. 😊\n",
+      "sent_at": "2026-03-20T12:02:55.798Z"
+    },
+    {
+      "id": "msg-1774008193996-user",
+      "guide_id": "guide-002",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "role": "user",
+      "content": "enseñame phrsal con look",
+      "sent_at": "2026-03-20T12:03:13.996Z"
+    },
+    {
+      "id": "msg-1774008197494-assistant",
+      "guide_id": "guide-002",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "role": "assistant",
+      "content": "¡Hola! 😊 Claro que sí, los \"phrasal verbs\" con \"look\" son muy útiles. \"Look\" solito significa \"mirar\", pero cuando lo combinas con otras palabras, ¡cambia de significado!\n\nAquí tienes algunos ejemplos comunes, como los que vimos en la guía:\n\n*   **Look up:** Buscar información. Por ejemplo, \"I need to look up the meaning of this word\" (Necesito buscar el significado de esta palabra). ¿Alguna vez has tenido que \"look up\" algo en un diccionario o en internet?\n*   **Look after:** Cuidar de alguien o algo. Por ejemplo, \"Can you look after my cat while I'm on vacation?\" (¿Puedes cuidar de mi gato mientras estoy de vacaciones?).\n*   **Look forward to:** Esperar con ilusión. Por ejemplo, \"I look forward to seeing you soon!\" (¡Espero verte pronto!). ¿Hay algo que estés \"looking forward to\" ahora mismo?\n\n¿Te gustaría que veamos otros \"phrasal verbs\" con \"look\", o prefieres que practiquemos con estos? 😉\n",
+      "sent_at": "2026-03-20T12:03:17.494Z"
+    },
+    {
+      "id": "msg-1774010383488-user",
+      "guide_id": "guide-001",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "role": "user",
+      "content": "Hola",
+      "sent_at": "2026-03-20T12:39:43.488Z"
+    },
+    {
+      "id": "msg-1774010386545-assistant",
+      "guide_id": "guide-001",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "role": "assistant",
+      "content": "¡Hola! 👋 ¡Qué bueno verte! ¿Listo para conquistar el Present Perfect y desbloquear nuevas habilidades en inglés? Tenemos una búsqueda emocionante por delante con 10 ejercicios y 150 XP para ganar. ¿Hay algo en particular sobre el Present Perfect que te intrigue o te cause dudas? ¡Estoy aquí para ayudarte en cada paso del camino! 😊\n",
+      "sent_at": "2026-03-20T12:39:46.546Z"
+    },
+    {
+      "id": "msg-1774018818524-user",
+      "guide_id": "g-005",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "role": "user",
+      "content": "Hola",
+      "sent_at": "2026-03-20T15:00:18.524Z"
+    },
+    {
+      "id": "msg-1774018821280-assistant",
+      "guide_id": "g-005",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "role": "assistant",
+      "content": "¡Hola! 👋 ¡Qué bueno verte por aquí! ¿Listo para descifrar algunos misterios con los \"Modales de Deducción\"? 😉 Estoy aquí para ayudarte a entender cómo usar \"must\", \"might\" y \"can't\" para resolver acertijos lógicos. ¿Tienes alguna pregunta inicial o quieres que empecemos con un ejemplo? 🕵️‍♀️\n",
+      "sent_at": "2026-03-20T15:00:21.280Z"
+    },
+    {
+      "id": "msg-1774327223146-user",
+      "guide_id": "guide-002",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "role": "user",
+      "content": "Hola",
+      "sent_at": "2026-03-24T04:40:23.146Z"
+    },
+    {
+      "id": "msg-1774327224578-assistant",
+      "guide_id": "guide-002",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "role": "assistant",
+      "content": "¡Hola! 👋 ¡Qué bueno verte por aquí! ¿Listo para convertirte en un experto en \"Phrasal Verbs\"? Tenemos 10 desafíos esperándote y 175 XP en juego. 😉 ¿Hay algo en particular sobre los \"phrasal verbs\" que te gustaría repasar o que te cause curiosidad? ¡Dime, estoy aquí para ayudarte!\n",
+      "sent_at": "2026-03-24T04:40:24.578Z"
+    },
+    {
+      "id": "msg-1774327237459-user",
+      "guide_id": "guide-002",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "role": "user",
+      "content": "Dame los phrasal verbs mas utilizados",
+      "sent_at": "2026-03-24T04:40:37.459Z"
+    },
+    {
+      "id": "msg-1774327240270-assistant",
+      "guide_id": "guide-002",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "role": "assistant",
+      "content": "¡Hola! 😊 ¡Qué buena pregunta! Los \"phrasal verbs\" más utilizados son esenciales para sonar más natural en inglés.\n\nDe acuerdo con nuestra guía, algunos muy comunes son:\n\n*   **Log in**: que significa \"iniciar sesión\". Por ejemplo, \"Log in to your dashboard.\"\n*   **Back up**: que significa \"hacer una copia de seguridad\". Por ejemplo, \"Back up your data immediately.\"\n\nPero hay muchísimos más. Otros que se usan un montón son \"get up\" (levantarse), \"look for\" (buscar), \"take off\" (despegar o quitarse ropa).\n\nPara que te hagas una idea de cómo usarlos, dime, ¿hay algún \"phrasal verb\" que te cause curiosidad o que hayas escuchado antes y no estés seguro de su significado? 🤔 ¡Así puedo darte ejemplos más específicos!\n",
+      "sent_at": "2026-03-24T04:40:40.270Z"
+    }
+  ],
+  "exercise_submissions": [
+    {
+      "id": "submission-1773982858963-hq7fsuzye",
+      "guide_id": "guide-001",
+      "exercise_id": "ex-001",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "selected_answer": "have seen",
+      "is_correct": true,
+      "submitted_at": "2026-03-20T05:00:58.963Z"
+    },
+    {
+      "id": "submission-1773982869659-45yq4s5jw",
+      "guide_id": "guide-001",
+      "exercise_id": "ex-002",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "selected_answer": "She has lived here since 2020.",
+      "is_correct": true,
+      "submitted_at": "2026-03-20T05:01:09.659Z"
+    },
+    {
+      "id": "submission-1773982877892-8helw869s",
+      "guide_id": "guide-001",
+      "exercise_id": "ex-003",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "selected_answer": "No, I haven't finished it yet.",
+      "is_correct": true,
+      "submitted_at": "2026-03-20T05:01:17.892Z"
+    },
+    {
+      "id": "submission-1773982883110-jsw0l38w8",
+      "guide_id": "guide-001",
+      "exercise_id": "ex-004",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "selected_answer": "just arrived",
+      "is_correct": false,
+      "submitted_at": "2026-03-20T05:01:23.110Z"
+    },
+    {
+      "id": "submission-1773982888234-7s5jm5b79",
+      "guide_id": "guide-001",
+      "exercise_id": "ex-004",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "selected_answer": "have just arrived",
+      "is_correct": true,
+      "submitted_at": "2026-03-20T05:01:28.234Z"
+    },
+    {
+      "id": "submission-1773982895247-osf5vx19r",
+      "guide_id": "guide-001",
+      "exercise_id": "ex-005",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "selected_answer": "They have visited Paris last year.",
+      "is_correct": false,
+      "submitted_at": "2026-03-20T05:01:35.247Z"
+    },
+    {
+      "id": "submission-1773982903945-5npcp3heq",
+      "guide_id": "guide-001",
+      "exercise_id": "ex-005",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "selected_answer": "They have visited Paris many times.",
+      "is_correct": true,
+      "submitted_at": "2026-03-20T05:01:43.945Z"
+    },
+    {
+      "id": "submission-1773982909424-j58faaam0",
+      "guide_id": "guide-001",
+      "exercise_id": "ex-006",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "selected_answer": "have you been living",
+      "is_correct": false,
+      "submitted_at": "2026-03-20T05:01:49.424Z"
+    },
+    {
+      "id": "submission-1773982912929-p89uv4sp2",
+      "guide_id": "guide-001",
+      "exercise_id": "ex-006",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "selected_answer": "have you lived",
+      "is_correct": true,
+      "submitted_at": "2026-03-20T05:01:52.929Z"
+    },
+    {
+      "id": "submission-1774035779748-6ctjcisiv",
+      "guide_id": "g-009",
+      "exercise_id": "e1",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "selected_answer": "to learn",
+      "is_correct": true,
+      "submitted_at": "2026-03-20T19:42:59.748Z"
+    }
+  ],
+  "story_moments": [
+    {
+      "id": "moment-1",
+      "story_id": "the-last-train",
+      "order": 1,
+      "title": "Boarding the Express",
+      "narrative_context": "You board the Paris night express at 22:00. The platform is crowded, but you find your seat in the first-class compartment. A mysterious elderly woman sits across from you.",
+      "character_name": "Madame Dubois (Elderly Woman)",
+      "character_opening_dialogue": "Bonsoir. This seat — it remains empty, yes? How fortunate. These trains get more crowded every year.",
+      "prompt": "Respond to Madame Dubois. Introduce yourself and ask about the journey to Paris.",
+      "character_advance_dialogue": "Ah, first time to Paris? How delightful. You picked an interesting night to travel — there are some... unusual passengers aboard tonight.",
+      "character_pause_dialogue": "Pardon? I didn't quite catch that. Could you repeat more clearly?",
+      "is_final_scene": false,
+      "base_duration_seconds": 120,
+      "atmosphere": "mysterious",
+      "created_at": "2026-04-03T10:00:00Z"
+    },
+    {
+      "id": "moment-2",
+      "story_id": "the-last-train",
+      "order": 2,
+      "title": "The Theft Discovery",
+      "narrative_context": "Three hours into the journey, an alarm sounds. The train conductor bursts into your compartment looking panicked. 'A valuable diamond necklace has been stolen from the private train car!'",
+      "character_name": "Conductor Marc",
+      "character_opening_dialogue": "Excuse me! Has anyone seen anything suspicious? A priceless necklace vanished from the lockbox. The police will meet us at the next station in two hours.",
+      "prompt": "Ask the conductor questions about the theft. Who had access? When was it discovered?",
+      "character_advance_dialogue": "Smart questions. Only three people had access to that car today: myself, an aristocrat, and a young musician. Nobody has left their compartment.",
+      "character_pause_dialogue": "I'm sorry, I don't understand what you're asking. The situation is urgent — please focus.",
+      "is_final_scene": false,
+      "base_duration_seconds": 150,
+      "atmosphere": "urgent",
+      "created_at": "2026-04-03T10:00:00Z"
+    },
+    {
+      "id": "moment-3",
+      "story_id": "the-last-train",
+      "order": 3,
+      "title": "Interviewing the Guard",
+      "narrative_context": "You volunteer to help investigate. The conductor takes you to meet the security guard, Alex, a stern man in his fifties who was protecting the car when the theft occurred.",
+      "character_name": "Alex (Security Guard)",
+      "character_opening_dialogue": "I don't need help from amateurs. But if you want to waste time... I was on duty the entire period. Nobody suspicious passed by my post.",
+      "prompt": "Convince Alex to tell you more about the people he saw. Was anyone acting nervous?",
+      "character_advance_dialogue": "Fine. Yes — the aristocrat, Comte de Rêveurs, seemed unusually agitated. He kept checking his watch. But that proves nothing.",
+      "character_pause_dialogue": "Look, I answered already. Don't test my patience.",
+      "is_final_scene": false,
+      "base_duration_seconds": 140,
+      "atmosphere": "tense",
+      "created_at": "2026-04-03T10:00:00Z"
+    },
+    {
+      "id": "moment-4",
+      "story_id": "the-last-train",
+      "order": 4,
+      "title": "The Musician's Secret",
+      "narrative_context": "In the dining car, you encounter Sophie, a young classical musician who was near the private car. She seems nervous, avoiding eye contact.",
+      "character_name": "Sophie (Musician)",
+      "character_opening_dialogue": "Oh... hello. I heard about the necklace. Terrible business. I hope they find it soon. I really need to practice my violin...",
+      "prompt": "Try to put Sophie at ease. Ask her about her journey and what she knows about the theft.",
+      "character_advance_dialogue": "You seem genuine. Okay... I was near the car earlier, but I wasn't in it. I heard voices — angry French. Someone said, 'It has to disappear tonight.' But I didn't see who.",
+      "character_pause_dialogue": "I-I don't want any trouble. Please don't ask me questions.",
+      "is_final_scene": false,
+      "base_duration_seconds": 160,
+      "atmosphere": "nervous",
+      "created_at": "2026-04-03T10:00:00Z"
+    },
+    {
+      "id": "moment-5",
+      "story_id": "the-last-train",
+      "order": 5,
+      "title": "The Comte's Confession",
+      "narrative_context": "You find the Comte in the bar car, drinking heavily. He's clearly agitated about something beyond the theft.",
+      "character_name": "Comte de Rêveurs (Aristocrat)",
+      "character_opening_dialogue": "Ah, another detective? Everyone on this train wants to play inspector today. The necklace was insured. I have no reason to steal from myself.",
+      "prompt": "Challenge the Comte's logic. If it was insured, why does he seem so nervous?",
+      "character_advance_dialogue": "Because... *looks around nervously* ...that necklace wasn't mine to insure. It was entrusted to me for a very important person. If it's missing, there will be consequences far worse than money.",
+      "character_pause_dialogue": "You're getting too close to things you shouldn't know about.",
+      "is_final_scene": false,
+      "base_duration_seconds": 180,
+      "atmosphere": "mysterious",
+      "created_at": "2026-04-03T10:00:00Z"
+    },
+    {
+      "id": "moment-6",
+      "story_id": "the-last-train",
+      "order": 6,
+      "title": "Madame's True Identity",
+      "narrative_context": "You return to your compartment and find Madame Dubois packing her belongings. She looks up calmly when you enter, revealing something shocking.",
+      "character_name": "Madame Dubois (Revealed)",
+      "character_opening_dialogue": "Sit down. I need to explain everything. I am not who you think I am. I am Inspecteur Dubois, retired. I've been tracking this necklace for months.",
+      "prompt": "Ask Madame Dubois about her investigation and what the necklace really is.",
+      "character_advance_dialogue": "It's not just a necklace — it contains microfilm with classified information. The Comte was supposed to deliver it safely, but someone on this train wants to intercept it.",
+      "character_pause_dialogue": "Are you working with them? Because if you are, this conversation ends now.",
+      "is_final_scene": false,
+      "base_duration_seconds": 170,
+      "atmosphere": "revelation",
+      "created_at": "2026-04-03T10:00:00Z"
+    },
+    {
+      "id": "moment-7",
+      "story_id": "the-last-train",
+      "order": 7,
+      "title": "The Real Thief",
+      "narrative_context": "Working together, you and Madame Dubois set a trap. When the thief attempts to retrieve the necklace from its new hiding place, Alex intervenes. The true criminal is revealed.",
+      "character_name": "Alex / The Double Agent",
+      "character_opening_dialogue": "I'm sorry, but I've worked too long for this moment. The microfilm is worth more than you could imagine. I had to do this.",
+      "prompt": "Respond to the revelation. How do you feel about Alex's betrayal? What do you say?",
+      "character_advance_dialogue": "I appreciate your understanding. I needed someone smart enough to help expose this corruption. Will you help me take this to the right authorities?",
+      "character_pause_dialogue": "You don't understand the world you're in. This doesn't end here.",
+      "is_final_scene": false,
+      "base_duration_seconds": 190,
+      "atmosphere": "climactic",
+      "created_at": "2026-04-03T10:00:00Z"
+    },
+    {
+      "id": "moment-8",
+      "story_id": "the-last-train",
+      "order": 8,
+      "title": "Arrival in Paris",
+      "narrative_context": "The train pulls into Gare de Lyon. The morning sun hits the Paris skyline. Police are waiting on the platform. The adventure ends, but many questions remain.",
+      "character_name": "Madame Dubois (Farewell)",
+      "character_opening_dialogue": "Thank you. Paris is safe because of your courage. This is where we part. Remember — sometimes the most important mysteries have no simple answers.",
+      "prompt": "Say your final goodbye to Madame Dubois. Reflect on what you've learned.",
+      "character_advance_dialogue": "I believe you will do great things. Here — take my card. If you ever need help, call me.",
+      "character_pause_dialogue": "I hope you learned something today.",
+      "is_final_scene": true,
+      "base_duration_seconds": 150,
+      "atmosphere": "reflective",
+      "created_at": "2026-04-03T10:00:00Z"
+    }
+  ],
+  "story_progress": [
+    {
+      "id": "qz9r5uo45y8mnjvedtm",
+      "story_id": "the-last-train",
+      "student_id": "ob1wqq71okommwjh5ko",
+      "current_moment_order": 3,
+      "status": "in_progress",
+      "moments_completed": [
+        1,
+        2
+      ],
+      "character_memory": [
+        "Moment 1: Ah, first time to Paris? How delightful. You picked an interesting night to travel — there are some... unusual passengers aboard tonight.",
+        "Moment 2: Smart questions. Only three people had access to that car today: myself, an aristocrat, and a young musician. Nobody has left their compartment."
+      ],
+      "started_at": "2026-04-04T05:06:40.377Z",
+      "updated_at": "2026-04-04T05:15:01.198Z",
+      "completed_at": null
+    }
+  ]
+}

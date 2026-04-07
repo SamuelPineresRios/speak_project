@@ -1,0 +1,10 @@
+{
+  "name": "SPEAK — Aprende inglés",
+  "short_name": "SPEAK",
+  "description": "Aprende inglés escribiendo en situaciones de vida real",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0D1117",
+  "theme_color": "#0D1117",
+  "orientation": "portrait-primary"
+}

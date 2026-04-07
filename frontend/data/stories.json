@@ -1,0 +1,1029 @@
+{
+  "stories": [
+    {
+      "id": "story-estacion-crisis",
+      "title": "Crisis en la Estación",
+      "description": "Ayuda a una turista confundida a encontrar su tren. Una historia que comienza en A1 y escala a B2.",
+      "cover_emoji": "🚂",
+      "cefr_level": "A1",
+      "total_scenes": 5,
+      "estimated_minutes": 25,
+      "backdrop_url": "https://images.unsplash.com/photo-1552820728-8ac41f1ce891?w=800",
+      "characters": [
+        {
+          "name": "María",
+          "role": "Turista estadounidense",
+          "personality_traits": ["educada", "confundida", "impaciente"],
+          "background": "Viajera experimentada que no habla español"
+        }
+      ],
+      "narrative_theme": "Viaje y orientación en una estación de tren",
+      "learning_objectives": [
+        "Entender preguntas básicas sobre viajes",
+        "Responder con información personal simple",
+        "Brindar direcciones y orientación",
+        "Manejar situaciones de estrés comunicativo"
+      ],
+      "is_active": true,
+      "created_at": "2026-04-01T00:00:00Z",
+      "updated_at": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "story-mercado-digital",
+      "title": "Mercado Digital",
+      "description": "Negocia una compra en un mercado callejero español. Practica números, descripciones y argumentación.",
+      "cover_emoji": "🛍️",
+      "cefr_level": "A2",
+      "total_scenes": 6,
+      "estimated_minutes": 30,
+      "backdrop_url": "https://images.unsplash.com/photo-1552869120-f0130de98394?w=800",
+      "characters": [
+        {
+          "name": "D. Ramón",
+          "role": "Vendedor de sombreros",
+          "personality_traits": ["vivaz", "bromista", "experimentado"],
+          "background": "Vendedor de mercadilla madrileña con 30 años en el oficio"
+        }
+      ],
+      "narrative_theme": "Comercio y negociación en mercados españoles",
+      "learning_objectives": [
+        "Describir objetos",
+        "Negociar precios",
+        "Usar números con confianza",
+        "Entender tono coloquial español"
+      ],
+      "is_active": true,
+      "created_at": "2026-04-01T00:00:00Z",
+      "updated_at": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "story-reunión-negocios",
+      "title": "Reunión de Negocios",
+      "description": "Participa en una reunión corporativa. Expresa opiniones, propuestas y negocia acuerdos. Nivel B1-B2.",
+      "cover_emoji": "💼",
+      "cefr_level": "B1",
+      "total_scenes": 7,
+      "estimated_minutes": 45,
+      "backdrop_url": "https://images.unsplash.com/photo-1552664730-d307ca884978?w=800",
+      "characters": [
+        {
+          "name": "Directora López",
+          "role": "CEO de startup española",
+          "personality_traits": ["profesional", "exigente", "abierta"],
+          "background": "Líder de company tech con visionarias ideas sobre software"
+        }
+      ],
+      "narrative_theme": "Mundo corporativo español moderno",
+      "learning_objectives": [
+        "Expresar opiniones profesionales",
+        "Argumentar posiciones",
+        "Usar vocabulario empresarial",
+        "Mantener registro formal"
+      ],
+      "is_active": true,
+      "created_at": "2026-04-01T00:00:00Z",
+      "updated_at": "2026-04-01T00:00:00Z"
+    }
+  ],
+  "scenes": [
+    {
+      "id": "scene-estacion-1",
+      "story_id": "story-estacion-crisis",
+      "order": 1,
+      "title": "Un encuentro fortuito",
+      "narrative_context": "Estás en la estación de tren Santa Justa en Sevilla. Es un viernes a las 15:30, la estación está llena de gente. De repente, una mujer rubia te toca el hombro.",
+      "situation": "Una turista extranjera te pide ayuda para encontrar su tren.",
+      "objective": "Saludar amablemente a María y preguntarle adónde va",
+      "character_name": "María",
+      "character_role": "Turista estadounidense confundida",
+      "character_personality": ["nerviosa", "educada", "impaciente"],
+      "character_opening_dialogue": "¡Perdona! ¿Tú hablas inglés? No, wait... ¿Español? Sí, bueno... ¿De dónde es el tren que va a Madrid? Estoy buscando el andén correcto. ¡Tengo prisa!",
+      "cefr_level": "A1",
+      "evaluation_criteria": {
+        "vocabulary_complexity": "basic",
+        "grammar_structures": ["presente simple", "verbos básicos"],
+        "naturalness_factor": 0.5,
+        "context_relevance": "flexible",
+        "min_tokens": 3
+      },
+      "guidance": {
+        "key_verbs": [
+          {
+            "base_form": "ir",
+            "translations": { "en": "to go", "pt": "ir" },
+            "tenses": {
+              "present": "voy, vas, va",
+              "preterite": "fui, fuiste, fue",
+              "imperfect": "iba, ibas, iba",
+              "future": "iré, irás, irá",
+              "conditional": "iría, irías, iría"
+            },
+            "examples_in_context": [
+              "¿Adónde vas? (Where are you going?)",
+              "Voy a Madrid"
+            ],
+            "examples_in_other_contexts": [
+              "Voy al trabajo cada día",
+              "¿Dónde vas esta noche?"
+            ]
+          },
+          {
+            "base_form": "viajar",
+            "translations": { "en": "to travel", "pt": "viajar" },
+            "tenses": {
+              "present": "viajo, viajas, viaja",
+              "preterite": "viajé, viajaste, viajó",
+              "imperfect": "viajaba, viajabas, viajaba",
+              "future": "viajaré, viajarás, viajará",
+              "conditional": "viajaría, viajarías, viajaría"
+            },
+            "examples_in_context": [
+              "Ella viaja a Barcelona",
+              "Viajamos en tren"
+            ],
+            "examples_in_other_contexts": [
+              "Viajo cada verano",
+              "¿Dónde viajaste el año pasado?"
+            ]
+          },
+          {
+            "base_form": "buscar",
+            "translations": { "en": "to search, to look for", "pt": "procurar" },
+            "tenses": {
+              "present": "busco, buscas, busca",
+              "preterite": "busqué, buscaste, buscó",
+              "imperfect": "buscaba, buscabas, buscaba",
+              "future": "buscaré, buscarás, buscará",
+              "conditional": "buscaría, buscarías, buscaría"
+            },
+            "examples_in_context": [
+              "Busco el andén 5",
+              "¿Qué buscas?"
+            ],
+            "examples_in_other_contexts": [
+              "Busco mis llaves",
+              "Buscamos un restaurante"
+            ]
+          }
+        ],
+        "key_adjectives": [
+          {
+            "word": "correcto",
+            "meaning": "correct, right",
+            "example_in_scene": "¿Es el andén correcto?",
+            "example_other_context": "Tu respuesta es correcta"
+          },
+          {
+            "word": "confundido",
+            "meaning": "confused",
+            "example_in_scene": "Estoy confundida (I'm confused)",
+            "example_other_context": "El niño está confundido"
+          },
+          {
+            "word": "perdido",
+            "meaning": "lost",
+            "example_in_scene": "He perdido el andén",
+            "example_other_context": "Estamos perdidos en la ciudad"
+          }
+        ],
+        "key_nouns": [
+          {
+            "word": "tren",
+            "meaning": "train",
+            "article": "el",
+            "example_in_scene": "¿De dónde es el tren a Madrid?"
+          },
+          {
+            "word": "andén",
+            "meaning": "platform",
+            "article": "el",
+            "example_in_scene": "¿Cuál es el andén correcto?"
+          },
+          {
+            "word": "viaje",
+            "meaning": "trip, journey",
+            "article": "el",
+            "example_in_scene": "¿Es un viaje largo?"
+          }
+        ],
+        "grammar_tips": {
+          "focus_structure": "Presente Simple + Preposición",
+          "explanation": "En A1, usa el tiempo presente simple (presente indicativo). Estructura básica: SUJETO + VERBO + COMPLEMENTO. Ej: Yo voy a Madrid. No necesitas explicar mucho - sé breve y claro.",
+          "examples": [
+            "Yo voy a Madrid",
+            "Ella viaja en tren",
+            "Buscamos el andén 5"
+          ],
+          "common_mistakes": [
+            "Evita tiempos complejos (condicional, subjuntivo)",
+            "No uses oraciones demasiado largas",
+            "No traduzcas palabra por palabra del inglés"
+          ]
+        },
+        "sentence_starters": [
+          "Hola, yo...",
+          "Sí, yo...",
+          "Voy a...",
+          "Busco...",
+          "Viajo a..."
+        ],
+        "register_notes": "Usa un tono amable y informal. María es una turista, así que se paciente y habla claramente."
+      },
+      "expected_responses": {
+        "high_quality": [
+          "Hola María, ¿adónde vas?",
+          "Hola, ¿a qué ciudad viajas?",
+          "Yo me llamo [your name]. ¿Adónde quieres ir?",
+          "Hola, yo voy a Madrid también. ¿Y tú?"
+        ],
+        "acceptable": [
+          "Hola. ¿Adónde?",
+          "¿Madrid?",
+          "Viajas a dónde",
+          "Tú ir adónde?"
+        ],
+        "common_mistakes": [
+          {
+            "pattern": "Responde en inglés o mezcla idiomas",
+            "correction": "Responde solo en español",
+            "explanation": "This is a Spanish learning exercise. Always respond in Spanish."
+          },
+          {
+            "pattern": "No responde a la pregunta (off-topic)",
+            "correction": "María pregunta 'adónde vas'. Debes responder con un destino o preguntar también dónde ella va.",
+            "explanation": "Your response should be contextually relevant to what María asked."
+          }
+        ]
+      },
+      "character_reactions": {
+        "advance": "¡Qué bueno! Hablas español muy bien. Sí, voy a Madrid. ¿Tú también vas allá? ¡Qué coincidencia!",
+        "pause": "Perdona, ¿qué? No entiendo bien. ¿Podrías hablar más claro? ¿Dónde vamos?",
+        "confusion": "Hmm, I'm not sure what you mean... ¿Hablas poco español? No importa, continue slowly?"
+      },
+      "base_duration_seconds": 45,
+      "atmosphere": "warm",
+      "background_description": "Concourse of a busy train station. Announcements in background. High ceilings with arched architecture. Real people walking with luggage.",
+      "is_final_scene": false,
+      "created_at": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "scene-estacion-2",
+      "story_id": "story-estacion-crisis",
+      "order": 2,
+      "title": "Información sobre María",
+      "narrative_context": "María parece aliviada al poder comunicarse contigo. Ella sigue hablando, compartiendo detalles de su viaje.",
+      "situation": "María te hace preguntas sobre ti: si viajas solo, con familia, cuánto tiempo, etc.",
+      "objective": "Responder sus preguntas simples sobre tu situación y viaje",
+      "character_name": "María",
+      "character_role": "Turista conversadora",
+      "character_personality": ["nerviosa", "curiosa", "educada"],
+      "character_opening_dialogue": "Gracias por ayudarme. ¿Y tú? ¿Viajas solo? ¿Con familia? ¿Cuánto tiempo vas a estar en Madrid? ¿Es tu primer viaje?",
+      "cefr_level": "A1",
+      "evaluation_criteria": {
+        "vocabulary_complexity": "basic",
+        "grammar_structures": ["presente simple", "adjetivos posesivos"],
+        "naturalness_factor": 0.6,
+        "context_relevance": "moderate",
+        "min_tokens": 5
+      },
+      "guidance": {
+        "key_verbs": [
+          {
+            "base_form": "viajar",
+            "translations": { "en": "to travel", "pt": "viajar" },
+            "tenses": {
+              "present": "viajo, viajas, viaja",
+              "preterite": "viajé, viajaste, viajó",
+              "imperfect": "viajaba, viajabas, viajaba",
+              "future": "viajaré, viajarás, viajará",
+              "conditional": "viajaría, viajarías, viajaría"
+            },
+            "examples_in_context": [
+              "Viajo con mi familia",
+              "Viajo solo"
+            ],
+            "examples_in_other_contexts": [
+              "Viajo cada año",
+              "Ella viaja a menudo"
+            ]
+          },
+          {
+            "base_form": "estar",
+            "translations": { "en": "to be (location)", "pt": "estar" },
+            "tenses": {
+              "present": "estoy, estás, está",
+              "preterite": "estuve, estuviste, estuvo",
+              "imperfect": "estaba, estabas, estaba",
+              "future": "estaré, estarás, estará",
+              "conditional": "estaría, estarías, estaría"
+            },
+            "examples_in_context": [
+              "Estoy en la estación",
+              "Estaré en Madrid una semana"
+            ],
+            "examples_in_other_contexts": [
+              "Estoy en casa",
+              "¿Dónde estás?"
+            ]
+          },
+          {
+            "base_form": "tener",
+            "translations": { "en": "to have", "pt": "ter" },
+            "tenses": {
+              "present": "tengo, tienes, tiene",
+              "preterite": "tuve, tuviste, tuvo",
+              "imperfect": "tenía, tenías, tenía",
+              "future": "tendré, tendrás, tendrá",
+              "conditional": "tendría, tendrías, tendría"
+            },
+            "examples_in_context": [
+              "Tengo familia en Madrid",
+              "Tengo tres días de vacaciones"
+            ],
+            "examples_in_other_contexts": [
+              "Tengo un hermano",
+              "¿Cuántos años tienes?"
+            ]
+          },
+          {
+            "base_form": "acompañar",
+            "translations": { "en": "to accompany, to go with", "pt": "acompanhar" },
+            "tenses": {
+              "present": "acompaño, acompañas, acompaña",
+              "preterite": "acompañé, acompañaste, acompañó",
+              "imperfect": "acompañaba, acompañabas, acompañaba",
+              "future": "acompañaré, acompañarás, acompañará",
+              "conditional": "acompañaría, acompañarías, acompañaría"
+            },
+            "examples_in_context": [
+              "Mi hermana me acompaña",
+              "¿Quién te acompaña?"
+            ],
+            "examples_in_other_contexts": [
+              "Mi amigo me acompaña al cine",
+              "¿Me acompañas?"
+            ]
+          }
+        ],
+        "key_adjectives": [
+          {
+            "word": "solo",
+            "meaning": "alone",
+            "example_in_scene": "¿Viajas solo?",
+            "example_other_context": "Estoy solo hoy"
+          },
+          {
+            "word": "primero",
+            "meaning": "first",
+            "example_in_scene": "¿Es tu primer viaje?",
+            "example_other_context": "Mi primer día de trabajo"
+          },
+          {
+            "word": "largo",
+            "meaning": "long",
+            "example_in_scene": "¿Es un viaje largo?",
+            "example_other_context": "La película es muy larga"
+          }
+        ],
+        "key_nouns": [
+          {
+            "word": "familia",
+            "meaning": "family",
+            "article": "la",
+            "example_in_scene": "¿Viajas con familia?"
+          },
+          {
+            "word": "tiempo",
+            "meaning": "time",
+            "article": "el",
+            "example_in_scene": "¿Cuánto tiempo vas a estar?"
+          },
+          {
+            "word": "día",
+            "meaning": "day",
+            "article": "el",
+            "example_in_scene": "¿Cuántos días?"
+          },
+          {
+            "word": "semana",
+            "meaning": "week",
+            "article": "la",
+            "example_in_scene": "Una semana es mucho tiempo"
+          }
+        ],
+        "grammar_tips": {
+          "focus_structure": "Pronombres Posesivos + Presente Simple",
+          "explanation": "Cuando hablas de tu familia o posesiones: mi familia, tu tren, su viaje. En presente: yo tengo, yo viajo. Mantén SIMPLE: pocas palabras, claro.",
+          "examples": [
+            "Viajo solo (I travel alone)",
+            "Mi hermana viaja conmigo (My sister travels with me)",
+            "Tengo pocas días (I have few days)",
+            "Estoy una semana en Madrid"
+          ],
+          "common_mistakes": [
+            "No mezcles 'mi' y 'yo': es 'mi familia', no 'yo familia'",
+            "Presente simple: 'tengo', no 'tenga' (eso es futuro subjuntivo)",
+            "Brevedad: 'Viajo una semana' en lugar de 'Voy a viajar una semana durante una semana'"
+          ]
+        },
+        "sentence_starters": [
+          "Yo viajo...",
+          "Tengo...",
+          "Mi familia...",
+          "Estoy en...",
+          "Es mi primer...",
+          "Viajo solo/con..."
+        ],
+        "register_notes": "Conversación casual y amigable. María está compartiendo información personal, así que tú también puedo hacer lo mismo de manera natural."
+      },
+      "expected_responses": {
+        "high_quality": [
+          "Viajo con mi hermana. Estamos una semana en Madrid.",
+          "Viajo solo. Es mi primer viaje a Madrid.",
+          "Tengo tres días. Viajo con mi familia.",
+          "Mi familia vive en Madrid. Estoy diez días."
+        ],
+        "acceptable": [
+          "Solo, una semana",
+          "Con familia, Madrid, tres días",
+          "Yo tengo hermana, estamos Madrid"
+        ],
+        "common_mistakes": [
+          {
+            "pattern": "Information that doesn't match the question",
+            "correction": "Si María pregunta 'cuánto tiempo', debes responder con un número de días/semanas, no con otra información.",
+            "explanation": "Context relevance: match your response to what was asked."
+          }
+        ]
+      },
+      "character_reactions": {
+        "advance": "¡Qué emoción! Espero que disfrutes tu viaje. Yo estoy aquí solo para una semana también. ¿Qué lugares quieres visitar?",
+        "pause": "Perdona, no entendí bien. ¿Cuántos días? ¿Con quién viajas?",
+        "confusion": "I'm confused... are you traveling or not? Maybe I'm not understanding well..."
+      },
+      "base_duration_seconds": 60,
+      "atmosphere": "warm",
+      "background_description": "Still in the station, but you've moved to a quieter corner away from the main crowd.",
+      "is_final_scene": false,
+      "created_at": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "scene-estacion-3",
+      "story_id": "story-estacion-crisis",
+      "order": 3,
+      "title": "Un problema con el horario",
+      "narrative_context": "De repente, María ve el reloj en su teléfono y se pone nerviosa. Busca desesperadamente su boleto en su mochila.",
+      "situation": "María tiene un problema: su tren está a punto de salir y no sabe qué hora es en el boleto.",
+      "objective": "Ayudarla comprendiendo sus preguntas sobre la hora y la duración del viaje, y tranquilizarla",
+      "character_name": "María",
+      "character_role": "Turista estresada",
+      "character_personality": ["ansiosa", "acelerada", "pide ayuda"],
+      "character_opening_dialogue": "¡Oh no! ¡He perdido la hora! Mi boleto dice 16:45. ¿Qué hora es ahora? ¿Cuánto tiempo tarda el tren a Madrid? ¿Tengo suficiente tiempo?",
+      "cefr_level": "A2",
+      "evaluation_criteria": {
+        "vocabulary_complexity": "intermediate",
+        "grammar_structures": ["presente perfecto", "números", "expresiones de tiempo"],
+        "naturalness_factor": 0.7,
+        "context_relevance": "strict",
+        "min_tokens": 8
+      },
+      "guidance": {
+        "key_verbs": [
+          {
+            "base_form": "salir",
+            "translations": { "en": "to leave, to depart", "pt": "sair" },
+            "tenses": {
+              "present": "salgo, sales, sale",
+              "preterite": "salí, saliste, salió",
+              "imperfect": "salía, salías, salía",
+              "future": "saldré, saldrás, saldrá",
+              "conditional": "saldría, saldrías, saldría"
+            },
+            "examples_in_context": [
+              "El tren sale a las 16:45",
+              "¿A qué hora sale el tren?"
+            ],
+            "examples_in_other_contexts": [
+              "Salgo del trabajo a las 5",
+              "¿Cuándo sales?"
+            ]
+          },
+          {
+            "base_form": "tardar",
+            "translations": { "en": "to take (time)", "pt": "demorar" },
+            "tenses": {
+              "present": "tardo, tardas, tarda",
+              "preterite": "tardé, tardaste, tardó",
+              "imperfect": "tardaba, tardabas, tardaba",
+              "future": "tardaré, tardarás, tardará",
+              "conditional": "tardaría, tardarías, tardaría"
+            },
+            "examples_in_context": [
+              "El viaje tarda tres horas",
+              "¿Cuánto tiempo tarda?"
+            ],
+            "examples_in_other_contexts": [
+              "El bus tarda 20 minutos",
+              "Tardamos dos horas en llegar"
+            ]
+          },
+          {
+            "base_form": "tener",
+            "translations": { "en": "to have", "pt": "ter" },
+            "tenses": {
+              "present": "tengo, tienes, tiene",
+              "preterite": "tuve, tuviste, tuvo",
+              "imperfect": "tenía, tenías, tenía",
+              "future": "tendré, tendrás, tendrá",
+              "conditional": "tendría, tendrías, tendría"
+            },
+            "examples_in_context": [
+              "¿Tengo suficiente tiempo?",
+              "Tienes quince minutos"
+            ],
+            "examples_in_other_contexts": [
+              "¿Cuánto tiempo tienes?",
+              "Tenemos una hora"
+            ]
+          }
+        ],
+        "key_adjectives": [
+          {
+            "word": "suficiente",
+            "meaning": "enough, sufficient",
+            "example_in_scene": "¿Tengo suficiente tiempo?",
+            "example_other_context": "Este dinero es suficiente"
+          },
+          {
+            "word": "perdido",
+            "meaning": "lost",
+            "example_in_scene": "He perdido la hora",
+            "example_other_context": "Me siento perdido"
+          },
+          {
+            "word": "próximo",
+            "meaning": "next, upcoming",
+            "example_in_scene": "¿Es el próximo tren?",
+            "example_other_context": "La próxima semana"
+          }
+        ],
+        "key_nouns": [
+          {
+            "word": "hora",
+            "meaning": "hour, time",
+            "article": "la",
+            "example_in_scene": "¿Qué hora es? ¿A qué hora sale?"
+          },
+          {
+            "word": "minuto",
+            "meaning": "minute",
+            "article": "el",
+            "example_in_scene": "¿Cuántos minutos?"
+          },
+          {
+            "word": "reloj",
+            "meaning": "watch, clock",
+            "article": "el",
+            "example_in_scene": "Mi reloj marca las 16:30"
+          }
+        ],
+        "grammar_tips": {
+          "focus_structure": "La hora + expresiones de tiempo",
+          "explanation": "HORA: ¿Qué hora es? Son las 16:45. (PLURAL: son, excepto la 1). TIEMPO: El tren tarda 3 horas. Tienes 15 minutos. Usa 'tengo' o 'tienes' para expresar cantidad de tiempo disponible.",
+          "examples": [
+            "Son las 16:30",
+            "La hora es 16:45",
+            "Tarda dos horas y treinta minutos",
+            "Tienes suficiente tiempo"
+          ],
+          "common_mistakes": [
+            "No digas 'Es la 16:45' - todas las horas usan PLURAL excepto las 13:00",
+            "No mezcles: 'hora' (una hora = 60 minutos) vs 'reloj' (el objeto)",
+            "Para futuro cercano: 'El tren sale a las...' no 'en las...'"
+          ]
+        },
+        "sentence_starters": [
+          "Son las...",
+          "El tren tarda...",
+          "Tienes...",
+          "Es suficiente...",
+          "La salida es a las...",
+          "¿Qué hora..."
+        ],
+        "register_notes": "María está estresada, así que sé rápido y directo. Da información clara sobre horarios. Usa números con precisión."
+      },
+      "expected_responses": {
+        "high_quality": [
+          "Son las 16:30. El tren tarda tres horas. Tienes quince minutos. ¡Corre!",
+          "Ahora son las 16:25. Tienes veinte minutos. ¡Rápido, vamos!",
+          "El viaje tarda más o menos tres horas. Son las 16:35, así que tienes diez minutos."
+        ],
+        "acceptable": [
+          "Hora 16:30. Tren tarda tres horas.",
+          "Son 16:25, tienes tiempo",
+          "Tarda tres horas, tienes quince minutos"
+        ],
+        "common_mistakes": [
+          {
+            "pattern": "No proporciona información clara sobre la hora o tiempo",
+            "correction": "Debes decir qué hora es AHORA y cuánto TARDA el viaje, para que ella pueda entender cuánto tiempo tiene.",
+            "explanation": "Context: María necesita información práctica urgente."
+          },
+          {
+            "pattern": "Dice horas incorrectas o inconsistentes",
+            "correction": "Si María pregunta 'son las 16:45', la respuesta no debe ser 'son las 14:30'. Mantén la lógica temporal.",
+            "explanation": "Keep it contextually consistent."
+          }
+        ]
+      },
+      "character_reactions": {
+        "advance": "¡Gracias! ¡Tienes razón! Tengo que correr. ¡Tu ayuda fue invaluable! Posiblemente nos vemos en Madrid. ¡Adiós!",
+        "pause": "Perdona, no entendí los números. ¿Puedes repetir? ¿A qué hora exactamente sale mi tren?",
+        "confusion": "I'm still confused about the time... What time is it NOW versus what time does my train leave?"
+      },
+      "base_duration_seconds": 90,
+      "atmosphere": "urgent",
+      "background_description": "The station is getting busier. Announcements about train departures are heard in the background. Screens show updated schedules.",
+      "is_final_scene": false,
+      "created_at": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "scene-estacion-4",
+      "story_id": "story-estacion-crisis",
+      "order": 4,
+      "title": "El despido - Escalando a B1",
+      "narrative_context": "Mientras María corre hacia el andén, grita: '¡Gracias!' Consigue su tren justo a tiempo. Más tarde, recibes un email de ella desde Madrid con una propuesta interesante.",
+      "situation": "A través de email (escrito), María te comunica cómo fue su viaje y te hace una propuesta de colaboración profesional. Este es el momento de escalar a B1.",
+      "objective": "Responder profesionalmente a la propuesta de María, expresando tu opinión y tomando una decisión",
+      "character_name": "María",
+      "character_role": "Colega profesional potencial",
+      "character_personality": ["profesional", "amable", "con visión"],
+      "character_opening_dialogue": "¡Hola! Espero que estés bien. Quería agradecerte nuevamente. Me llegué con tiempo al tren. Resultó que soy emprendedora en el sector tech, y me llamó tu creatividad. ¿Te gustaría colaborar en un proyecto? Necesito alguien que entienda de educación y tecnología...",
+      "cefr_level": "B1",
+      "evaluation_criteria": {
+        "vocabulary_complexity": "advanced",
+        "grammar_structures": ["conditional", "subjunctive mood", "complex sentences"],
+        "naturalness_factor": 0.85,
+        "context_relevance": "strict",
+        "min_tokens": 15
+      },
+      "guidance": {
+        "key_verbs": [
+          {
+            "base_form": "estar interesado",
+            "translations": { "en": "to be interested", "pt": "estar interessado" },
+            "tenses": {
+              "present": "estoy interesado, estás interesado, está interesado",
+              "preterite": "estuve interesado, estuviste interesado, estuvo interesado",
+              "imperfect": "estaba interesado, estabas interesado, estaba interesado",
+              "future": "estaré interesado, estarás interesado, estará interesado",
+              "conditional": "estaría interesado, estarías interesado, estaría interesado"
+            },
+            "examples_in_context": [
+              "Estaría muy interesado en colaborar",
+              "No estoy seguro si me interesearía"
+            ],
+            "examples_in_other_contexts": [
+              "Estoy muy interesado en este proyecto",
+              "¿Estarías interesado en una reunión?"
+            ]
+          },
+          {
+            "base_form": "considerar",
+            "translations": { "en": "to consider", "pt": "considerar" },
+            "tenses": {
+              "present": "considero, consideras, considera",
+              "preterite": "consideré, consideraste, consideró",
+              "imperfect": "consideraba, considerabas, consideraba",
+              "future": "consideraré, considerarás, considerará",
+              "conditional": "consideraría, considerarías, consideraría"
+            },
+            "examples_in_context": [
+              "Consideraría tu propuesta",
+              "Considero que es una oportunidad interesante"
+            ],
+            "examples_in_other_contexts": [
+              "Considero que tienes razón",
+              "¿Lo considerarás?"
+            ]
+          },
+          {
+            "base_form": "colaborar",
+            "translations": { "en": "to collaborate", "pt": "colaborar" },
+            "tenses": {
+              "present": "colaboro, colaboras, colabora",
+              "preterite": "colaboré, colaboraste, colaboró",
+              "imperfect": "colaboraba, colaborabas, colaboraba",
+              "future": "colaboraré, colaborarás, colaborará",
+              "conditional": "colaboraría, colaborarías, colaboraría"
+            },
+            "examples_in_context": [
+              "Me encantaría colaborar contigo",
+              "Podríamos colaborar en este proyecto"
+            ],
+            "examples_in_other_contexts": [
+              "Colaboramos en varias iniciativas",
+              "¿Quieres colaborar?"
+            ]
+          }
+        ],
+        "key_adjectives": [
+          {
+            "word": "interesante",
+            "meaning": "interesting, compelling",
+            "example_in_scene": "Es una propuesta muy interesante",
+            "example_other_context": "Ese proyecto parece muy interesante"
+          },
+          {
+            "word": "entusiasta",
+            "meaning": "enthusiastic, keen",
+            "example_in_scene": "Soy muy entusiasta ante nuevas oportunidades",
+            "example_other_context": "Estoy entusiasta con el proyecto"
+          },
+          {
+            "word": "potencial",
+            "meaning": "potential",
+            "example_in_scene": "Veo un gran potencial",
+            "example_other_context": "Tiene mucho potencial"
+          }
+        ],
+        "key_nouns": [
+          {
+            "word": "propuesta",
+            "meaning": "proposal, offer",
+            "article": "la",
+            "example_in_scene": "Tu propuesta es interesante"
+          },
+          {
+            "word": "colaboración",
+            "meaning": "collaboration",
+            "article": "la",
+            "example_in_scene": "Una colaboración podría ser exitosa"
+          },
+          {
+            "word": "oportunidad",
+            "meaning": "opportunity",
+            "article": "la",
+            "example_in_scene": "Es una gran oportunidad"
+          }
+        ],
+        "grammar_tips": {
+          "focus_structure": "Condicional + Subjuntivo (O al menos oraciones complejas)",
+          "explanation": "Usamos el condicional para expresar posibilidades o cortesía: 'Me gustaría...', 'Consideraría...', 'Sería posible...'. Usa conectores para unir ideas: 'aunque', 'si bien', 'por otro lado', 'sin embargo'. Expresiones profesionales: 'Quisiera conocer más detalles', 'Creo que sería beneficioso', etc.",
+          "examples": [
+            "Me encantaría colaborar, aunque necesitaría conocer más detalles",
+            "Consideraría tu propuesta si me explicaras los objetivos",
+            "Sería interesante, pero tendría algunas preguntas"
+          ],
+          "common_mistakes": [
+            "No uses futuro simple para propuestas: 'Colaboraré' suena demasiado definitivo; usa condicional",
+            "Evita ser demasiado directo/corto. En B1 se esperan conexiones y matices",
+            "No mezcles registros: mantén tono profesional pero amable"
+          ]
+        },
+        "sentence_starters": [
+          "Gracias por tu propuesta...",
+          "Me encantaría...",
+          "Consideraría...",
+          "Aunque...",
+          "Sin embargo...",
+          "Quisiera saber más sobre...",
+          "Creo que sería beneficioso..."
+        ],
+        "register_notes": "Tono profesional pero amable. María es una potencial socia, así que sé cortés, expresa interés genuino, pero también formula preguntas sensatas. Esto es negociación de nivel profesional."
+      },
+      "expected_responses": {
+        "high_quality": [
+          "María, gracias por pensar en mí. Me encantaría colaborar contigo. Aunque necesitaría conocer más detalles sobre el proyecto, me parece una oportunidad muy interesante. ¿Cuándo podríamos hablar?",
+          "Me siento honrado por tu propuesta. Considero que podríamos hacer algo muy valioso juntos. Sin embargo, quisiera entender mejor tu visión. ¿Cómo ves el rol de la educación en tu startup?",
+          "¡Qué emoción! Siempre he querido trabajar en proyecto de tech educativa. Estaría más que interesado. ¿Puedes compartir más sobre el concepto y el equipo?"
+        ],
+        "acceptable": [
+          "Sí, quiero colaborar. ¿Cuáles serían mis responsabilidades?",
+          "Me gusta la idea. Pero necesito entender qué se requiere.",
+          "Sería bueno trabajar contigo. ¿Cuándo nos reunimos?"
+        ],
+        "common_mistakes": [
+          {
+            "pattern": "Demasiado simple, sin expresar matices o preguntas",
+            "correction": "En B1, se espera que expreses interés pero también cuestiones sensatas. Hacer preguntas muestra pensamiento crítico.",
+            "explanation": "A professional response at B1 level should demonstrate both interest and thoughtfulness."
+          }
+        ]
+      },
+      "character_reactions": {
+        "advance": "¡Excelente! Me encanta tu entusiasmo y lo pensado de tu respuesta. Realmente creo que podemos hacer algo especial. Déjame organizarte una reunión con el equipo. ¿Estás disponible en dos semanas?",
+        "pause": "Entiendo, pero siento que no expresaste suficiente interés o no hiciste preguntas sobre el proyecto. ¿Podrías expandir tu respuesta?",
+        "confusion": "No estoy segura de tu posición... ¿Te interesa o no? ¿Qué reservas tienes?"
+      },
+      "base_duration_seconds": 180,
+      "atmosphere": "professional",
+      "background_description": "You're now back home, checking your email. Professional setting. Maybe your desk with laptop, quiet environment.",
+      "is_final_scene": false,
+      "created_at": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "scene-estacion-5",
+      "story_id": "story-estacion-crisis",
+      "order": 5,
+      "title": "La presentación - Épílogo en B2",
+      "narrative_context": "Después de dos semanas, es el día de tu reunión con el equipo completo de María. Estás en la oficina de la startup madrileña. El ambiente es profesional pero innovador. María te presenta ante el equipo CEO y otros co-fundadores.",
+      "situation": "Tienes que presentar tu visión sobre cómo la tecnología y educación pueden transformar el aprendizaje de idiomas. Es una alta-presión, escenario profesional final.",
+      "objective": "Presentar convincentemente tu visión y responder preguntas sofisticadas del equipo ejecutivo",
+      "character_name": "Directora López (CEO)",
+      "character_role": "CEO y cofundadora",
+      "character_personality": ["exigente", "inteligente", "innovadora"],
+      "character_opening_dialogue": "Bienvenido. María nos ha hablado mucho de ti. Hemos revisado tu perfil y te vemos potencial. Sin embargo, queremos entender tu perspectiva. En tu opinión, ¿cuál es la mayor brecha entre el aprendizaje tradicional de idiomas y lo que la tecnología puede ofrecer hoy? Sé específico.",
+      "cefr_level": "B2",
+      "evaluation_criteria": {
+        "vocabulary_complexity": "advanced",
+        "grammar_structures": ["conditional perfect", "subjunctive", "complex argumentation"],
+        "naturalness_factor": 0.95,
+        "context_relevance": "strict",
+        "min_tokens": 25
+      },
+      "guidance": {
+        "key_verbs": [
+          {
+            "base_form": "argumentar",
+            "translations": { "en": "to argue, to make an argument", "pt": "argumentar" },
+            "tenses": {
+              "present": "argumento, argumentas, argumenta",
+              "preterite": "argumenté, argumentaste, argumentó",
+              "imperfect": "argumentaba, argumentabas, argumentaba",
+              "future": "argumentaré, argumentarás, argumentará",
+              "conditional": "argumentaría, argumentarías, argumentaría"
+            },
+            "examples_in_context": [
+              "Argumento que la tecnología personaliza el aprendizaje",
+              "Podría argumentar desde varios ángulos"
+            ],
+            "examples_in_other_contexts": [
+              "El académico argumenta convincentemente",
+              "¿Cómo argumentarías tu posición?"
+            ]
+          },
+          {
+            "base_form": "transformar",
+            "translations": { "en": "to transform", "pt": "transformar" },
+            "tenses": {
+              "present": "transformo, transformas, transforma",
+              "preterite": "transformé, transformaste, transformó",
+              "imperfect": "transformaba, transformabas, transformaba",
+              "future": "transformaré, transformarás, transformará",
+              "conditional": "transformaría, transformarías, transformaría"
+            },
+            "examples_in_context": [
+              "La IA puede transformar la educación",
+              "Esto transformaría completamente el sector"
+            ],
+            "examples_in_other_contexts": [
+              "La tecnología transforma nuestra vida",
+              "¿Cómo ha transformado internet la sociedad?"
+            ]
+          }
+        ],
+        "key_adjectives": [
+          {
+            "word": "innovador",
+            "meaning": "innovative, cutting-edge",
+            "example_in_scene": "Tu enfoque es muy innovador",
+            "example_other_context": "Las soluciones innovadoras son cruciales"
+          },
+          {
+            "word": "significativo",
+            "meaning": "significant, meaningful",
+            "example_in_scene": "Un impacto significativo en el aprendizaje",
+            "example_other_context": "Ese cambio fue muy significativo"
+          },
+          {
+            "word": "fundamental",
+            "meaning": "fundamental, basic",
+            "example_in_scene": "La personalización es fundamental",
+            "example_other_context": "Este concepto es fundamental"
+          }
+        ],
+        "key_nouns": [
+          {
+            "word": "brecha",
+            "meaning": "gap, chasm",
+            "article": "la",
+            "example_in_scene": "La brecha entre la educación tradicional y moderna"
+          },
+          {
+            "word": "oportunidad",
+            "meaning": "opportunity",
+            "article": "la",
+            "example_in_scene": "Una oportunidad para innovar"
+          },
+          {
+            "word": "perspectiva",
+            "meaning": "perspective, viewpoint",
+            "article": "la",
+            "example_in_scene": "Tu perspectiva es valiosa"
+          },
+          {
+            "word": "potencial",
+            "meaning": "potential",
+            "article": "el",
+            "example_in_scene": "El potencial de la IA"
+          }
+        ],
+        "grammar_tips": {
+          "focus_structure": "Argumentación con subjuntivo y condicionales perfectos",
+          "explanation": "En B2, se espera que argumentes con sofisticación. Usa 'creo que' + indicativo para hechos, pero 'es posible que' + subjuntivo para posibilidades. Condicionales perfectos para hipotéticos: 'Si hubiera más inversión, habríamos llegado más lejos'. Frases complejas con múltiples cláusulas. Evidencia y ejemplos concretos.",
+          "examples": [
+            "La mayor brecha, en mi opinión, radica en la falta de personalización",
+            "Aunque la educación tradicional tiene méritos, considero que la IA permitiría adaptar el contenido",
+            "Si se hubiera invertido más en tech educativa, habríamos visto resultados más drásticos"
+          ],
+          "common_mistakes": [
+            "No argumentes como si fuera verdad absoluta; usa matices: 'considero', 'diría que', 'en mi opinión'",
+            "Evita ser demasiado teórico; ancla con ejemplos reales",
+            "No uses tiempos incorrectos: condicional perfecto va con perfecto: 'habría' + 'he visto'",
+            "Conecta ideas: no hagas lista simple, sino argumentación progresiva"
+          ]
+        },
+        "sentence_starters": [
+          "En mi opinión, la mayor brecha...",
+          "Considero que...",
+          "Aunque..., diría que...",
+          "Por ejemplo...",
+          "Esto se debe a...",
+          "Si bien...",
+          "A largo plazo, creo que...",
+          "Uno de los desafíos más significativos..."
+        ],
+        "register_notes": "Tono profesional, ejecutivo, pero apasionado. Eres expert en educación y tech. Expresa ideas con confianza pero sin arrogancia. Respeta la inteligencia de tu audiencia."
+      },
+      "expected_responses": {
+        "high_quality": [
+          "Excelente pregunta. En mi opinión, la mayor brecha radica en la falta de personalización adaptativa y retroalimentación en tiempo real. La educación tradicional sigue un currículo lineal, mientras que cada estudiante tiene ritmo y estilo de aprendizaje únicos. La tecnología, especialmente IA y análisis de datos, permite seguimiento individual, detección de debilidades específicas, y ajuste instantáneo de contenido. Aunque algunos argumentarían que los métodos tradicionales son más humanos, considero que la tecnología no reemplaza profesores, sino que los potencia con más información sobre cada estudiante. ¿Eso responde tu pregunta o hay algo específico que quieras profundizar?",
+          "Diría que el punto crítico es la escala y la democratización del acceso. Con la tecnología, un estudiante en un pueblo remoto podría acceder a educación de calidad similar a la de una gran ciudad. Pero hay un segundo aspecto: el engagement. Los métodos tradicionales a menudo son pasivos. Las plataformas modernas pueden usar gamificación, narrativa, contexto cultural real, lo que mantiene la motivación. Si hubiera existido una herramienta así cuando yo era estudiante, habría aprendido idiomas con mucha mayor eficiencia.",
+          "La brecha fundamental, considero, es entre la práctica descontextualizada y el aprendizaje inmersivo. Un aula tradicional enseña gramática abstracta. La tecnología permite simular contextos reales: viajes, negociaciones, situaciones auténticas. Esto acelera la internalización. Además, nadie aprende al mismo ritmo. La tecnología elimina ese problema."
+        ],
+        "acceptable": [
+          "Creo que el problema es que la educación tradicional no personaliza. La tecnología puede hacerlo. También es mejor para motivación.",
+          "La brecha es grande. Educación antigua no es interactiva. Tech lo es. Estudiantes aprenden mejor con interacción y contexto real.",
+          "Veo que la educación tradicional es lenta y uno-a-muchos. Tech es rápida y uno-a-uno. Eso es la diferencia principal."
+        ],
+        "common_mistakes": [
+          {
+            "pattern": "Respuesta demasiado simple o genérica",
+            "correction": "En B2, se espera análisis profundo, ejemplos, reconocimiento de complejidad. Responde como si tuvieras experiencia real.",
+            "explanation": "An executive at a startup expects sophisticated thinking, not platitudes."
+          },
+          {
+            "pattern": "Respuesta irrelevante o que evade la pregunta",
+            "correction": "La pregunta es específica sobre la brecha. Debes identificar una o varias brechas reales y argumentar por qué existen y cómo tech las resuelve.",
+            "explanation": "Stay focused and direct on the question asked."
+          }
+        ]
+      },
+      "character_reactions": {
+        "advance": "Me gusta tu pensamiento. Claramente has reflexionado sobre esto. María, creo que hemos encontrado a alguien que entiende realmente el potencial. Propongo que nos sentemos a diseñar esto juntos. ¿Qué dicen los otros? (El equipo asiente). Bienvenido al equipo.",
+        "pause": "Interesante perspectiva, pero siento que fue un poco genérico. ¿Puedes profundizar en un aspecto específico? Quizás un ejemplo concreto de cómo tu tecnología aborda esta brecha.",
+        "confusion": "No estoy segura de si realmente comprendes el mercado. ¿Has considerado los desafíos de implementación? ¿Cómo se compara tu visión con competidores existentes?"
+      },
+      "base_duration_seconds": 300,
+      "atmosphere": "professional",
+      "background_description": "Modern startup office in Madrid. Glass walls, natural light, young diverse team working. Meeting room with a long table, minimalist design. Sense of innovation and energy. You're sitting across from the CEO and other founding team members.",
+      "is_final_scene": true,
+      "created_at": "2026-04-01T00:00:00Z"
+    }
+  ],
+  "evaluation_rubrics": {
+    "a1_criteria": {
+      "vocabulary_complexity": ["básico", "común", "sustantivos y verbos simples"],
+      "grammar_structures": ["presente simple", "verbos básicos"],
+      "min_words": 3,
+      "context_relevance": "flexible",
+      "naturalness": 0.5,
+      "approval_threshold": 0.7
+    },
+    "a2_criteria": {
+      "vocabulary_complexity": ["común", "adjetivos básicos"],
+      "grammar_structures": ["presente simple", "pretérito indefinido"],
+      "min_words": 5,
+      "context_relevance": "moderate",
+      "naturalness": 0.6,
+      "approval_threshold": 0.75
+    },
+    "b1_criteria": {
+      "vocabulary_complexity": ["intermedio", "conectores"],
+      "grammar_structures": ["presente", "pretérito", "futuro", "condicional simple"],
+      "min_words": 15,
+      "context_relevance": "strict",
+      "naturalness": 0.8,
+      "approval_threshold": 0.8
+    },
+    "b2_criteria": {
+      "vocabulary_complexity": ["avanzado", "matices", "idiomas"],
+      "grammar_structures": ["todos los tiempos", "subjuntivo", "condicional perfecto"],
+      "min_words": 25,
+      "context_relevance": "strict",
+      "naturalness": 0.95,
+      "approval_threshold": 0.85
+    }
+  }
+}

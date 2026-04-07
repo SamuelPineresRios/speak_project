@@ -1,0 +1,223 @@
+[
+  {
+    "id": "m-001",
+    "title": "Reservar un vuelo",
+    "description": "Necesitas volar a otra ciudad urgentemente.",
+    "objective": "Reserva un vuelo a Madrid para el 15 de marzo. Menciona que viajas solo y necesitas asiento de ventana.",
+    "scene_context": "Estás en el aeropuerto llamando a la aerolínea. El agente contesta el teléfono y está listo para ayudarte.",
+    "character_name": "Airline Agent",
+    "expected_outcome_indicator": "Flight booked for March 15th",
+    "cefr_level": "A2",
+    "base_duration_seconds": 150
+  },
+  {
+    "id": "m-002",
+    "title": "Problema técnico al soporte",
+    "description": "Tu computador tiene un error crítico.",
+    "objective": "Explica al agente de soporte que tu computador no enciende desde esta mañana y que escuchas un sonido extraño al encenderlo.",
+    "scene_context": "Llamas al soporte técnico de tu empresa. El agente contesta y pide que describas el problema.",
+    "character_name": "Tech Support",
+    "expected_outcome_indicator": "Support ticket opened with correct details",
+    "cefr_level": "B1",
+    "base_duration_seconds": 120
+  },
+  {
+    "id": "m-003",
+    "title": "Pedir direcciones",
+    "description": "Estás perdido en una ciudad desconocida.",
+    "objective": "Pregunta a un transeúnte cómo llegar al Museo de Historia. Menciona que vas caminando.",
+    "scene_context": "Estás en una calle del centro de la ciudad. Ves a una persona local que parece poder ayudarte.",
+    "character_name": "Street Guide",
+    "expected_outcome_indicator": "Directions received clearly",
+    "cefr_level": "A1",
+    "base_duration_seconds": 180
+  },
+  {
+    "id": "m-004",
+    "title": "Negociar un precio",
+    "description": "Quieres comprar un artículo pero el precio es alto.",
+    "objective": "Negocia el precio de una mochila. El precio inicial es $80. Intenta conseguirlo por menos de $65, justificando tu oferta.",
+    "scene_context": "Estás en un mercado artesanal. El vendedor tiene mochilas de cuero. Ves una que te gusta.",
+    "character_name": "Market Vendor",
+    "expected_outcome_indicator": "Price negotiated below $65",
+    "cefr_level": "B2",
+    "base_duration_seconds": 90
+  },
+  {
+    "id": "m-005",
+    "title": "Llamar al médico",
+    "description": "No te sientes bien y necesitas una cita.",
+    "objective": "Llama al consultorio médico y agenda una cita para mañana. Menciona que tienes fiebre y dolor de garganta.",
+    "scene_context": "Llamas al consultorio del Dr. Rivera. La recepcionista contesta y pregunta en qué puede ayudarte.",
+    "character_name": "Doctor",
+    "expected_outcome_indicator": "Doctor appointment confirmed for tomorrow",
+    "cefr_level": "A2",
+    "base_duration_seconds": 150
+  },
+  {
+    "id": "m-006",
+    "title": "Check-in en el hotel",
+    "description": "Llegas al hotel pero hay un problema con tu reserva.",
+    "objective": "Explica al recepcionista que tienes una reserva para esta noche pero que no aparece en el sistema. Tu confirmación es #45823.",
+    "scene_context": "Llegas al Hotel Plaza después de un largo viaje. El recepcionista te saluda y pide tu nombre.",
+    "character_name": "Hotel Receptionist",
+    "expected_outcome_indicator": "Reservation issue resolved",
+    "cefr_level": "B1",
+    "base_duration_seconds": 120
+  },
+  {
+    "id": "m-007",
+    "title": "Ordenar en un restaurante",
+    "description": "Tienes una alergia alimentaria importante.",
+    "objective": "Ordena el plato del día pero pregunta si contiene nueces porque eres alérgico. Si tiene nueces, pide una alternativa.",
+    "scene_context": "Estás en un restaurante casual. El mesero se acerca con la carta y te pregunta qué vas a ordenar.",
+    "character_name": "Airline Agent",
+    "expected_outcome_indicator": "Order placed with allergy confirmed",
+    "cefr_level": "A2",
+    "base_duration_seconds": 150
+  },
+  {
+    "id": "m-008",
+    "title": "Presentarse en trabajo nuevo",
+    "description": "Es tu primer día en una empresa nueva.",
+    "objective": "Preséntate a tu nuevo colega. Di tu nombre, tu cargo (Marketing Manager), y menciona algo de tu experiencia anterior.",
+    "scene_context": "Entras a la oficina el primer día. Tu colega se acerca sonriendo y se presenta. Te toca responder.",
+    "character_name": "Tech Support",
+    "expected_outcome_indicator": "Professional introduction completed",
+    "cefr_level": "B1",
+    "base_duration_seconds": 120
+  },
+  {
+    "id": "m-009",
+    "title": "Reclamar un paquete perdido",
+    "description": "Tu pedido online nunca llegó.",
+    "objective": "Reclama a la empresa de envíos que tu paquete con número de seguimiento TK-2847 no llegó en la fecha prometida. Pide solución.",
+    "scene_context": "Llamas al servicio al cliente de la empresa de envíos. Llevas 5 días esperando el paquete.",
+    "character_name": "Tech Support",
+    "expected_outcome_indicator": "Claim registered with tracking number",
+    "cefr_level": "B2",
+    "base_duration_seconds": 90
+  },
+  {
+    "id": "m-010",
+    "title": "Pedir ayuda en una tienda",
+    "description": "Buscas un producto específico.",
+    "objective": "Pide ayuda para encontrar vitamina C en presentación de 1000mg. Pregunta también si tienen una marca específica.",
+    "scene_context": "Estás en una farmacia grande. No encuentras lo que buscas y un empleado se acerca para ayudarte.",
+    "character_name": "Street Guide",
+    "expected_outcome_indicator": "Product found or alternative offered",
+    "cefr_level": "A1",
+    "base_duration_seconds": 180
+  },
+  {
+    "id": "m-011",
+    "title": "Reportar un problema de vecindad",
+    "description": "Hay ruido excesivo en tu edificio.",
+    "objective": "Reporta al administrador del edificio que el apartamento 4B tiene música muy alta desde las 11pm todos los días. Pide que intervengan.",
+    "scene_context": "Llamas a la oficina de administración del edificio. El administrador contesta.",
+    "character_name": "Hotel Receptionist",
+    "expected_outcome_indicator": "Complaint registered with details",
+    "cefr_level": "B1",
+    "base_duration_seconds": 120
+  },
+  {
+    "id": "m-012",
+    "title": "Cancelar una suscripción",
+    "description": "Quieres cancelar un servicio que no usas.",
+    "objective": "Cancela tu suscripción al gimnasio. Llevas 6 meses pagando sin ir. Pide que el cargo no se haga el próximo mes.",
+    "scene_context": "Llamas al servicio al cliente del gimnasio. Te contesta un representante.",
+    "character_name": "Tech Support",
+    "expected_outcome_indicator": "Subscription cancellation confirmed",
+    "cefr_level": "B2",
+    "base_duration_seconds": 90
+  },
+  {
+    "id": "m-013",
+    "title": "Pedir información de un curso",
+    "description": "Quieres inscribirte en un curso de idiomas.",
+    "objective": "Pregunta cuánto cuesta el curso de inglés avanzado, cuándo empieza el próximo grupo y si hay descuento por pagar completo.",
+    "scene_context": "Llamas a un instituto de idiomas. La secretaria contesta con un saludo y ofrece su ayuda.",
+    "character_name": "Airline Agent",
+    "expected_outcome_indicator": "Price, start date, and discount info obtained",
+    "cefr_level": "A2",
+    "base_duration_seconds": 150
+  },
+  {
+    "id": "m-014",
+    "title": "Describir un accidente menor",
+    "description": "Tuviste un pequeño accidente de tráfico.",
+    "objective": "Explica a la policía lo que pasó: otro carro te golpeó por detrás mientras esperabas en un semáforo. No hay heridos.",
+    "scene_context": "Un oficial de policía se acerca al lugar del accidente y pide tu declaración de lo sucedido.",
+    "character_name": "Street Guide",
+    "expected_outcome_indicator": "Accident description given with key details",
+    "cefr_level": "B2",
+    "base_duration_seconds": 90
+  },
+  {
+    "id": "m-015",
+    "title": "Saludar y presentarse",
+    "description": "Tu primera conversación en inglés.",
+    "objetivo": "Di tu nombre, de dónde eres y algo que te gusta hacer. Pregunta también algo sobre la otra persona.",
+    "objective": "Introduce yourself: say your name, where you're from, and one thing you enjoy. Ask the other person one question too.",
+    "scene_context": "Estás en un evento de networking. Una persona amable se acerca y te saluda con un 'Hi there!'.",
+    "character_name": "Street Guide",
+    "expected_outcome_indicator": "Introduction with name, origin, and interest completed",
+    "cefr_level": "A1",
+    "base_duration_seconds": 180
+  },
+  {
+    "id": "m-016",
+    "title": "Conocer a alguien en una fiesta",
+    "description": "Estás en una fiesta y no conoces a nadie.",
+    "objective": "Preséntate a la persona que está junto a las bebidas. Pregúntale su nombre y de dónde conoce al anfitrión (Juan).",
+    "scene_context": "Estás en la sala de una casa con música de fondo y gente charlando. Te acercas a alguien que parece amigable.",
+    "character_name": "Party Guest",
+    "expected_outcome_indicator": "Introduction made and connection to host established",
+    "cefr_level": "A1",
+    "base_duration_seconds": 180
+  },
+  {
+    "id": "m-017",
+    "title": "Hablar de planes de fin de semana",
+    "description": "Es viernes y quieres hacer planes con un amigo.",
+    "objective": "Invita a tu amigo a ir al cine el sábado. Propón ver la nueva película de acción a las 7 PM.",
+    "scene_context": "Estás charlando con un amigo en la cafetería. Él te pregunta qué harás el fin de semana.",
+    "character_name": "Close Friend",
+    "expected_outcome_indicator": "Movie plan proposed for Saturday evening",
+    "cefr_level": "A2",
+    "base_duration_seconds": 150
+  },
+  {
+    "id": "m-018",
+    "title": "Conversación casual en una boda",
+    "description": "Estás sentado en una mesa con desconocidos.",
+    "objective": "Inicia una conversación con la persona a tu lado. Pregunta cómo conoce a los novios y comenta qué te parece la ceremonia.",
+    "scene_context": "Estás en la recepción de una boda elegante. La cena aún no empieza y hay un silencio incómodo en la mesa.",
+    "character_name": "Wedding Guest",
+    "expected_outcome_indicator": "Conversation started about the couple and ceremony",
+    "cefr_level": "B1",
+    "base_duration_seconds": 120
+  },
+  {
+    "id": "m-019",
+    "title": "Debatir sobre una película",
+    "description": "Acabas de ver una película con un amigo y tienen opiniones diferentes.",
+    "objective": "Expresa tu opinión de que el final de la película fue decepcionante porque no tuvo sentido, aunque los efectos especiales fueron buenos.",
+    "scene_context": "Están saliendo del cine. Tu amigo dice que le encantó la película y te pregunta qué piensas tú.",
+    "character_name": "Movie Buff Friend",
+    "expected_outcome_indicator": "Opinion expressed with pros and cons",
+    "cefr_level": "B2",
+    "base_duration_seconds": 90
+  },
+  {
+    "id": "m-020",
+    "title": "Recomendar un restaurante",
+    "description": "Un colega visita tu ciudad y busca dónde cenar.",
+    "objective": "Recomienda tu restaurante italiano favorito. Describe por qué es bueno (la comida, el ambiente) y explica cómo llegar desde la oficina.",
+    "scene_context": "Estás en el descanso del café con un colega de otra sucursal. Él menciona que quiere probar comida local esta noche.",
+    "character_name": "Visiting Colleague",
+    "expected_outcome_indicator": "Restaurant recommendation given with reasons and directions",
+    "cefr_level": "B1",
+    "base_duration_seconds": 120
+  }
+]

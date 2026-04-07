@@ -1,0 +1,96 @@
+# ----- Node / Next.js -----
+node_modules/
+.next/
+.next/cache/
+out/
+dist/
+build/
+/.vercel/
+.vercel_build_output/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+logs/
+*.log
+
+# ----- Environment / secrets -----
+.env
+.env.local
+.env.*.local
+.env.production.local
+.env.development.local
+.env.test.local
+.env.*.secret
+.env.example.local
+evaluation_service/.env
+evaluation_service/.env.local
+frontend/.env.local
+frontend/.env.*.local
+*.pem
+*.key
+*.p12
+
+# ----- OS files -----
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ----- IDE / Editor -----
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# ----- Python -----
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+env/
+venv/
+.venv/
+build/
+dist/
+*.egg-info/
+pip-wheel-metadata/
+.pytest_cache/
+
+# ----- Tests / Coverage -----
+.nyc_output/
+coverage/
+coverage.*
+report/
+
+# ----- Temporary / cache -----
+.cache/
+.parcel-cache/
+.turbo/
+.next-turbo/
+/.next/cache/
+node-repl-history
+
+# ----- Databases / local stores -----
+*.sqlite
+*.sqlite3
+*.db
+db.sqlite3
+local.db
+
+# ----- Generated files -----
+*.lock.json
+*.log
+*.tsbuildinfo
+
+# Ignore frontend/test/build artifacts specifically
+frontend/.next/
+frontend/node_modules/
+
+# Optional: lockfiles are usually committed (comment out if you want them ignored)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# End of .gitignore
