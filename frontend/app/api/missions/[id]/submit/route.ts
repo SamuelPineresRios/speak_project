@@ -63,8 +63,6 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       student_id: userId,
       group_id: group_id ?? null,
       text_content: response_text.trim(),
-      input_mode: 'text',
-      transcript: null,
       time_taken_seconds: time_taken_seconds ?? null,
       submitted_at: new Date().toISOString(),
     }
@@ -133,7 +131,6 @@ Evaluate this response according to the ${cefrLevel} criteria.`
       judgment: evaluation.judgment as 'ADVANCE' | 'PAUSE',
       feedback_text: evaluation.feedback_text,
       detected_structures: evaluation.detected_structures ?? [],
-      transcript: input_mode === 'audio' ? (transcript ?? null) : null,
       evaluated_at: new Date().toISOString(),
     }
     db.evaluations.push(evalRecord)
