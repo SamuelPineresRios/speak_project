@@ -40,7 +40,7 @@ function getProgressGradient(percent: number): string {
 }
 
 export function GuideCard({ guide }: { guide: Guide }) {
-  const progressPercent = guide.progress
+  const progressPercent = guide.progress && guide.progress.exercises_total > 0
     ? (guide.progress.exercises_completed / guide.progress.exercises_total) * 100
     : 0;
 

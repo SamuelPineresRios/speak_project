@@ -2,9 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { readDB, writeDB, findById, generateId, getWeekStart } from '@/lib/db'
 import { CEFR_THRESHOLDS } from '@/lib/utils'
 
-const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
-if (!OPENROUTER_API_KEY) {
-  throw new Error('OPENROUTER_API_KEY is not set in environment variables');
+function getOpenRouterApiKey() {
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  if (!apiKey) {
+    throw new Error('OPENROUTER_API_KEY is not set in environment variables');
+  }
+  return apiKey;
 }
 
 const SYSTEM_PROMPT_BASE = `You are an expert English language evaluator for Latin American Spanish-speaking students learning English.
@@ -45,6 +48,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   try {
+    const OPENROUTER_API_KEY = getOpenRouterApiKey();
     const { response_text, group_id, time_taken_seconds } = await req.json()
     if (!response_text?.trim()) return NextResponse.json({ error: 'response_text required' }, { status: 400 })
 

@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
-if (!OPENROUTER_API_KEY) {
-  throw new Error('OPENROUTER_API_KEY is not set in environment variables');
+function getOpenRouterApiKey() {
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  if (!apiKey) {
+    throw new Error('OPENROUTER_API_KEY is not set in environment variables');
+  }
+  return apiKey;
 }
 
 export async function POST(
@@ -10,6 +13,8 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
+    const OPENROUTER_API_KEY = getOpenRouterApiKey();
+    
     console.log("\n========== TUTOR ENDPOINT (Gemini) ==========");
     const body = await request.json();
     const { user_message, guide_title, guide_context, cefr_level = "B1" } = body;

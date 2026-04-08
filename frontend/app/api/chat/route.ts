@@ -1,12 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
-if (!OPENROUTER_API_KEY) {
-  throw new Error('OPENROUTER_API_KEY is not set in environment variables');
+function getOpenRouterApiKey() {
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  if (!apiKey) {
+    throw new Error('OPENROUTER_API_KEY is not set in environment variables');
+  }
+  return apiKey;
 }
 
 export async function POST(req: NextRequest) {
   try {
+    const OPENROUTER_API_KEY = getOpenRouterApiKey();
+    
     // Defensive parsing of request body to surface malformed JSON from client
     const rawBody = await req.text();
     let parsedBody: any = {};
