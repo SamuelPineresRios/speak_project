@@ -27,7 +27,7 @@ export async function PUT(
     // Verificar que la guía existe
     const { data: guide, error: guideError } = await supabase
       .from("guides")
-      .select("id")
+      .select("*")
       .eq("id", guideId)
       .single();
 
