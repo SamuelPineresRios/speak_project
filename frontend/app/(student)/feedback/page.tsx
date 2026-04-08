@@ -38,7 +38,7 @@ function FeedbackContent() {
     missionTitle={data.missionTitle} 
     studentResponse={data.studentResponse}
     onTryAgain={() => router.back()} 
-    onNextMission={() => router.push('/missions')} 
+    onNextMission={() => router.push('/missions')}} 
   />
 }
 

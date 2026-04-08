@@ -15,17 +15,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'La contraseña debe tener mínimo 8 caracteres' }, { status: 400 })
 
     // Verificar si el email ya existe
-    const { data: existingUsers, error: checkError } = await supabase
+    const { data: existingUser } = await supabase
       .from('users')
       .select('id')
       .eq('email', email.toLowerCase().trim())
+      .single()
 
-    if (checkError && checkError.code !== 'PGRST116') {
-      console.error('Error checking email:', checkError)
-      return NextResponse.json({ error: 'Error al verificar email', details: checkError.message }, { status: 500 })
-    }
-
-    if (existingUsers && existingUsers.length > 0)
+    if (existingUser)
       return NextResponse.json({ error: 'Ya existe una cuenta con este email' }, { status: 409 })
 
     // Hash de la contraseña
@@ -33,7 +29,7 @@ export async function POST(req: NextRequest) {
     
     // Crear nuevo usuario
     const userId = uuidv4()
-    const { data: insertedUsers, error: insertError } = await supabase
+    const { data: newUser, error: insertError } = await supabase
       .from('users')
       .insert({
         id: userId,
@@ -46,15 +42,11 @@ export async function POST(req: NextRequest) {
         created_at: new Date().toISOString(),
       })
       .select()
+      .single()
 
     if (insertError) {
       console.error('Error inserting user:', insertError)
-      return NextResponse.json({ error: 'Error al registrar el usuario', details: insertError.message }, { status: 500 })
-    }
-
-    const newUser = insertedUsers?.[0]
-    if (!newUser) {
-      return NextResponse.json({ error: 'Error al crear usuario' }, { status: 500 })
+      return NextResponse.json({ error: 'Error al registrar el usuario' }, { status: 500 })
     }
 
     // Crear token JWT
@@ -73,6 +65,6 @@ export async function POST(req: NextRequest) {
     return res
   } catch (err) {
     console.error('Signup error:', err)
-    return NextResponse.json({ error: 'Error interno', details: String(err) }, { status: 500 })
+    return NextResponse.json({ error: 'Error interno' }, { status: 500 })
   }
 }

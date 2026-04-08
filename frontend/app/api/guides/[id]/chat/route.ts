@@ -1,13 +1,9 @@
 import { readDB, writeDB } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 
-// Obtener la API key en runtime, no en build time
-function getOpenRouterApiKey() {
-  const apiKey = process.env.OPENROUTER_API_KEY;
-  if (!apiKey) {
-    throw new Error('OPENROUTER_API_KEY is not set in environment variables');
-  }
-  return apiKey;
+const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
+if (!OPENROUTER_API_KEY) {
+  throw new Error('OPENROUTER_API_KEY is not set in environment variables');
 }
 
 export async function GET(
@@ -142,8 +138,6 @@ INSTRUCTIONS:
 Return ONLY a warm, natural tutor response in Spanish.`;
 
   console.log("[CHAT] 🚀 Llamando OpenRouter/Gemini...");
-
-  const OPENROUTER_API_KEY = getOpenRouterApiKey();
 
   const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",

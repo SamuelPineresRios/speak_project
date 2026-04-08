@@ -42,6 +42,38 @@ export default function MissionPage({ params }: { params: { id: string } }) {
       mission={mission}
       studentId={user.id}
       groupId={groupId ?? undefined}
+      onComplete={async (evaluation, transcript) => {
+        try {
+          const res = await fetch(`/api/missions/${mission.id}/submit`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              response_text: transcript,
+              student_id: user.id,
+              group_id: groupId ?? null,
+              time_taken_seconds: null,
+            }),
+          })
+
+          const data = await res.json()
+
+          if (!res.ok) {
+            console.error('Submission error', data)
+            alert('Submission failed: ' + (data?.error || 'Unknown error'))
+            return
+          }
+
+          const p = new URLSearchParams({
+            mission_id: mission.id,
+            response_id: data.response_id,
+            evaluation_id: data.evaluation_id,
+          })
+          await router.push(`/feedback?${p}`)
+        } catch (err) {
+          console.error('Error submitting mission:', err)
+          alert('Error submitting mission. Please try again.')
+        }
+      }}
     />
   )
 }

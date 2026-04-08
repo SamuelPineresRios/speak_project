@@ -11,18 +11,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Email y contraseña requeridos' }, { status: 400 })
 
     // Buscar usuario por email
-    const { data: users, error: queryError } = await supabase
+    const { data: user, error: queryError } = await supabase
       .from('users')
       .select('*')
       .eq('email', email.toLowerCase().trim())
+      .single()
 
-    if (queryError) {
-      console.error('Error querying user:', queryError)
-      return NextResponse.json({ error: 'Error al buscar usuario', details: queryError.message }, { status: 500 })
-    }
-
-    const user = users?.[0]
-    if (!user) 
+    if (queryError || !user) 
       return NextResponse.json({ error: 'Email o contraseña incorrectos' }, { status: 401 })
 
     // Verificar contraseña
@@ -46,6 +41,6 @@ export async function POST(req: NextRequest) {
     return res
   } catch (err) {
     console.error('Login error:', err)
-    return NextResponse.json({ error: 'Error interno', details: String(err) }, { status: 500 })
+    return NextResponse.json({ error: 'Error interno' }, { status: 500 })
   }
 }

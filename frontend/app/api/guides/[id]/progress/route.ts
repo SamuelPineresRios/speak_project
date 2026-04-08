@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { readDB, writeDB } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function PUT(
@@ -16,6 +16,7 @@ export async function PUT(
       );
     }
 
+    const db = readDB();
     const guideId = params.id;
     const body = await request.json();
     const {
@@ -25,87 +26,48 @@ export async function PUT(
     } = body;
 
     // Verificar que la guía existe
-    const { data: guide, error: guideError } = await supabase
-      .from("guides")
-      .select("*")
-      .eq("id", guideId)
-      .single();
-
-    if (guideError || !guide) {
+    const guide = db.guides?.find((g: any) => g.id === guideId);
+    if (!guide) {
       return NextResponse.json(
         { error: "Guide not found" },
         { status: 404 }
       );
     }
 
-    // Buscar progreso existente
-    let progress;
-    const { data: existingProgress } = await supabase
-      .from("guide_progress")
-      .select("*")
-      .eq("student_id", studentId)
-      .eq("guide_id", guideId)
-      .single();
+    // Buscar o crear el progreso
+    db.guide_progress = db.guide_progress || [];
+    let progress = db.guide_progress.find(
+      (gp: any) =>
+        gp.student_id === studentId && gp.guide_id === guideId
+    );
 
-    if (!existingProgress) {
-      // Crear nuevo progreso
-      const newProgress = {
+    if (!progress) {
+      progress = {
+        id: `gp-${Date.now()}`,
         student_id: studentId,
         guide_id: guideId,
         status: status || "in_progress",
         exercises_completed: exercises_completed || 0,
-        exercises_total: guide.exercises_total || 0,
+        exercises_total: guide.content?.exercises?.length || 0,
         started_at: new Date().toISOString(),
-        completed_at: status === "completed" ? new Date().toISOString() : null,
+        completed_at: null,
         score: score || 0,
       };
-
-      const { data: created, error: createError } = await supabase
-        .from("guide_progress")
-        .insert([newProgress])
-        .select()
-        .single();
-
-      if (createError) {
-        console.error("[CREATE_PROGRESS_ERROR]", createError);
-        return NextResponse.json(
-          { error: "Error creating progress" },
-          { status: 500 }
-        );
-      }
-
-      progress = created;
+      db.guide_progress.push(progress);
     } else {
-      // Actualizar progreso existente
-      const updateData: any = {};
-      
-      if (status !== undefined) updateData.status = status;
-      if (exercises_completed !== undefined) updateData.exercises_completed = exercises_completed;
-      if (score !== undefined) updateData.score = score;
+      // Actualizar campos proporcionados
+      if (status !== undefined) progress.status = status;
+      if (exercises_completed !== undefined)
+        progress.exercises_completed = exercises_completed;
+      if (score !== undefined) progress.score = score;
 
       // Si está completado, establecer la fecha
-      if (status === "completed" && !existingProgress.completed_at) {
-        updateData.completed_at = new Date().toISOString();
+      if (status === "completed" && !progress.completed_at) {
+        progress.completed_at = new Date().toISOString();
       }
-
-      const { data: updated, error: updateError } = await supabase
-        .from("guide_progress")
-        .update(updateData)
-        .eq("student_id", studentId)
-        .eq("guide_id", guideId)
-        .select()
-        .single();
-
-      if (updateError) {
-        console.error("[UPDATE_PROGRESS_ERROR]", updateError);
-        return NextResponse.json(
-          { error: "Error updating progress" },
-          { status: 500 }
-        );
-      }
-
-      progress = updated;
     }
+
+    writeDB(db);
 
     return NextResponse.json({
       success: true,
