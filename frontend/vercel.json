@@ -2,7 +2,5 @@
   "buildCommand": "npm run build",
   "outputDirectory": ".next",
   "framework": "nextjs",
-  "public": false,
-  "installCommand": "npm install --legacy-peer-deps",
-  "root": "frontend"
+  "installCommand": "npm install --legacy-peer-deps"
 }
