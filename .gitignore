@@ -95,3 +95,4 @@ frontend/node_modules/
 
 # End of .gitignore
 .vercel
+.env*.local
