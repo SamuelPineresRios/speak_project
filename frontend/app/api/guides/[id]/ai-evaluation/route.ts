@@ -63,8 +63,9 @@ Provide a JSON response with: comprehensibility_score (0-10), natural_score (0-1
     const data = await response.json();
     const content = data.choices?.[0]?.message?.content || "{}";
     
+    let evaluation;
     try {
-      const evaluation = JSON.parse(content);
+      evaluation = JSON.parse(content);
     } catch {
       throw new Error("Failed to parse OpenRouter response");
     }
