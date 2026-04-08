@@ -133,7 +133,7 @@ Evaluate this response according to the ${cefrLevel} criteria.`
       judgment: evaluation.judgment as 'ADVANCE' | 'PAUSE',
       feedback_text: evaluation.feedback_text,
       detected_structures: evaluation.detected_structures ?? [],
-      transcript: input_mode === 'audio' ? (transcript ?? null) : null,
+      transcript: responseRecord.input_mode === 'audio' ? (responseRecord.transcript ?? null) : null,
       evaluated_at: new Date().toISOString(),
     }
     db.evaluations.push(evalRecord)
