@@ -24,27 +24,50 @@ export async function POST(
       );
     }
 
-    // Call the Python evaluation service
-    const evaluationServiceUrl = process.env.EVALUATION_SERVICE_URL || "http://localhost:8000";
+    // Call OpenRouter API for evaluation
+    const openrouterKey = process.env.OPENROUTER_API_KEY;
+    if (!openrouterKey) {
+      throw new Error("OPENROUTER_API_KEY is not configured");
+    }
 
-    const response = await fetch(`${evaluationServiceUrl}/evaluate`, {
+    const prompt = `Evaluate this English exercise response and provide feedback in JSON format.
+    
+User Response: "${user_response}"
+Context/Topic: "${guide_title || concept || "Grammar Exercise"}"
+
+Provide a JSON response with: comprehensibility_score (0-10), natural_score (0-10), grammar_score (0-10), feedback (string), and suggestions (array of strings).`;
+
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "Authorization": `Bearer ${openrouterKey}`,
       },
       body: JSON.stringify({
-        response_text: user_response,
-        context: guide_title || concept || "Grammar Exercise",
+        model: "gpt-3.5-turbo",
+        messages: [
+          {
+            role: "user",
+            content: prompt,
+          },
+        ],
       }),
     });
 
     if (!response.ok) {
       throw new Error(
-        `Evaluation service returned ${response.status}`
+        `OpenRouter API returned ${response.status}`
       );
     }
 
-    const evaluation = await response.json();
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content || "{}";
+    
+    try {
+      const evaluation = JSON.parse(content);
+    } catch {
+      throw new Error("Failed to parse OpenRouter response");
+    }
 
     return NextResponse.json({
       success: true,

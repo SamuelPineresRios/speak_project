@@ -94,3 +94,4 @@ frontend/node_modules/
 # pnpm-lock.yaml
 
 # End of .gitignore
+.vercel
