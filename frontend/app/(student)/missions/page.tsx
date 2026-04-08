@@ -17,10 +17,46 @@ export default function MissionsPage() {
   const [missions, setMissions] = useState<Mission[]>([])
   const [cefrLevel, setCefrLevel] = useState<string|null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string|null>(null)
   const [filter, setFilter] = useState('all')
   const [currentPage, setCurrentPage] = useState(0)
   
-  useEffect(() => { fetch('/api/missions').then(r=>r.json()).then(d=>{ setMissions(d.missions??[]); setCefrLevel(d.cefr_level); setLoading(false) }) }, [])
+  useEffect(() => { 
+    // Use user.id if available, otherwise try localStorage
+    const userId = user?.id || (typeof window !== 'undefined' ? localStorage.getItem('userId') : null)
+    
+    if (!userId) {
+      setLoading(true)
+      return
+    }
+    
+    console.log('[Missions] Loading with userId:', userId.substring(0, 8))
+    setLoading(true)
+    
+    const timeoutId = setTimeout(() => {
+      setError('Timeout loading missions')
+      setLoading(false)
+    }, 5000)
+    
+    fetch('/api/missions', { headers: { 'x-user-id': userId } })
+      .then(r => {
+        if (!r.ok) throw new Error(`${r.status}`)
+        return r.json()
+      })
+      .then(d=>{ 
+        console.log('[Missions] Loaded:', d.missions?.length || 0, 'missions')
+        setMissions(d.missions??[]); 
+        setCefrLevel(d.cefr_level); 
+        setLoading(false);
+        setError(null)
+      })
+      .catch(e=>{ 
+        console.error('[Missions] Error:', e); 
+        setError(`Failed to load missions: ${e.message}`);
+        setLoading(false)
+      })
+      .finally(() => clearTimeout(timeoutId))
+  }, [user?.id])
   const filtered = filter==='all' ? missions : missions.filter(m=>m.cefr_level===filter)
   
   // Pagination logic

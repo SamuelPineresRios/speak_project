@@ -27,6 +27,7 @@ export default function LoginPage() {
         throw new Error(data.error || 'ACCESO DENEGADO')
       }
       const data = await res.json()
+      localStorage.setItem('userId', data.user.id)
       if (data.user.role === 'teacher') router.push('/dashboard')
       else router.push('/missions')
     } catch (err: any) {

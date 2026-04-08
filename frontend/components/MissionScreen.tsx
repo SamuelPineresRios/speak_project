@@ -35,7 +35,15 @@ interface Message {
 export function MissionScreen({ mission, studentId, groupId }: MissionScreenProps) {
   const { user } = useAuth()
   const [state, setState] = useState<MissionState>('briefing')
-  const [briefing, setBriefing] = useState<BriefingData | null>(null)
+  
+  // Generate briefing data immediately from mission
+  const briefing: BriefingData = {
+    key_verbs: ['can', 'would', 'please', 'help', 'need'],
+    useful_phrases: ['I need...', 'Could you...', 'Thank you', 'Please...', 'Can you help?'],
+    grammar_tips: 'Practice polite requests and clear communication',
+    estimated_duration_minutes: Math.ceil(mission.base_duration_seconds / 60),
+  }
+  
   const [missionMode, setMissionMode] = useState<'free' | 'evaluation'>('free')
   const [messages, setMessages] = useState<Message[]>([])
   const [currentInput, setCurrentInput] = useState('')
@@ -47,10 +55,9 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
   const [showHelp, setShowHelp] = useState(false)
   const [dynamicHints, setDynamicHints] = useState<BriefingData | null>(null)
   const [loadingHints, setLoadingHints] = useState(false)
-  const [showCompletionNotification, setShowCompletionNotification] = useState(false) // State for completion modal
-  const [hasNotifiedCompletion, setHasNotifiedCompletion] = useState(false) // One-time flag
+  const [showCompletionNotification, setShowCompletionNotification] = useState(false)
+  const [hasNotifiedCompletion, setHasNotifiedCompletion] = useState(false)
   const [missionProgress, setMissionProgress] = useState(0)
-  // Timer state
   const [timerDuration, setTimerDuration] = useState(mission.base_duration_seconds)
   const [timerKey, setTimerKey] = useState(0)
 
@@ -58,25 +65,7 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const router = useRouter()
 
-  // Fetch briefing data
-  useEffect(() => {
-    if (!briefing) {
-      fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          mode: 'briefing',
-          mission, 
-          userLevel: user?.cefr_level || mission.cefr_level 
-        })
-      })
-      .then(res => res.json())
-      .then(data => setBriefing(data))
-      .catch(err => console.error("Failed to fetch briefing", err))
-    }
-  }, [mission, user, briefing])
-
-  // Initial bot message on start
+  // Initial bot message on start (when button clicked)
   const startMission = useCallback(async (mode: 'free' | 'evaluation') => {
     setMissionMode(mode)
     setState('active'); setStartTime(Date.now())
@@ -367,31 +356,24 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
             </div>
             
             {/* Intel / Briefing Data */}
-            {briefing ? (
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-slate-900/85 border border-slate-800 rounded-xl p-4">
-                        <p className="text-[12px] text-cyan uppercase tracking-widest mb-3">Verbos clave</p>
-                        <div className="flex flex-wrap gap-2">
-                            {briefing.key_verbs.map((v, i) => (
-                                <span key={i} className="text-[18px] font-body text-cyan bg-cyan/10 border border-cyan/20 px-2 py-1 rounded">{v}</span>
-                            ))}
-                        </div>
-                    </div>
-                    <div className="bg-slate-900/85 border border-slate-800 rounded-xl p-4">
-                        <p className="text-[12px] text-emerald uppercase tracking-widest mb-3">Frases cotidianas</p>
-                        <ul className="space-y-2">
-                            {briefing.useful_phrases.slice(0, 3).map((p, i) => (
-                                <li key={i} className="text-[15px] text-emerald-50/70 border-l border-emerald/20 pl-2 leading-tight">{p}</li>
-                            ))}
-                        </ul>
+            <div className="grid grid-cols-2 gap-4">
+                <div className="bg-slate-900/85 border border-slate-800 rounded-xl p-4">
+                    <p className="text-[12px] text-cyan uppercase tracking-widest mb-3">Verbos clave</p>
+                    <div className="flex flex-wrap gap-2">
+                        {briefing.key_verbs.map((v, i) => (
+                            <span key={i} className="text-[18px] font-body text-cyan bg-cyan/10 border border-cyan/20 px-2 py-1 rounded">{v}</span>
+                        ))}
                     </div>
                 </div>
-            ) : (
-                <div className="bg-slate-900/85 border border-slate-800 rounded-xl p-8 flex flex-col items-center justify-center gap-3">
-                    <div className="w-8 h-8 border-2 border-cyan/30 border-t-cyan rounded-full animate-spin"></div>
-                    <p className="text-[10px] text-cyan animate-pulse uppercase tracking-widest">Downloading Intel...</p>
+                <div className="bg-slate-900/85 border border-slate-800 rounded-xl p-4">
+                    <p className="text-[12px] text-emerald uppercase tracking-widest mb-3">Frases cotidianas</p>
+                    <ul className="space-y-2">
+                        {briefing.useful_phrases.slice(0, 3).map((p, i) => (
+                            <li key={i} className="text-[15px] text-emerald-50/70 border-l border-emerald/20 pl-2 leading-tight">{p}</li>
+                        ))}
+                    </ul>
                 </div>
-            )}
+            </div>
 
             {/* Actions */}
             <div className="space-y-4 pt-4 border-t border-white/5">
@@ -407,10 +389,10 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
                 <div className="grid grid-cols-2 gap-3">
                      <button 
                         onClick={() => startMission('free')} 
-                        disabled={!briefing || isThinking}
+                        disabled={isThinking}
                         className={cn(
                             "group relative flex flex-col items-start p-4 rounded-xl border text-left transition-all duration-300 overflow-hidden",
-                            briefing 
+                            !isThinking
                                 ? "bg-slate-900/95 border-slate-700 hover:border-cyan hover:shadow-[0_0_20px_-5px_rgba(6,182,212,0.3)]" 
                                 : "bg-white/10 border-transparent opacity-50 cursor-not-allowed"
                         )}
@@ -422,10 +404,10 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
 
                      <button 
                         onClick={() => startMission('evaluation')} 
-                        disabled={!briefing || isThinking}
+                        disabled={isThinking}
                         className={cn(
                             "group relative flex flex-col items-start p-4 rounded-xl border text-left transition-all duration-300 overflow-hidden",
-                            briefing 
+                            !isThinking
                                 ? "bg-slate-900/95 border-amber/30 hover:bg-amber/10 hover:border-amber hover:shadow-[0_0_20px_-5px_rgba(251,191,36,0.2)]" 
                                 : "bg-white/10 border-transparent opacity-50 cursor-not-allowed"
                         )}

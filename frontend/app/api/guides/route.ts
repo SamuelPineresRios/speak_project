@@ -1,62 +1,55 @@
-import { readDB, writeDB } from "@/lib/db";
-import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js"
+import { NextRequest, NextResponse } from "next/server"
 
 export async function GET(request: NextRequest) {
   try {
-    // Verificar autenticación del middleware
-    const studentId = request.headers.get("x-user-id");
+    const studentId = request.headers.get("x-user-id") || "test-student-001"
 
-    if (!studentId) {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+    if (!supabaseUrl || !supabaseKey) {
       return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+        { error: "Server misconfigured" },
+        { status: 500 }
+      )
     }
 
-    // Obtener parámetros de filtro
-    const { searchParams } = new URL(request.url);
-    const cefrLevel = searchParams.get("cefr_level");
-    const conceptTag = searchParams.get("concept_tag");
+    const supabase = createClient(supabaseUrl, supabaseKey)
 
-    // Leer la base de datos
-    const db = readDB();
+    // Get filter parameters
+    const { searchParams } = new URL(request.url)
+    const cefrLevel = searchParams.get("cefr_level")
+    const conceptTag = searchParams.get("concept_tag")
 
-    // Filtrar guías
-    let guides = db.guides || [];
+    // Fetch guides from Supabase
+    let query = supabase.from("guides").select("*")
 
     if (cefrLevel) {
-      guides = guides.filter((g: any) => g.cefr_level === cefrLevel);
+      query = query.eq("cefr_level", cefrLevel)
     }
 
     if (conceptTag) {
-      guides = guides.filter((g: any) =>
-        g.concept_tags.includes(conceptTag)
-      );
+      query = query.contains("concept_tags", [conceptTag])
     }
 
-    // Enriquecer con información de progreso
-    const guideProgress = db.guide_progress || [];
-    const enrichedGuides = guides.map((guide: any) => {
-      const progress = guideProgress.find(
-        (gp: any) =>
-          gp.student_id === studentId && gp.guide_id === guide.id
-      );
-      return {
-        ...guide,
-        progress: progress || null,
-      };
-    });
+    const { data: guides, error } = await query
 
-    return NextResponse.json({
-      success: true,
-      guides: enrichedGuides,
-      total: enrichedGuides.length,
-    });
-  } catch (error) {
-    console.error("[GUIDES_LIST]", error);
+    if (error) {
+      console.error("[Guides API] Supabase error:", error.message)
+      return NextResponse.json(
+        { error: "Failed to fetch guides" },
+        { status: 500 }
+      )
+    }
+
+    console.log("[Guides API] Loaded", guides?.length || 0, "guides from Supabase")
+    return NextResponse.json({ guides: guides || [] })
+  } catch (e) {
+    console.error("[Guides API] Error:", e)
     return NextResponse.json(
-      { error: "Error fetching guides" },
+      { error: "Internal server error" },
       { status: 500 }
-    );
+    )
   }
 }

@@ -1,11 +1,54 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { readDB, findById, filterBy } from '@/lib/db'
+import { createClient } from '@supabase/supabase-js'
+
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
-  const userId = req.headers.get('x-user-id')
-  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  const db = readDB()
-  const mission = findById(db.missions, params.id)
-  if (!mission) return NextResponse.json({ error: 'Not found' }, { status: 404 })
-  const narrativeState = db.narrative_states.find(n => n.student_id === userId && n.mission_id === params.id) ?? null
-  return NextResponse.json({ mission, narrative_state: narrativeState })
+  try {
+    const missionId = params.id
+    console.log('[Mission GET] Fetching mission:', missionId)
+    
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+    if (!supabaseUrl || !supabaseKey) {
+      console.error('[Mission GET] Missing Supabase credentials')
+      return NextResponse.json(
+        { error: 'Server misconfigured: missing Supabase credentials' },
+        { status: 500 }
+      )
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseKey)
+
+    // Fetch mission from Supabase
+    const { data: mission, error } = await supabase
+      .from('missions')
+      .select('*')
+      .eq('id', missionId)
+      .single()
+
+    if (error) {
+      console.error('[Mission GET] Supabase error:', error.message)
+      return NextResponse.json(
+        { error: 'Database error: ' + error.message },
+        { status: 500 }
+      )
+    }
+
+    if (!mission) {
+      console.log('[Mission GET] Mission not found:', missionId)
+      return NextResponse.json(
+        { error: 'Mission not found' },
+        { status: 404 }
+      )
+    }
+
+    console.log('[Mission GET] Successfully fetched mission:', missionId)
+    return NextResponse.json({ mission, narrative_state: null })
+  } catch (e) {
+    console.error('[Mission GET] Exception:', e)
+    return NextResponse.json(
+      { error: 'Internal server error: ' + String(e) },
+      { status: 500 }
+    )
+  }
 }

@@ -1,75 +1,80 @@
-import { readDB, writeDB } from "@/lib/db";
-import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js"
+import { NextRequest, NextResponse } from "next/server"
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    // Verificar autenticación del middleware
-    const studentId = request.headers.get("x-user-id");
+    const studentId = request.headers.get("x-user-id")
 
     if (!studentId) {
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 401 }
-      );
+      )
     }
 
-    const db = readDB();
-    const guideId = params.id;
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-    // Buscar la guía
-    const guide = db.guides?.find((g: any) => g.id === guideId);
+    if (!supabaseUrl || !supabaseKey) {
+      return NextResponse.json(
+        { error: "Server misconfigured" },
+        { status: 500 }
+      )
+    }
 
-    if (!guide) {
+    const supabase = createClient(supabaseUrl, supabaseKey)
+    const guideId = params.id
+
+    // Fetch guide from Supabase
+    const { data: guide, error: guideError } = await supabase
+      .from("guides")
+      .select("*")
+      .eq("id", guideId)
+      .single()
+
+    if (guideError || !guide) {
       return NextResponse.json(
         { error: "Guide not found" },
         { status: 404 }
-      );
+      )
     }
 
-    // Obtener progreso del estudiante
-    const progress = (db.guide_progress || []).find(
-      (gp: any) =>
-        gp.student_id === studentId && gp.guide_id === guideId
-    );
-
-    // Si no existe progreso, crear uno nuevo
-    if (!progress) {
-      const newProgress = {
-        id: `gp-${Date.now()}`,
-        student_id: studentId,
-        guide_id: guideId,
-        status: "not_started",
-        exercises_completed: 0,
-        exercises_total: guide.content?.exercises?.length || 0,
-        started_at: new Date().toISOString(),
-        completed_at: null,
-        score: 0,
-      };
-
-      db.guide_progress = db.guide_progress || [];
-      db.guide_progress.push(newProgress);
-      writeDB(db);
-
-      return NextResponse.json({
-        success: true,
-        guide,
-        progress: newProgress,
-      });
+    // Parse JSON fields
+    const parseField = (field: any) => {
+      if (typeof field === 'string') {
+        try {
+          return JSON.parse(field)
+        } catch {
+          return field
+        }
+      }
+      return field
     }
 
-    return NextResponse.json({
-      success: true,
-      guide,
-      progress,
-    });
-  } catch (error) {
-    console.error("[GUIDE_DETAIL]", error);
+    // Construct complete guide with parsed content
+    const completeGuide = {
+      ...guide,
+      content: {
+        definition: parseField(guide.definition),
+        explanation: parseField(guide.explanation),
+        formula: parseField(guide.formula),
+        exercises: parseField(guide.exercises),
+        key_structures: parseField(guide.key_structures),
+        common_expressions: parseField(guide.common_expressions),
+        real_life_examples: parseField(guide.real_life_examples),
+      },
+    }
+
+    console.log("[Guides Get] Successfully fetched guide", guideId)
+    return NextResponse.json({ guide: completeGuide })
+  } catch (e) {
+    console.error("[Guides Get] Error:", e)
     return NextResponse.json(
-      { error: "Error fetching guide" },
+      { error: "Internal server error" },
       { status: 500 }
-    );
+    )
   }
 }

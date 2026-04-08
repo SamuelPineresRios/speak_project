@@ -28,6 +28,7 @@ export default function SignupPage() {
         throw new Error(data.error || 'ERROR DE SISTEMA')
       }
       const data = await res.json()
+      localStorage.setItem('userId', data.user.id)
       if (data.user.role === 'teacher') router.push('/dashboard')
       else router.push('/join-group')
     } catch (err: any) {

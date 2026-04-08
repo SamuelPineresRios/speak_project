@@ -2193,6 +2193,17 @@
       "started_at": "2026-03-20T19:42:50.601Z",
       "completed_at": null,
       "score": 0
+    },
+    {
+      "id": "gp-1775671877287",
+      "student_id": "af4ae2bb-8e2b-4718-b327-21aa382a6a36",
+      "guide_id": "guide-001",
+      "status": "not_started",
+      "exercises_completed": 0,
+      "exercises_total": 3,
+      "started_at": "2026-04-08T18:11:17.287Z",
+      "completed_at": null,
+      "score": 0
     }
   ],
   "chat_messages": [
@@ -2547,6 +2558,38 @@
       "role": "assistant",
       "content": "¡Hola! 😊 ¡Qué buena pregunta! Los \"phrasal verbs\" más utilizados son esenciales para sonar más natural en inglés.\n\nDe acuerdo con nuestra guía, algunos muy comunes son:\n\n*   **Log in**: que significa \"iniciar sesión\". Por ejemplo, \"Log in to your dashboard.\"\n*   **Back up**: que significa \"hacer una copia de seguridad\". Por ejemplo, \"Back up your data immediately.\"\n\nPero hay muchísimos más. Otros que se usan un montón son \"get up\" (levantarse), \"look for\" (buscar), \"take off\" (despegar o quitarse ropa).\n\nPara que te hagas una idea de cómo usarlos, dime, ¿hay algún \"phrasal verb\" que te cause curiosidad o que hayas escuchado antes y no estés seguro de su significado? 🤔 ¡Así puedo darte ejemplos más específicos!\n",
       "sent_at": "2026-03-24T04:40:40.270Z"
+    },
+    {
+      "id": "msg-1775671907909-user",
+      "guide_id": "guide-001",
+      "student_id": "af4ae2bb-8e2b-4718-b327-21aa382a6a36",
+      "role": "user",
+      "content": "explicame el presente perfecto en la tecnologia",
+      "sent_at": "2026-04-08T18:11:47.909Z"
+    },
+    {
+      "id": "msg-1775671912054-assistant",
+      "guide_id": "guide-001",
+      "student_id": "af4ae2bb-8e2b-4718-b327-21aa382a6a36",
+      "role": "assistant",
+      "content": "¡Hola! 😊 El Present Perfect es súper útil para hablar de tecnología, porque muchas veces queremos expresar experiencias o cambios recientes.\n\nEn la tecnología, el Present Perfect conecta acciones pasadas con el momento actual. Por ejemplo, en lugar de decir \"I installed the software yesterday\" (que es Simple Past), puedes decir \"I have installed the software\" (Present Perfect) para indicar que el software está instalado AHORA y listo para usar.\n\nFíjate en la guía: \"El Present Perfect es un tiempo verbal que se utiliza para expresar acciones que comenzaron en el pasado pero tienen alguna conexión o relevancia con el presente.\"\n\nAquí tienes dos ejemplos más concretos:\n\n*   \"The company **has just released** a new version of the app.\" (La compañía **acaba de lanzar** una nueva versión de la app). Esto significa que es reciente y está disponible ahora. Usamos \"just\" como en la guía.\n*   \"**Have you ever** developed a mobile app?\" (**¿Alguna vez has** desarrollado una app móvil?). Como dice la guía, usamos \"Have you ever...\" para preguntar sobre experiencias.\n\n¿Te gustaría practicar con algún ejemplo más específico relacionado con tu experiencia en tecnología? ¿Quizás algo que hayas hecho en un proyecto reciente? 😉\n",
+      "sent_at": "2026-04-08T18:11:52.054Z"
+    },
+    {
+      "id": "msg-1775680986828-user",
+      "guide_id": "guide-003",
+      "student_id": "bb34efb3-7773-4319-a16d-15072dc2798e",
+      "role": "user",
+      "content": "Hola, explicame los condicionales",
+      "sent_at": "2026-04-08T20:43:06.828Z"
+    },
+    {
+      "id": "msg-1775680989919-assistant",
+      "guide_id": "guide-003",
+      "student_id": "bb34efb3-7773-4319-a16d-15072dc2798e",
+      "role": "assistant",
+      "content": "¡Hola! 😊 ¡Claro que sí! Las oraciones condicionales son frases que usamos para hablar sobre situaciones y sus posibles resultados. Imagina que estás planeando qué harías si ganaras la lotería, ¡ahí estás usando condicionales!\n\nEn inglés, tenemos varios tipos, pero aquí nos enfocamos en los más comunes:\n\n*   **Tipo 1 (Posible):** \"If + presente simple, will + infinitivo\". Se usa para cosas que son posibles en el futuro. Por ejemplo, \"If the server crashes, we will reboot it.\" (Si el servidor se cae, lo reiniciaremos). Es algo probable, ¿no?\n\n*   **Tipo 2 (Improbable):** \"If + pasado simple, would + infinitivo\". Se usa para situaciones hipotéticas o poco probables. Por ejemplo, \"If I had access, I would fix it.\" (Si tuviera acceso, lo arreglaría). Aquí, la situación de tener acceso es improbable.\n\nTambién tenemos expresiones como \"as long as...\" (siempre y cuando) y \"unless...\" (a menos que). Por ejemplo, \"Unless you type the password, access is denied.\" (A menos que escribas la contraseña, el acceso será denegado).\n\n¿Te gustaría que te diera más ejemplos o que profundicemos en alguna estructura en particular? ¡Estoy aquí para ayudarte! ✨\n",
+      "sent_at": "2026-04-08T20:43:09.919Z"
     }
   ],
   "exercise_submissions": [
