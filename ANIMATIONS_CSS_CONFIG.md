@@ -462,6 +462,7 @@ export function XPBadge({ xp, variant = "md", animated = false }: Props) {
     </div>
   );
 }
+{% endraw %}
 ```
 
 ---
@@ -471,6 +472,7 @@ export function XPBadge({ xp, variant = "md", animated = false }: Props) {
 ### 4.1 Respuesta Correcta
 
 ```tsx
+{% raw %}
 {isCorrect && (
   <div className={cn(
     "mt-4 p-4 rounded-lg",
@@ -484,11 +486,13 @@ export function XPBadge({ xp, variant = "md", animated = false }: Props) {
     </div>
   </div>
 )}
+{% endraw %}
 ```
 
 ### 4.2 Desbloquear Achievement
 
 ```tsx
+{% raw %}
 const [justUnlocked, setJustUnlocked] = useState(false);
 
 // Cuando logro se desbloquea:
@@ -502,11 +506,13 @@ return (
     <AchievementBadge unlocked={true} {...props} />
   </div>
 );
+{% endraw %}
 ```
 
 ### 4.3 Flotar XP Ganado
 
 ```tsx
+{% raw %}
 // En componente padre
 const floating = () => {
   return (
@@ -523,6 +529,7 @@ const floating = () => {
     </div>
   );
 };
+{% endraw %}
 ```
 
 ---
@@ -616,8 +623,10 @@ className={cn(
 ### Z-index issues con float
 
 ```tsx
+{% raw %}
 // Asegurar que float está en fixed/absolute con z-index alto
 <div className="fixed z-50 pointer-events-none animate-float-up">
+{% endraw %}
 ```
 
 ---
