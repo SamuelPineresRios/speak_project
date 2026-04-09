@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useAuth } from '@/lib/hooks/useAuth'
 import { cn, getCEFRLabel } from '@/lib/utils'
 import { MissionSimulationAside } from '@/components/MissionSimulationAside'
-import { BackgroundSprites } from '@/components/BackgroundSprites'
+import { ResponsiveBackgroundSprites } from '@/components/ResponsiveBackgroundSprites'
 
 interface Mission { id:string; title:string; description:string|null; cefr_level:string; base_duration_seconds:number; status:string }
 const LEVEL_COLORS: Record<string,string> = { A1:'text-emerald border-emerald/40', A2:'text-cyan border-cyan/40', B1:'text-amber border-amber/40', B2:'text-violet border-violet/40' }
@@ -107,9 +107,9 @@ export default function MissionsPage() {
         <div className="absolute top-[-10%] right-[-5%] w-96 h-96 bg-violet-500/10 rounded-full blur-[128px] animate-pulse" />
         <div className="absolute bottom-[-10%] left-[-5%] w-96 h-96 bg-cyan-500/10 rounded-full blur-[128px] animate-pulse delay-1000" />
         
-        {/* 👾 Pixel Sprites Layer */}
+        {/* 👾 Pixel Sprites Layer - Desktop Only */}
         <div className="absolute inset-0 z-10 opacity-70">
-            <BackgroundSprites />
+            <ResponsiveBackgroundSprites />
         </div>
       </div>
 

@@ -1,7 +1,7 @@
 import { GuideDetail } from "@/components/GuideDetail";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
-import { BackgroundSprites } from "@/components/BackgroundSprites";
+import { ResponsiveBackgroundSprites } from "@/components/ResponsiveBackgroundSprites";
 import { TechBackground } from "@/components/TechBackground";
 
 export const metadata = {
@@ -17,7 +17,7 @@ export default function GuidePage({ params }: GuidePageProps) {
   return (
     <div className="min-h-screen bg-midnight p-6 relative overflow-hidden">
       <TechBackground />
-      <BackgroundSprites />
+      <ResponsiveBackgroundSprites />
       <div className="max-w-4xl mx-auto relative z-10 pt-4">
         {/* Back button */}
         <Link

@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import { Timer } from './Timer'
 import { NarrativeCharacter } from './NarrativeCharacter'
 import { TypewriterMessage } from './TypewriterMessage'
-import { BackgroundSprites } from './BackgroundSprites'
+import { ResponsiveBackgroundSprites } from './ResponsiveBackgroundSprites'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/lib/hooks/useAuth'
 
@@ -315,9 +315,9 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
         {/* Background Grid */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#083344_1px,transparent_1px),linear-gradient(to_bottom,#083344_1px,transparent_1px)] bg-[size:40px_40px] opacity-[0.2]" />
         
-        {/* 👾 Pixel Sprites Layer */}
+        {/* 👾 Pixel Sprites Layer - Desktop Only */}
         <div className="absolute inset-0 z-0 opacity-70">
-            <BackgroundSprites />
+            <ResponsiveBackgroundSprites />
         </div>
 
         <div className="w-full max-w-lg space-y-6 relative z-10 animate-fade-in-up">

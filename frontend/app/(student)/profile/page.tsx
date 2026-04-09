@@ -6,7 +6,7 @@ import { useAuth } from '@/lib/hooks/useAuth'
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, Legend, ResponsiveContainer } from 'recharts'
 import { Camera, Edit2, Shield, Award, Zap, Brain, Target, CheckCircle2, BookOpen, Hourglass, TrendingUp } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { BackgroundSprites } from '@/components/BackgroundSprites'
+import { ResponsiveBackgroundSprites } from '@/components/ResponsiveBackgroundSprites'
 import { Canvas3DBackground } from '@/components/Canvas3DBackground'
 
 interface Mission { id:string; title:string; description:string|null; cefr_level:string; status:string }
@@ -102,7 +102,7 @@ export default function ProfilePage() {
   return (
     <div className="relative min-h-[100vh] w-full bg-black/90">
       <Canvas3DBackground className="opacity-60" />
-      <BackgroundSprites />
+      <ResponsiveBackgroundSprites />
 
       {/* Main Content */}
       <div className="relative z-10 min-h-screen p-8 font-mono max-w-6xl mx-auto space-y-8 animate-fade-in pt-16">

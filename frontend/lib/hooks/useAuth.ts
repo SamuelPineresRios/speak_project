@@ -78,6 +78,7 @@ export function useAuth() {
 
   const logout = useCallback(async () => {
     localStorage.removeItem('userId')
+    localStorage.removeItem('speak:last-route')  // Clear session recovery data
     await fetch('/api/auth/logout', { method: 'POST' }).catch(() => {})
     setUser({
       id: 'test-student-001',

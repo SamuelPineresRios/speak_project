@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Users, BookOpen, Clock, AlertCircle, PlayCircle, Trophy, Target, Award, ShieldAlert, Cpu } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/lib/hooks/useAuth'
-import { BackgroundSprites } from '@/components/BackgroundSprites'
+import { ResponsiveBackgroundSprites } from '@/components/ResponsiveBackgroundSprites'
 import { Canvas3DBackground } from '@/components/Canvas3DBackground'
 
 export default function StudentGroupsPage() {
@@ -36,7 +36,7 @@ export default function StudentGroupsPage() {
     return (
       <div className="flex h-[80vh] items-center justify-center relative">
         <Canvas3DBackground />
-        <BackgroundSprites />
+        <ResponsiveBackgroundSprites />
         <div className="flex flex-col items-center gap-4 relative z-10">
           <div className="w-12 h-12 border-4 border-cyan-500/20 border-t-cyan-500 rounded-full animate-spin"></div>
           <p className="text-cyan-500 font-mono text-xs tracking-[0.2em] animate-pulse">RASTREANDO ESCUADRONES...</p>
@@ -48,7 +48,7 @@ export default function StudentGroupsPage() {
   return (
     <div className="relative min-h-[100vh] w-full bg-black/90">
       <Canvas3DBackground className="opacity-60" />
-      <BackgroundSprites />
+      <ResponsiveBackgroundSprites />
 
       {/* Main Content */}
       <div className="relative z-10 max-w-7xl mx-auto space-y-8 animate-fade-in pt-16 px-6 lg:px-8 pb-12">
