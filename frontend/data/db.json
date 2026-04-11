@@ -2590,6 +2590,102 @@
       "role": "assistant",
       "content": "¡Hola! 😊 ¡Claro que sí! Las oraciones condicionales son frases que usamos para hablar sobre situaciones y sus posibles resultados. Imagina que estás planeando qué harías si ganaras la lotería, ¡ahí estás usando condicionales!\n\nEn inglés, tenemos varios tipos, pero aquí nos enfocamos en los más comunes:\n\n*   **Tipo 1 (Posible):** \"If + presente simple, will + infinitivo\". Se usa para cosas que son posibles en el futuro. Por ejemplo, \"If the server crashes, we will reboot it.\" (Si el servidor se cae, lo reiniciaremos). Es algo probable, ¿no?\n\n*   **Tipo 2 (Improbable):** \"If + pasado simple, would + infinitivo\". Se usa para situaciones hipotéticas o poco probables. Por ejemplo, \"If I had access, I would fix it.\" (Si tuviera acceso, lo arreglaría). Aquí, la situación de tener acceso es improbable.\n\nTambién tenemos expresiones como \"as long as...\" (siempre y cuando) y \"unless...\" (a menos que). Por ejemplo, \"Unless you type the password, access is denied.\" (A menos que escribas la contraseña, el acceso será denegado).\n\n¿Te gustaría que te diera más ejemplos o que profundicemos en alguna estructura en particular? ¡Estoy aquí para ayudarte! ✨\n",
       "sent_at": "2026-04-08T20:43:09.919Z"
+    },
+    {
+      "id": "msg-1775705935137-user",
+      "guide_id": "guide-003",
+      "student_id": "bb34efb3-7773-4319-a16d-15072dc2798e",
+      "role": "user",
+      "content": "Hola",
+      "sent_at": "2026-04-09T03:38:55.137Z"
+    },
+    {
+      "id": "msg-1775705937044-assistant",
+      "guide_id": "guide-003",
+      "student_id": "bb34efb3-7773-4319-a16d-15072dc2798e",
+      "role": "assistant",
+      "content": "¡Hola! 👋 ¿Qué tal tu día? ¿Listo para dominar las condicionales en inglés? Tenemos un desafío épico esperándote. 😉 ¿Hay algo específico sobre las oraciones condicionales que te gustaría repasar antes de empezar? Podemos ver los tipos (0, 1, 2, 3) o las expresiones como \"as long as\" y \"unless\". ¡Dime tú!\n",
+      "sent_at": "2026-04-09T03:38:57.044Z"
+    },
+    {
+      "id": "msg-1775705954837-user",
+      "guide_id": "guide-003",
+      "student_id": "bb34efb3-7773-4319-a16d-15072dc2798e",
+      "role": "user",
+      "content": "Tipo 0",
+      "sent_at": "2026-04-09T03:39:14.837Z"
+    },
+    {
+      "id": "msg-1775705956782-assistant",
+      "guide_id": "guide-003",
+      "student_id": "bb34efb3-7773-4319-a16d-15072dc2798e",
+      "role": "assistant",
+      "content": "¡Hola! 😊 Veo que tienes curiosidad por el Tipo 0 de las oraciones condicionales. ¡Excelente!\n\nEl Tipo 0 se usa para hablar de verdades universales, cosas que siempre son verdad. La estructura es: \"If + Simple Present, Simple Present\".\n\nPor ejemplo, mira el contexto que te he dado:\n\n\"Type 0 (Universal): If + Simple Present, Simple Present\"\n\n¿Puedes pensar en algún ejemplo de tu vida diaria o relacionado con tecnología donde usarías el Tipo 0? Pista: piensa en cosas que siempre suceden si se cumple una condición. 🚀\n",
+      "sent_at": "2026-04-09T03:39:16.783Z"
+    },
+    {
+      "id": "msg-1775706052296-user",
+      "guide_id": "guide-003",
+      "student_id": "bb34efb3-7773-4319-a16d-15072dc2798e",
+      "role": "user",
+      "content": "Hola",
+      "sent_at": "2026-04-09T03:40:52.296Z"
+    },
+    {
+      "id": "msg-1775706054609-assistant",
+      "guide_id": "guide-003",
+      "student_id": "bb34efb3-7773-4319-a16d-15072dc2798e",
+      "role": "assistant",
+      "content": "¡Hola! 👋 ¿Qué tal tu día? ¿Listo para dominar las condicionales en inglés? Tenemos un desafío épico esperándote, ¡con 200 XP premium en juego! 😉 ¿Hay algo en particular sobre las oraciones condicionales que te gustaría repasar antes de empezar? Podemos hablar sobre los diferentes tipos (tipo 0, 1, 2 y 3) y cómo usarlos. ¡O tal vez quieres que veamos algunos ejemplos prácticos primero! ✨\n",
+      "sent_at": "2026-04-09T03:40:54.609Z"
+    },
+    {
+      "id": "msg-1775706494814-user",
+      "guide_id": "guide-003",
+      "student_id": "bb34efb3-7773-4319-a16d-15072dc2798e",
+      "role": "user",
+      "content": "Hola",
+      "sent_at": "2026-04-09T03:48:14.814Z"
+    },
+    {
+      "id": "msg-1775706496687-assistant",
+      "guide_id": "guide-003",
+      "student_id": "bb34efb3-7773-4319-a16d-15072dc2798e",
+      "role": "assistant",
+      "content": "¡Hola! 👋 ¿Qué tal tu día? ¿Listo para dominar las condicionales en inglés? 💪 Tenemos un reto interesante con \"If\", \"Unless\", y otras expresiones. ¿Hay algo en particular sobre las oraciones condicionales que te gustaría repasar antes de empezar? Podemos ver los tipos (0, 1, 2, 3) o enfocarnos en \"Unless\" si te parece más útil. ¡Dime qué te interesa más! 😊\n",
+      "sent_at": "2026-04-09T03:48:16.687Z"
+    },
+    {
+      "id": "msg-1775706516475-user",
+      "guide_id": "guide-003",
+      "student_id": "bb34efb3-7773-4319-a16d-15072dc2798e",
+      "role": "user",
+      "content": "Necesito un if en contexto de la biologia",
+      "sent_at": "2026-04-09T03:48:36.475Z"
+    },
+    {
+      "id": "msg-1775706519297-assistant",
+      "guide_id": "guide-003",
+      "student_id": "bb34efb3-7773-4319-a16d-15072dc2798e",
+      "role": "assistant",
+      "content": "¡Hola! ¡Claro que sí! 😊\n\nEn biología, podríamos usar \"if\" para hablar de experimentos o condiciones necesarias para ciertos resultados. Por ejemplo:\n\n\"If the plant receives enough sunlight, it will grow taller.\" (Si la planta recibe suficiente luz solar, crecerá más alta). 🌱\n\nAquí, estamos usando el \"First Conditional\" (If + presente simple, will + infinitivo), como en el ejemplo de la guía: \"If the server crashes, we will reboot it.\" Vemos que es una condición real o probable en el futuro.\n\nOtro ejemplo podría ser:\n\n\"If the DNA sequence were different, the protein structure would change.\" (Si la secuencia de ADN fuera diferente, la estructura de la proteína cambiaría).🧬\n\nEn este caso, usamos el \"Second Conditional\" (If + pasado simple, would + infinitivo) para hablar de una situación hipotética. Similar a \"If I had access, I would fix it.\"\n\n¿Te gustaría intentar crear una oración \"if\" relacionada con la biología para practicar? ¡Estaré aquí para ayudarte! 😉\n",
+      "sent_at": "2026-04-09T03:48:39.297Z"
+    },
+    {
+      "id": "msg-1775706892509-user",
+      "guide_id": "guide-003",
+      "student_id": "bb34efb3-7773-4319-a16d-15072dc2798e",
+      "role": "user",
+      "content": "Ahora en la tecnologia",
+      "sent_at": "2026-04-09T03:54:52.509Z"
+    },
+    {
+      "id": "msg-1775706895910-assistant",
+      "guide_id": "guide-003",
+      "student_id": "bb34efb3-7773-4319-a16d-15072dc2798e",
+      "role": "assistant",
+      "content": "¡Excelente! La tecnología es un campo perfecto para usar las condicionales. 😊\n\nPor ejemplo, piensa en un programa de software: \"Si el usuario hace clic en este botón, entonces se abre una nueva ventana.\" ¿Ves cómo usamos \"si\" para describir una condición y su resultado?\n\nO considera esta situación: \"A menos que tengas la contraseña correcta, no podrás acceder al sistema.\" Aquí, \"a menos que\" introduce la condición que debe cumplirse (o no cumplirse) para que algo más suceda. Como dice la guía, \"Unless you type the password, access is denied.\"\n\n¿Puedes pensar en alguna otra situación tecnológica donde usarías \"if\" o \"unless\"? ¡Anímate a compartirla! 🚀\n",
+      "sent_at": "2026-04-09T03:54:55.910Z"
     }
   ],
   "exercise_submissions": [

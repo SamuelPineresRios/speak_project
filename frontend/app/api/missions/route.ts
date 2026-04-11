@@ -16,23 +16,40 @@ export async function GET(req: NextRequest) {
     
     const supabase = createClient(supabaseUrl, supabaseKey)
     
-    // Get missions from Supabase
-    console.log('[Missions API] Fetching missions from Supabase for user:', userId)
+    // Get user's CEFR level from database
+    const { data: user, error: userError } = await supabase
+      .from('users')
+      .select('cefr_level')
+      .eq('id', userId)
+      .single()
+
+    if (userError || !user) {
+      console.log('[Missions API] Could not fetch user CEFR level, using default A1')
+    }
+
+    const cefrLevel = user?.cefr_level || 'A1'
+
+    // Get ALL missions from Supabase (for all levels)
+    console.log('[Missions API] Fetching all missions from Supabase for user:', userId, 'CEFR:', cefrLevel)
     const { data: missions, error: missionsError } = await supabase
       .from('missions')
       .select('*')
-      .limit(20)
+      .limit(100)
     
     if (missionsError) {
       console.error('[Missions API] Supabase error:', missionsError.message)
       return NextResponse.json({ error: 'Failed to fetch missions' }, { status: 500 })
     }
     
-    console.log('[Missions API] Loaded', missions?.length || 0, 'missions from Supabase')
-    return NextResponse.json({ 
+    console.log('[Missions API] Loaded', missions?.length || 0, 'total missions from Supabase')
+    const response = NextResponse.json({ 
       missions: missions || [], 
-      cefr_level: 'B1'  // Default CEFR level for testing
+      cefr_level: cefrLevel
     })
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+    response.headers.set('Pragma', 'no-cache')
+    response.headers.set('Expires', '0')
+    return response
   } catch (e) {
     console.error('[Missions API] Error:', e)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

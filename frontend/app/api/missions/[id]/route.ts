@@ -19,7 +19,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
     const supabase = createClient(supabaseUrl, supabaseKey)
 
-    // Fetch mission from Supabase
+    // Fetch mission from Supabase - use wildcard to get all available columns
     const { data: mission, error } = await supabase
       .from('missions')
       .select('*')
@@ -28,10 +28,16 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
     if (error) {
       console.error('[Mission GET] Supabase error:', error.message)
+      console.error('[Mission GET] Error details:', error)
       return NextResponse.json(
         { error: 'Database error: ' + error.message },
         { status: 500 }
       )
+    }
+
+    // Log available columns for debugging
+    if (mission) {
+      console.log('[Mission GET] Mission columns:', Object.keys(mission))
     }
 
     if (!mission) {
@@ -43,7 +49,13 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     }
 
     console.log('[Mission GET] Successfully fetched mission:', missionId)
-    return NextResponse.json({ mission, narrative_state: null })
+    
+    // Return response with no-cache headers to prevent stale data
+    const response = NextResponse.json({ mission, narrative_state: null })
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+    response.headers.set('Pragma', 'no-cache')
+    response.headers.set('Expires', '0')
+    return response
   } catch (e) {
     console.error('[Mission GET] Exception:', e)
     return NextResponse.json(

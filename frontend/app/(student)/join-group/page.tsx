@@ -18,7 +18,11 @@ export default function JoinGroupPage() {
     const data = await res.json()
     if (!res.ok) { setError(data.error ?? 'ENLACE RECHAZADO'); setLoading(false); return }
     setSuccess(`¡VINCULACIÓN A "${data.name}" EXITOSA!`)
-    setTimeout(() => router.push('/missions'), 1500)
+    // Redirect to missions after 1 second
+    setTimeout(() => {
+      localStorage.setItem('speak:last-route', '/missions')
+      router.push('/missions')
+    }, 1000)
   }
   
   return (

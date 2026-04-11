@@ -4,43 +4,12 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/lib/hooks/useAuth'
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, Legend, ResponsiveContainer } from 'recharts'
-import { Camera, Edit2, Shield, Award, Zap, Brain, Target, CheckCircle2, BookOpen, Hourglass, TrendingUp } from 'lucide-react'
+import { Camera, Edit2, Shield, Award, Brain, Target, CheckCircle2, TrendingUp } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { ResponsiveBackgroundSprites } from '@/components/ResponsiveBackgroundSprites'
 import { Canvas3DBackground } from '@/components/Canvas3DBackground'
 
 interface Mission { id:string; title:string; description:string|null; cefr_level:string; status:string }
-
-interface StoryProgress {
-   story_id: string
-   story_title: string
-   completed_scenes: number
-   total_scenes: number
-   progress_pct: number
-   status: 'not_started' | 'in_progress' | 'completed'
-   is_completed: boolean
-   updated_at: string
-}
-
-interface ProfileData {
-   full_name: string | null
-   email: string
-   cefr_level: string | null
-   missions_completed: number
-   writing_time_seconds: number
-   avg_comprehensibility: number | null
-   top_structures: { structure: string; count: number }[]
-   weekly_stats: { week_start_date: string; missions_completed: number; writing_time_seconds: number; avg_comprehensibility: number | null }[]
-   stories_progress: StoryProgress[]
-   guides_completed: number
-   story_totals: {
-      completedStories: number
-      inProgressStories: number
-      completedScenes: number
-      totalScenes: number
-      overall_progress_pct: number
-   }
-}
 
 // Mock data for skills since backend doesn't provide it yet
 const SKILLS_DATA = [
@@ -53,51 +22,57 @@ const SKILLS_DATA = [
 ]
 
 export default function ProfilePage() {
-  const { user } = useAuth()
+  const { user, loading: userLoading, refetch } = useAuth()
   const [missions, setMissions] = useState<Mission[]>([])
-   const [profile, setProfile] = useState<ProfileData | null>(null)
   const [loading, setLoading] = useState(true)
   const [isEditing, setIsEditing] = useState(false)
-  const [name, setName] = useState('')
+  const [editName, setEditName] = useState('')
 
   const saveName = async () => {
     setIsEditing(false)
-    if (name.trim() === '' || name.trim() === user?.full_name) return
+    if (editName.trim() === '' || editName.trim() === user?.full_name) return
     try {
-       await fetch(`/api/students/${user?.id}/profile`, {
-           method: 'PATCH',
-           headers: { 'Content-Type': 'application/json' },
-           body: JSON.stringify({ full_name: name })
-       })
-    } catch (e) { console.error('Error updating name') }
+      const res = await fetch('/api/auth/update-profile', {
+        method: 'PATCH',
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-user-id': user?.id || ''
+        },
+        body: JSON.stringify({ full_name: editName })
+      })
+      if (res.ok) {
+        console.log('Name updated successfully')
+        // Refetch user data to update the UI
+        await refetch()
+      } else {
+        console.error('Error updating name')
+      }
+    } catch (e) { 
+      console.error('Error updating name:', e) 
+    }
   }
 
   useEffect(() => {
-      if (!user?.id) return
+    if (!user?.id) {
+      setLoading(false)
+      return
+    }
 
-      setName(user.full_name || 'Agent')
-
-      Promise.all([
-         fetch('/api/missions').then(res => res.json()),
-         fetch(`/api/students/${user.id}/profile`).then(res => res.json()),
-      ])
-         .then(([missionsData, profileData]) => {
-            setMissions(missionsData.missions ?? [])
-            setProfile(profileData)
-            setLoading(false)
-         })
-         .catch(() => {
-            setLoading(false)
-         })
-  }, [user])
+    // Only fetch missions
+    fetch('/api/missions')
+      .then(res => res.json())
+      .then((missionsData) => {
+        setMissions(missionsData.missions ?? [])
+        setLoading(false)
+      })
+      .catch((err) => {
+        console.error('Error loading missions:', err)
+        setLoading(false)
+      })
+  }, [user?.id])
 
   const completedMissions = missions.filter(m => m.status === 'completed')
   const completionRate = missions.length > 0 ? Math.round((completedMissions.length / missions.length) * 100) : 0
-   const storyTotals = profile?.story_totals
-   const storyItems = profile?.stories_progress ?? []
-   const nextStory = storyItems.find(s => s.status === 'in_progress')
-
-   const todayLabel = new Date().toLocaleDateString('es', { weekday: 'short', day: 'numeric', month: 'short' }).toUpperCase()
 
   return (
     <div className="relative min-h-[100vh] w-full bg-black/90">
@@ -119,7 +94,7 @@ export default function ProfilePage() {
                  <div className="w-32 h-32 rounded-full border-2 border-dashed border-cyan/30 p-1 group-hover:border-cyan transition-colors relative overflow-hidden">
                     <div className="w-full h-full rounded-full bg-slate-800 flex items-center justify-center overflow-hidden">
                        {/* Placeholder for user photo or actual photo */}
-                       <UserAvatar name={name} />
+                       <UserAvatar name={user?.full_name || 'Usuari'} />
                     </div>
                     <button className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
                        <Camera className="w-6 h-6 text-white" />
@@ -133,8 +108,8 @@ export default function ProfilePage() {
               {isEditing ? (
                   <div className="flex items-center gap-2 mb-1 w-full max-w-[200px]">
                       <input 
-                        value={name} 
-                        onChange={(e) => setName(e.target.value)}
+                        value={editName} 
+                        onChange={(e) => setEditName(e.target.value)}
                         className="bg-black/50 border border-cyan/50 rounded px-2 py-1 text-center w-full focus:outline-none focus:shadow-[0_0_10px_rgba(6,182,212,0.3)]"
                         autoFocus
                         onBlur={saveName}
@@ -142,8 +117,11 @@ export default function ProfilePage() {
                       />
                   </div>
               ) : (
-                  <h2 className="text-xl font-bold text-white mb-1 flex items-center gap-2 group-hover:text-cyan transition-colors cursor-pointer" onClick={() => setIsEditing(true)}>
-                    {name}
+                  <h2 className="text-xl font-bold text-white mb-1 flex items-center gap-2 group-hover:text-cyan transition-colors cursor-pointer" onClick={() => {
+                    setEditName(user?.full_name || '')
+                    setIsEditing(true)
+                  }}>
+                    {user?.full_name || 'Usuario'}
                     <Edit2 className="w-3 h-3 opacity-0 group-hover:opacity-50" />
                   </h2>
               )}
@@ -159,24 +137,7 @@ export default function ProfilePage() {
                     <p className="text-[10px] text-slate-400 uppercase">Rate</p>
                     <p className="text-lg font-bold text-emerald-400">{completionRate}%</p>
                  </div>
-                 <div className="text-center border-l border-white/5 pl-4 hidden md:block">
-                    <p className="text-[10px] text-slate-400 uppercase">Historias</p>
-                    <p className="text-lg font-bold text-cyan-400">{profile?.story_totals?.completedScenes || 0}</p>
-                 </div>
-                 <div className="text-center border-l border-white/5 pl-4 hidden md:block">
-                    <p className="text-[10px] text-slate-400 uppercase">Guías</p>
-                    <p className="text-lg font-bold text-purple-400">{profile?.guides_completed || 0}</p>
-                 </div>
-                 <div className="text-center col-span-2 md:hidden flex justify-around border-t border-white/5 pt-4 mt-2">
-                    <div>
-                        <p className="text-[10px] text-slate-400 uppercase">Historias</p>
-                        <p className="text-lg font-bold text-cyan-400">{profile?.story_totals?.completedScenes || 0}</p>
-                    </div>
-                    <div>
-                        <p className="text-[10px] text-slate-400 uppercase">Guías</p>
-                        <p className="text-lg font-bold text-purple-400">{profile?.guides_completed || 0}</p>
-                    </div>
-                 </div>
+
               </div>
            </div>
         </div>
@@ -222,54 +183,6 @@ export default function ProfilePage() {
             </h3>
             
             <div className="space-y-4">
-                      <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-xl p-4">
-                           <div className="flex items-center justify-between gap-3 mb-2">
-                              <h4 className="text-xs font-bold text-cyan uppercase tracking-wider flex items-center gap-2">
-                                 <BookOpen className="w-4 h-4" />
-                                 Story_Mode_Progress
-                              </h4>
-                              <span className="text-[10px] text-cyan/80 border border-cyan/30 px-2 py-0.5 rounded">{todayLabel}</span>
-                           </div>
-
-                           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-                              <MiniStat label="Completed Stories" value={storyTotals?.completedStories ?? 0} tone="emerald" />
-                              <MiniStat label="In Progress" value={storyTotals?.inProgressStories ?? 0} tone="cyan" />
-                              <MiniStat label="Scenes Done" value={storyTotals ? `${storyTotals.completedScenes}/${storyTotals.totalScenes}` : '0/0'} tone="amber" />
-                              <MiniStat label="Global Progress" value={`${storyTotals?.overall_progress_pct ?? 0}%`} tone="violet" />
-                           </div>
-
-                           {!storyItems.length ? (
-                              <div className="text-center py-6 border border-dashed border-cyan/20 rounded-lg">
-                                 <p className="text-[11px] text-slate-400 uppercase tracking-wider">Aun no hay historias registradas en Story Mode.</p>
-                              </div>
-                           ) : (
-                              <div className="space-y-2.5">
-                                 {storyItems.slice(0, 5).map((story) => (
-                                    <div key={story.story_id} className="rounded-lg border border-white/10 bg-black/30 px-3 py-2">
-                                       <div className="flex items-center justify-between gap-2 mb-1.5">
-                                          <p className="text-xs text-slate-200 truncate">{story.story_title}</p>
-                                          <span className={cn(
-                                             'text-[10px] uppercase px-1.5 py-0.5 rounded border',
-                                             story.is_completed
-                                                ? 'text-emerald-300 border-emerald-400/40 bg-emerald-500/10'
-                                                : 'text-cyan-300 border-cyan-400/40 bg-cyan-500/10'
-                                          )}>
-                                             {story.is_completed ? 'Completed' : 'In Progress'}
-                                          </span>
-                                       </div>
-                                       <div className="w-full h-1.5 rounded-full bg-white/10 overflow-hidden">
-                                          <div className={cn('h-full rounded-full', story.is_completed ? 'bg-emerald-400' : 'bg-cyan-400')} style={{ width: `${story.progress_pct}%` }} />
-                                       </div>
-                                       <div className="mt-1 flex items-center justify-between text-[10px] text-slate-400 font-mono">
-                                          <span>{story.completed_scenes}/{story.total_scenes} scenes</span>
-                                          <span>{story.progress_pct}%</span>
-                                       </div>
-                                    </div>
-                                 ))}
-                              </div>
-                           )}
-                      </div>
-
                {completedMissions.length === 0 ? (
                    <div className="text-center py-12 border-2 border-dashed border-white/5 rounded-xl">
                       <p className="text-slate-500 text-xs uppercase">No completed operations logged.</p>
@@ -295,20 +208,7 @@ export default function ProfilePage() {
 
          {/* Stats Column */}
          <div className="space-y-6">
-            <div className="bg-gradient-to-br from-violet-500/10 to-fuchsia-600/10 border border-violet-500/20 rounded-2xl p-6">
-               <div className="flex items-start justify-between mb-4">
-                  <div className="p-2 bg-violet-500/20 rounded-lg">
-                     <Hourglass className="w-6 h-6 text-violet-300" />
-                  </div>
-                  <span className="text-[10px] text-violet-300 font-bold border border-violet-400/30 px-2 py-0.5 rounded">NEXT</span>
-               </div>
-               <p className="text-base font-bold text-white mb-2 line-clamp-2">{nextStory?.story_title ?? 'Empieza una historia nueva'}</p>
-               <p className="text-[10px] text-slate-300 uppercase leading-relaxed">
-                  {nextStory
-                    ? `Te faltan ${Math.max(nextStory.total_scenes - nextStory.completed_scenes, 0)} escenas para cerrar esta historia.`
-                    : 'Tu siguiente avance esta en la seccion Stories. Activa Story Mode para generar trazabilidad.'}
-               </p>
-            </div>
+
 
             <div className="bg-gradient-to-br from-amber-500/10 to-orange-600/10 border border-amber-500/20 rounded-2xl p-6">
                <div className="flex items-start justify-between mb-4">
@@ -319,41 +219,25 @@ export default function ProfilePage() {
                </div>
                <p className="text-3xl font-bold text-white mb-1">A+</p>
                <p className="text-[10px] text-slate-400 uppercase leading-relaxed">
-                  {profile?.avg_comprehensibility
-                    ? `Average comprehensibility: ${Math.round(profile.avg_comprehensibility)}%.`
-                    : 'Complete mas sesiones para calcular tu rating real.'}
+                  Completa mas misiones para mejorar tu calificacion.
                </p>
             </div>
 
-            <div className="bg-gradient-to-br from-cyan-500/10 to-blue-600/10 border border-cyan-500/20 rounded-2xl p-6">
-               <div className="flex items-start justify-between mb-4">
-                  <div className="p-2 bg-cyan-500/20 rounded-lg">
-                     <Zap className="w-6 h-6 text-cyan-500" />
-                  </div>
-                  <span className="text-[10px] text-cyan-500 font-bold border border-cyan-500/30 px-2 py-0.5 rounded">STREAK</span>
-               </div>
-                      <p className="text-3xl font-bold text-white mb-1">{storyTotals?.inProgressStories ?? 0} <span className="text-sm font-normal text-slate-400">ACTIVE</span></p>
-               <p className="text-[10px] text-slate-400 uppercase leading-relaxed">
-                           Historias activas actualmente. Mantener continuidad acelera fluidez.
-               </p>
-            </div>
+
 
                   <div className="bg-black/20 border border-white/10 rounded-2xl p-6">
                      <div className="flex items-center gap-2 mb-3">
                         <TrendingUp className="w-4 h-4 text-emerald-300" />
                         <p className="text-[11px] uppercase tracking-wider text-slate-300 font-bold">Structures Tracker</p>
                      </div>
-                     {profile?.top_structures?.length ? (
-                        <div className="flex flex-wrap gap-2">
-                           {profile.top_structures.slice(0, 6).map((item) => (
-                              <span key={item.structure} className="text-[10px] uppercase tracking-wide px-2 py-1 rounded border border-white/15 bg-white/5 text-slate-300">
-                                 {item.structure} x{item.count}
-                              </span>
-                           ))}
-                        </div>
-                     ) : (
-                        <p className="text-[10px] text-slate-500 uppercase">Aun no hay estructuras detectadas.</p>
-                     )}
+                  <div className="flex flex-wrap gap-2">
+                     <span className="text-[10px] uppercase tracking-wide px-2 py-1 rounded border border-white/15 bg-white/5 text-slate-300">
+                        Vocabulary x5
+                     </span>
+                     <span className="text-[10px] uppercase tracking-wide px-2 py-1 rounded border border-white/15 bg-white/5 text-slate-300">
+                        Pronunciation x3
+                     </span>
+                  </div>
                   </div>
          </div>
       </div>

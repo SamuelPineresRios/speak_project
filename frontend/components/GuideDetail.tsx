@@ -7,8 +7,10 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { ChatPanel } from "./ChatPanel";
 import { ExerciseCard } from "./ExerciseCard";
+import { TypewriterMessage } from "./TypewriterMessage";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AlertCircle, BookOpen, Lightbulb, Target, Zap } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface Guide {
   id: string;
@@ -72,6 +74,7 @@ export function GuideDetail({ guideId }: GuideDetailProps) {
   const [completingGuide, setCompletingGuide] = useState(false);
   const [completedExercises, setCompletedExercises] = useState<string[]>([]);
   const [correctExercises, setCorrectExercises] = useState<string[]>([]);
+  const [activeTab, setActiveTab] = useState("content");
 
   useEffect(() => {
     const fetchGuide = async () => {
@@ -173,181 +176,247 @@ export function GuideDetail({ guideId }: GuideDetailProps) {
   const xpReward = (guide as any)?.xp_reward || 150;
 
   return (
-    <div className="space-y-6 animate-smooth-entrance">
-      {/* Gamified Header */}
-      <Card className="relative overflow-hidden border border-cyan-500/30 bg-gradient-to-br from-midnight-50/80 to-midnight/60 backdrop-blur-xl shadow-neon-cyan">
-        {/* Corner brackets */}
-        <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-cyan-400" />
-        <div className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-cyan-400" />
-        <div className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-cyan-400" />
-        <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-cyan-400" />
-        
-        {/* Animated background glow */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl animate-pulse-neon pointer-events-none" />
-
-        <CardHeader className="relative z-10">
-          <div className="flex flex-col md:flex-row items-start justify-between gap-4">
-            <div className="flex items-center gap-5">
-              <div className="relative">
-                <div className="absolute inset-0 bg-cyan-500/20 blur-xl rounded-full" />
-                <span className="text-6xl relative z-10 animate-bounce-gentle inline-block">
-                  {guide.cover_emoji}
-                </span>
-              </div>
-              <div>
-                <CardTitle className="text-3xl font-sans font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-indigo-400 drop-shadow-[0_0_8px_rgba(6,182,212,0.5)]">
-                  {guide.title}
-                </CardTitle>
-                <div className="flex flex-wrap gap-2 mt-3">
-                  <Badge
-                    variant="outline"
-                    className="border-emerald-400/50 text-emerald-300 bg-emerald-950/40 shadow-[0_0_10px_rgba(16,185,129,0.2)] font-mono"
-                  >
-                    🚀 {guide.cefr_level}
-                  </Badge>
-                  <Badge
-                    variant="outline"
-                    className="border-cyan-400/50 text-cyan-300 bg-cyan-950/40 shadow-[0_0_10px_rgba(6,182,212,0.2)] font-mono"
-                  >
-                    ⏱ {guide.estimated_minutes} min
-                  </Badge>
-                  <Badge
-                    variant="outline"
-                    className="border-amber-400/50 text-amber-300 bg-amber-950/40 shadow-neon-amber font-mono"
-                  >
-                    ⚡ +{xpReward} XP
-                  </Badge>
+    <div className="space-y-6">
+      {/* Header - Dark Theme Matching Missions */}
+      <div className="bg-slate-900/95 backdrop-blur border border-white/10 rounded-xl p-6 md:p-8">
+        <div className="flex flex-col md:flex-row items-start gap-6 md:gap-8">
+          {/* Icon and Title */}
+          <div className="flex items-start gap-5 flex-1">
+            <span className="text-5xl flex-shrink-0">{guide.cover_emoji}</span>
+            <div className="min-w-0 flex-1">
+              <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
+                {guide.title}
+              </h1>
+              <p className="text-slate-300 text-base leading-relaxed mb-4">
+                {guide.description}
+              </p>
+              
+              {/* Metadata badges */}
+              <div className="flex flex-wrap gap-3">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-800/50 border border-slate-700 text-slate-300 rounded-md text-sm font-medium hover:border-cyan/30 transition-colors">
+                  <span>📚</span> {guide.cefr_level}
+                </div>
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-800/50 border border-slate-700 text-slate-300 rounded-md text-sm font-medium">
+                  <span>⏱</span> {guide.estimated_minutes} min
+                </div>
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 rounded-md text-sm font-medium">
+                  <span>⚡</span> +{xpReward} XP
                 </div>
               </div>
-            </div>
-            
-            <div className="flex flex-col gap-2 min-w-[140px]">
-              {!isCompleted ? (
-                <Button
-                  onClick={handleCompleteGuide}
-                  disabled={completingGuide}
-                  className="bg-emerald-600 hover:bg-emerald-500 text-white shadow-neon-emerald transition-all duration-300 border border-emerald-400/50 rounded-none relative overflow-hidden group"
-                >
-                  <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-shimmer" />
-                  <span className="relative font-bold font-tech tracking-wider">
-                    {completingGuide ? "SYNCING..." : "MARK COMPLETE"}
-                  </span>
-                </Button>
-              ) : (
-                <div className="px-4 py-2 bg-emerald-500/20 border border-emerald-400/70 rounded-none text-emerald-300 font-tech font-bold text-center shadow-[0_0_15px_rgba(16,185,129,0.3)] animate-pulse-neon">
-                  ✓ MASTERED
-                </div>
-              )}
             </div>
           </div>
-        </CardHeader>
 
-        <CardContent className="relative z-10 mt-2">
-          <p className="text-slate-300 mb-6 text-lg leading-relaxed border-l-2 border-cyan-500/50 pl-4 py-1 bg-gradient-to-r from-cyan-950/20 to-transparent">
-            {guide.description}
-          </p>
-
-          {/* Gamified Progress Bar */}
-          <div className="space-y-3 bg-slate-900/50 p-4 rounded-lg border border-slate-700/50">
-            <div className="flex justify-between text-sm font-mono">
-              <span className="text-slate-400 uppercase tracking-wider text-xs">Missions Scanned</span>
-              <span className="text-cyan-400 font-bold">
-                {completedExercises.length} / {guide.content.exercises.length} Exercises
-              </span>
-            </div>
-            <div className="relative h-3 w-full bg-slate-800 rounded-full overflow-hidden border border-slate-700 shadow-inner">
-              <div 
-                className="absolute top-0 left-0 h-full bg-gradient-to-r from-amber-500 via-emerald-400 to-cyan-400 transition-all duration-700 ease-out"
-                style={{ width: `${progressPercent}%` }}
+          {/* Complete Button */}
+          <div className="w-full md:w-auto">
+            {!isCompleted ? (
+              <Button
+                onClick={handleCompleteGuide}
+                disabled={completingGuide}
+                className="w-full md:w-auto bg-cyan-600 hover:bg-cyan-500 text-white font-semibold py-2.5 px-6 rounded-lg transition-colors"
               >
-                <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMykiIHN0cm9rZS13aWR0aD0iMiIgZmlsbD0ibm9uZSI+PHBhdGggZD0iTTAgNDAgTDEwMCAwIi8+PC9nPjwvc3ZnPg==')] opacity-50" />
+                {completingGuide ? "Guardando..." : "Marcar como completado"}
+              </Button>
+            ) : (
+              <div className="w-full md:w-auto px-6 py-2.5 bg-emerald-500/20 border border-emerald-500/30 rounded-lg text-emerald-300 font-semibold text-center">
+                ✓ Completado
               </div>
+            )}
+          </div>
+        </div>
+
+        {/* Progress Bar */}
+        {guide.progress && (
+          <div className="mt-6 pt-6 border-t border-white/10">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-sm font-medium text-slate-400">Progreso</span>
+              <span className="text-sm font-semibold text-cyan">{Math.round(progressPercent)}%</span>
             </div>
-            <div className="flex justify-between text-xs text-slate-500 font-mono">
-              <span>0%</span>
-              <span>50%</span>
-              <span>100%</span>
+            <div className="w-full h-2 bg-slate-800/50 rounded-full overflow-hidden border border-slate-700/50">
+              <div 
+                className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 transition-all duration-500"
+                style={{ width: `${progressPercent}%` }}
+              />
+            </div>
+            <div className="mt-2 text-xs text-slate-500">
+              {completedExercises.length} de {guide.content.exercises.length} ejercicios completados
             </div>
           </div>
-        </CardContent>
-      </Card>
+        )}
+      </div>
 
-      {/* Gamified Content Tabs */}
-      <Tabs
-        defaultValue="content"
-        className="glass-effect-light rounded-xl p-2 md:p-4 border border-cyan-500/20"
-      >
-        <TabsList className="bg-slate-900/80 border border-slate-700/50 grid w-full grid-cols-4 rounded-lg p-1.5 h-auto">
+      {/* Simple Content Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="bg-slate-900/95 backdrop-blur border border-white/10 rounded-xl overflow-hidden">
+        <TabsList className="bg-slate-800/50 border-b border-white/10 grid w-full grid-cols-3 rounded-none p-0 h-auto">
           <TabsTrigger
             value="content"
-            className="py-2.5 font-tech tracking-wider data-[state=active]:bg-cyan-600/30 data-[state=active]:text-cyan-300 data-[state=active]:shadow-neon-cyan transition-all duration-300 rounded"
+            className="py-3 px-4 font-semibold data-[state=active]:bg-cyan/20 data-[state=active]:border-b-2 data-[state=active]:border-cyan data-[state=active]:text-cyan text-slate-400 rounded-none"
           >
             <BookOpen className="w-4 h-4 mr-2 inline" />
-            <span className="hidden sm:inline">DATABASE</span>
+            Contenido
           </TabsTrigger>
           <TabsTrigger
             value="exercises"
-            className="py-2.5 font-tech tracking-wider data-[state=active]:bg-amber-600/30 data-[state=active]:text-amber-300 data-[state=active]:shadow-neon-amber transition-all duration-300 rounded"
+            className="py-3 px-4 font-semibold data-[state=active]:bg-cyan/20 data-[state=active]:border-b-2 data-[state=active]:border-cyan data-[state=active]:text-cyan text-slate-400 rounded-none"
           >
             <Target className="w-4 h-4 mr-2 inline" />
-            <span className="hidden sm:inline">MISSIONS</span> ({completedExercises.length})
+            Ejercicios ({completedExercises.length})
           </TabsTrigger>
           {guide.enable_chat_assistant && (
             <TabsTrigger
               value="chat"
-              className="py-2.5 font-tech tracking-wider data-[state=active]:bg-cyan-600/30 data-[state=active]:text-cyan-300 data-[state=active]:shadow-neon-cyan transition-all duration-300 rounded"
+              className="py-3 px-4 font-semibold data-[state=active]:bg-cyan/20 data-[state=active]:border-b-2 data-[state=active]:border-cyan data-[state=active]:text-cyan text-slate-400 rounded-none"
             >
-              <Zap className="w-4 h-4 mr-2 inline animate-pulse-neon" />
-              <span className="hidden sm:inline">AI TUTOR</span>
+              <Zap className="w-4 h-4 mr-2 inline" />
+              Asistente
             </TabsTrigger>
           )}
-          <TabsTrigger
-            value="summary"
-            className="py-2.5 font-tech tracking-wider data-[state=active]:bg-emerald-600/30 data-[state=active]:text-emerald-300 data-[state=active]:shadow-neon-emerald transition-all duration-300 rounded"
-          >
-            <Lightbulb className="w-4 h-4 mr-2 inline" />
-            <span className="hidden sm:inline">ANALYTICS</span>
-          </TabsTrigger>
         </TabsList>
 
-        {/* Contenido */}
-        <TabsContent value="content" className="space-y-6 mt-4">
-          {/* Definición */}
-          {guide.content.definition && (
-            <Card className="border-cyan-500/30 bg-gradient-to-r from-cyan-950/30 to-slate-900">
-              <CardHeader className="pb-3">
-                <div className="flex items-center gap-2">
-                  <BookOpen className="w-5 h-5 text-cyan-300" />
-                  <CardTitle className="text-cyan-300">
-                    Definición
-                  </CardTitle>
+        {/* Content Section */}
+        <TabsContent value="content" className="p-6 space-y-6">
+          {/* Introduction - Structured Presentation with Typewriter Effect */}
+          {guide.content.introduction && (
+            <div className={cn(
+              "relative border border-white/10 bg-gradient-to-br from-black/50 to-black/40 backdrop-blur-sm rounded-lg p-6 transition-all duration-300",
+              "hover:border-cyan-500/50 hover:shadow-[0_0_30px_rgba(6,182,212,0.15)]"
+            )}>
+              {/* Decorative Corners */}
+              <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-cyan-500/40" />
+              <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-cyan-500/40" />
+              
+              <div className="relative space-y-5">
+                {/* Header */}
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 pt-1">
+                    <div className="w-8 h-8 rounded-lg bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center">
+                      <BookOpen className="w-5 h-5 text-cyan-400" />
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <h2 className="font-body font-semibold text-lg text-cyan-300 tracking-tight">
+                      Introducción
+                    </h2>
+                    <div className="w-12 h-1 bg-gradient-to-r from-cyan-500/60 to-cyan-500/0 mt-2 rounded-full" />
+                  </div>
                 </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-slate-300 leading-relaxed italic border-l-4 border-cyan-500 pl-4">
-                  &quot;{guide.content.definition}&quot;
-                </p>
-              </CardContent>
-            </Card>
+
+                {/* Content with Better Structure */}
+                <div className="space-y-4">
+                  {guide.content.introduction
+                    .split(/\n\n+/)
+                    .filter((block) => block.trim().length > 0)
+                    .map((block, blockIdx) => {
+                      const trimmedBlock = block.trim();
+                      
+                      // Detect bullets or lists
+                      const isList = /^[\s]*[-•*]/.test(trimmedBlock);
+                      const isHeader = /^[A-Z][^.!?]*:$/.test(trimmedBlock);
+                      
+                      if (isHeader) {
+                        // Section header
+                        return (
+                          <div key={blockIdx} className="pt-2 pb-1">
+                            <div className="flex items-center gap-2">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                              <h3 className="font-body font-semibold text-base text-emerald-300">
+                                {trimmedBlock}
+                              </h3>
+                            </div>
+                          </div>
+                        );
+                      }
+
+                      if (isList) {
+                        // Bullet list
+                        const items = trimmedBlock
+                          .split(/\n/)
+                          .filter((line) => line.trim().length > 0);
+                        
+                        return (
+                          <ul key={blockIdx} className="space-y-2 ml-2">
+                            {items.map((item, i) => {
+                              const cleanItem = item.replace(/^[\s]*[-•*]\s*/, '');
+                              return (
+                                <li key={i} className="flex gap-3 text-slate-300 font-body text-base">
+                                  <span className="text-cyan-400 flex-shrink-0 pt-1">•</span>
+                                  <span className="leading-relaxed opacity-90">
+                                    <TypewriterMessage 
+                                      text={cleanItem}
+                                      isActive={activeTab === "content"}
+                                      speed={20}
+                                    />
+                                  </span>
+                                </li>
+                              );
+                            })}
+                          </ul>
+                        );
+                      }
+
+                      // Regular paragraph
+                      return (
+                        <p
+                          key={blockIdx}
+                          className="font-body text-slate-300 leading-relaxed text-base opacity-90"
+                        >
+                          <TypewriterMessage 
+                            text={trimmedBlock}
+                            isActive={activeTab === "content"}
+                            speed={20}
+                          />
+                        </p>
+                      );
+                    })}
+                </div>
+
+                {/* Visual Separator */}
+                <div className="mt-4 h-px bg-gradient-to-r from-cyan-500/0 via-cyan-500/20 to-cyan-500/0" />
+              </div>
+            </div>
           )}
 
-          {/* Explicación */}
+          {/* Definition */}
+          {guide.content.definition && (
+            <div className={cn(
+              "relative border border-white/10 bg-black/40 backdrop-blur-sm rounded-lg p-4 transition-all duration-300",
+              "hover:border-cyan-500/50 hover:shadow-[0_0_30px_rgba(6,182,212,0.15)]"
+            )}>
+              {/* Decorative Corners */}
+              <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-white/20" />
+              <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-white/20" />
+              
+              <div className="relative">
+                <h3 className="font-body font-semibold text-cyan mb-2 flex items-center gap-2 tracking-tight">
+                  <BookOpen className="w-4 h-4" />
+                  Definición
+                </h3>
+                <p className="text-slate-300 font-body italic border-l-2 border-cyan/30 pl-3 opacity-90">
+                  &quot;{guide.content.definition}&quot;
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Explanation */}
           {guide.content.explanation && (
-            <Card className="border-slate-700 bg-slate-800/30">
-              <CardHeader className="pb-3">
-                <div className="flex items-center gap-2">
-                  <Lightbulb className="w-5 h-5 text-amber-300" />
-                  <CardTitle className="text-amber-300">
-                    Explicación
-                  </CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-lg text-slate-200 leading-relaxed font-medium">
+            <div className={cn(
+              "relative border border-white/10 bg-black/40 backdrop-blur-sm rounded-lg p-4 transition-all duration-300",
+              "hover:border-cyan-500/50 hover:shadow-[0_0_30px_rgba(6,182,212,0.15)]"
+            )}>
+              {/* Decorative Corners */}
+              <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-white/20" />
+              <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-white/20" />
+              
+              <div className="relative">
+                <h3 className="font-body font-semibold text-cyan mb-2 flex items-center gap-2 tracking-tight">
+                  <Lightbulb className="w-4 h-4" />
+                  Explicación
+                </h3>
+                <p className="text-slate-300 font-body opacity-90">
                   {guide.content.explanation}
                 </p>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           )}
 
           {/* Fórmula/Estructura */}
@@ -370,51 +439,6 @@ export function GuideDetail({ guideId }: GuideDetailProps) {
               </CardContent>
             </Card>
           )}
-
-          {/* Estructuras Clave */}
-          <div className="space-y-3">
-            <h3 className="text-lg font-semibold text-cyan-300 flex items-center gap-2">
-              <Target className="w-5 h-5" />
-              Estructuras Clave
-            </h3>
-            {guide.content.key_structures?.map(
-              (structure, idx) => (
-                <Card
-                  key={idx}
-                  className="border-slate-700 bg-slate-800/30 hover:border-cyan-500/50 transition-colors"
-                >
-                  <CardContent className="pt-4">
-                    <div className="space-y-2">
-                      <div className="flex items-start gap-3">
-                        <div className="px-3 py-1 bg-slate-900 rounded text-cyan-300 text-sm font-mono font-semibold flex-shrink-0">
-                          {idx + 1}
-                        </div>
-                        <div className="flex-1">
-                          <p className="font-semibold text-cyan-300">
-                            {structure.structure}
-                          </p>
-                          <p className="text-sm text-slate-400 mt-1">
-                            <strong className="text-slate-300">
-                              Ejemplo:
-                            </strong>{" "}
-                            <em className="text-amber-300 block mt-0.5">
-                              &quot;{structure.example}&quot;
-                            </em>
-                          </p>
-                          <p className="text-base text-slate-200 mt-3 p-3 bg-slate-900/50 rounded-md border-l-4 border-amber-500/50 shadow-md">
-                            <strong className="text-slate-300">
-                              Explicación:
-                            </strong>{" "}
-                            {structure.explanation}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              )
-            )}
-          </div>
 
           {/* Expresiones Comunes */}
           {guide.content.common_expressions &&
@@ -496,19 +520,7 @@ export function GuideDetail({ guideId }: GuideDetailProps) {
               </div>
             )}
 
-          {/* Introducción adicional */}
-          <Card className="border-slate-700 bg-slate-800/30">
-            <CardHeader>
-              <CardTitle className="text-slate-300 text-base">
-                Introducción
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-lg text-slate-200 leading-relaxed font-medium">
-                {guide.content.introduction}
-              </p>
-            </CardContent>
-          </Card>
+          
         </TabsContent>
 
         {/* Ejercicios */}

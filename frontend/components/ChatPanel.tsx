@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
+import { TypewriterMessage } from "./TypewriterMessage";
 import { Send, Loader2 } from "lucide-react";
 
 interface Message {
@@ -26,6 +27,7 @@ export function ChatPanel({ guideId, guideTopic = "esta lección", guideCefr = "
   const [inputValue, setInputValue] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingHistory, setLoadingHistory] = useState(true);
+  const [lastAssistantMessageId, setLastAssistantMessageId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const fetchChatHistory = useCallback(async () => {
@@ -43,6 +45,76 @@ export function ChatPanel({ guideId, guideTopic = "esta lección", guideCefr = "
     }
   }, [guideId]);
 
+  // Format assistant messages with structure (headers, lists, paragraphs)
+  const renderFormattedMessage = (content: string, isTyping: boolean) => {
+    const blocks = content.split(/\n\n+/).filter((block) => block.trim().length > 0);
+    
+    return (
+      <div className="space-y-3">
+        {blocks.map((block, idx) => {
+          const trimmedBlock = block.trim();
+          const isList = /^[\s]*[-•*]/.test(trimmedBlock);
+          const isHeader = /^[A-Z][^.!?]*:$/.test(trimmedBlock);
+
+          if (isHeader) {
+            // Section header
+            return (
+              <div key={idx} className="flex items-center gap-2 pt-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                <h4 className="font-semibold text-emerald-300 text-sm">
+                  {trimmedBlock}
+                </h4>
+              </div>
+            );
+          }
+
+          if (isList) {
+            // Bullet list
+            const items = trimmedBlock.split(/\n/).filter((line) => line.trim().length > 0);
+            return (
+              <ul key={idx} className="space-y-1.5 ml-2">
+                {items.map((item, i) => {
+                  const cleanItem = item.replace(/^[\s]*[-•*]\s*/, '');
+                  return (
+                    <li key={i} className="flex gap-2.5 text-slate-200 text-sm">
+                      <span className="text-cyan-400 flex-shrink-0 pt-0.5">•</span>
+                      <span>
+                        {isTyping && i === items.length - 1 ? (
+                          <TypewriterMessage 
+                            text={cleanItem}
+                            isActive={true}
+                            speed={20}
+                          />
+                        ) : (
+                          cleanItem
+                        )}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            );
+          }
+
+          // Regular paragraph
+          return (
+            <p key={idx} className="text-slate-200 text-sm leading-relaxed">
+              {isTyping && idx === blocks.length - 1 ? (
+                <TypewriterMessage 
+                  text={trimmedBlock}
+                  isActive={true}
+                  speed={20}
+                />
+              ) : (
+                trimmedBlock
+              )}
+            </p>
+          );
+        })}
+      </div>
+    );
+  };
+
   useEffect(() => {
     fetchChatHistory();
   }, [fetchChatHistory]);
@@ -51,6 +123,12 @@ export function ChatPanel({ guideId, guideTopic = "esta lección", guideCefr = "
     // Auto-scroll to bottom
     if (scrollRef.current) {
       scrollRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+    
+    // Track last assistant message for typewriter effect
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage?.role === "assistant") {
+      setLastAssistantMessageId(lastMessage.id);
     }
   }, [messages]);
 
@@ -145,26 +223,36 @@ export function ChatPanel({ guideId, guideTopic = "esta lección", guideCefr = "
           </div>
         ) : (
           <div className="space-y-4">
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                className={`flex ${
-                  message.role === "user"
-                    ? "justify-end"
-                    : "justify-start"
-                }`}
-              >
+            {messages.map((message, idx) => {
+              const isLastMessage = idx === messages.length - 1;
+              const isAssistantMsg = message.role === "assistant";
+              const shouldTypewrite = isLastMessage && isAssistantMsg;
+              
+              return (
                 <div
-                  className={`max-w-xs px-4 py-3 rounded-lg text-sm leading-relaxed ${
+                  key={message.id}
+                  className={`flex ${
                     message.role === "user"
-                      ? "bg-gradient-to-r from-cyan-600 to-cyan-500 text-white rounded-br-none"
-                      : "bg-slate-800 text-slate-200 border border-slate-700 rounded-bl-none"
+                      ? "justify-end"
+                      : "justify-start"
                   }`}
                 >
-                  {message.content}
+                  <div
+                    className={`px-4 py-3 rounded-lg leading-relaxed ${
+                      message.role === "user"
+                        ? "max-w-xs bg-gradient-to-r from-cyan-600 to-cyan-500 text-white rounded-br-none text-sm"
+                        : "max-w-md bg-slate-800 text-slate-200 border border-slate-700 rounded-bl-none"
+                    }`}
+                  >
+                    {isAssistantMsg ? (
+                      renderFormattedMessage(message.content, shouldTypewrite)
+                    ) : (
+                      <p className="text-sm">{message.content}</p>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
             {loading && (
               <div className="flex justify-start">
                 <div className="bg-slate-800 text-slate-200 px-4 py-3 rounded-lg border border-slate-700 rounded-bl-none flex items-center gap-2">

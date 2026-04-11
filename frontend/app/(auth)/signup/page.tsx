@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ShieldAlert, UserPlus, Mail, KeyRound, AlertCircle, ChevronRight, Fingerprint } from 'lucide-react'
@@ -10,9 +10,37 @@ export default function SignupPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [role, setRole] = useState<'student' | 'teacher'>('student')
+  const [cefrLevel, setCefrLevel] = useState<'A1' | 'A2' | 'B1' | 'B2' | 'C1'>('A1')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [isChecking, setIsChecking] = useState(true)
   const router = useRouter()
+
+  // Check if user already has a valid session/group
+  useEffect(() => {
+    const checkExistingSession = async () => {
+      try {
+        const res = await fetch('/api/auth/me', {
+          method: 'GET',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' }
+        })
+        
+        if (res.ok) {
+          // User has valid session, redirect to missions
+          router.push('/missions')
+        } else {
+          // No valid session, show signup form
+          setIsChecking(false)
+        }
+      } catch (err) {
+        // Error checking session, show signup form
+        setIsChecking(false)
+      }
+    }
+    
+    checkExistingSession()
+  }, [router])
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -21,7 +49,13 @@ export default function SignupPage() {
       const res = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ full_name: name, email, password, role })
+        body: JSON.stringify({ 
+          full_name: name, 
+          email, 
+          password, 
+          role,
+          cefr_level: role === 'student' ? cefrLevel : undefined
+        })
       })
       if (!res.ok) {
         const data = await res.json()
@@ -39,18 +73,29 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen bg-slate-950 font-sans flex flex-col justify-center items-center p-6 relative overflow-hidden bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-cyan-900/10 via-slate-900 to-black">
-      {/* Decorative Grid */}
-      <div className="fixed inset-0 pointer-events-none grid-background opacity-20" />
-      
-      <div className="w-full max-w-sm relative z-10 space-y-8 animate-fade-in-up">
-        
-        {/* Header */}
-        <div className="text-center">
-          <div className="inline-flex justify-center items-center w-16 h-16 rounded-2xl bg-cyan-950/50 border border-cyan-500/30 mb-6 shadow-neon-cyan">
-             <Fingerprint className="w-8 h-8 text-cyan-400" />
-          </div>
-          <h1 className="text-3xl font-tech font-bold text-white drop-shadow-[0_0_10px_rgba(34,211,238,0.3)] tracking-tight uppercase">Nuevo Registro</h1>
-          <p className="text-xs font-mono text-cyan-500/80 mt-2 tracking-[0.2em] uppercase">Creación de Identidad Digital</p>
+      {/* Show loading while checking session */}
+      {isChecking && (
+        <div className="flex flex-col items-center justify-center gap-4">
+          <div className="w-12 h-12 border-3 border-cyan-500/30 border-t-cyan-500 rounded-full animate-spin" />
+          <p className="text-cyan-400 font-mono text-sm tracking-wider">Verificando sesión...</p>
+        </div>
+      )}
+
+      {/* Show signup form if no existing session */}
+      {!isChecking && (
+        <>
+          {/* Decorative Grid */}
+          <div className="fixed inset-0 pointer-events-none grid-background opacity-20" />
+          
+          <div className="w-full max-w-sm relative z-10 space-y-8 animate-fade-in-up">
+            
+            {/* Header */}
+            <div className="text-center">
+              <div className="inline-flex justify-center items-center w-16 h-16 rounded-2xl bg-cyan-950/50 border border-cyan-500/30 mb-6 shadow-neon-cyan">
+                 <Fingerprint className="w-8 h-8 text-cyan-400" />
+              </div>
+              <h1 className="text-3xl font-tech font-bold text-white drop-shadow-[0_0_10px_rgba(34,211,238,0.3)] tracking-tight uppercase">Nuevo Registro</h1>
+              <p className="text-xs font-mono text-cyan-500/80 mt-2 tracking-[0.2em] uppercase">Creación de Identidad Digital</p>
         </div>
 
         {/* Roles Toggle */}
@@ -88,6 +133,30 @@ export default function SignupPage() {
              </div>
           </div>
 
+          {role === 'student' && (
+            <div className="group relative">
+              <label className="text-[10px] text-cyan-500 font-mono font-bold uppercase tracking-widest block px-1 mb-2">Nivel de Inglés (CEFR)</label>
+              <div className="grid grid-cols-5 gap-2">
+                {(['A1', 'A2', 'B1', 'B2', 'C1'] as const).map((level) => (
+                  <button
+                    key={level}
+                    type="button"
+                    onClick={() => setCefrLevel(level)}
+                    className={cn(
+                      "py-2.5 px-1 rounded-lg font-mono font-bold text-xs uppercase tracking-wider transition-all duration-200 border",
+                      cefrLevel === level
+                        ? "bg-cyan-600 border-cyan-400 text-white shadow-neon-cyan"
+                        : "bg-slate-900/80 border-slate-700/50 text-slate-400 hover:border-slate-600 hover:text-slate-300"
+                    )}
+                  >
+                    {level}
+                  </button>
+                ))}
+              </div>
+              <p className="text-[9px] text-slate-500 mt-2 px-1">A1: Inicial | A2: Elemental | B1: Intermedio | B2: Intermedio-Alto | C1: Avanzado</p>
+            </div>
+          )}
+
           {error && (
             <div className="flex items-center gap-2 p-3 rounded-lg bg-red-950/30 border border-red-500/30 text-red-400 text-xs font-mono mt-4">
               <AlertCircle className="w-4 h-4 flex-shrink-0" /> <span>{error}</span>
@@ -105,7 +174,9 @@ export default function SignupPage() {
           </Link>
         </div>
 
-      </div>
+        </div>
+        </>
+      )}
     </div>
   )
 }

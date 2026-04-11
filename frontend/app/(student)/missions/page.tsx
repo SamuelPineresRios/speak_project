@@ -44,9 +44,10 @@ export default function MissionsPage() {
         return r.json()
       })
       .then(d=>{ 
-        console.log('[Missions] Loaded:', d.missions?.length || 0, 'missions')
+        console.log('[Missions] Loaded:', d.missions?.length || 0, 'missions for level:', d.cefr_level)
         setMissions(d.missions??[]); 
         setCefrLevel(d.cefr_level); 
+        setFilter(d.cefr_level ?? 'A1'); // Set filter to current level by default
         setLoading(false);
         setError(null)
       })
@@ -140,7 +141,7 @@ export default function MissionsPage() {
         <div className="min-w-0">
           {/* Filters */}
           <div className="flex gap-2 mb-8 overflow-x-auto scrollbar-none pb-2">
-        {['all','A1','A2','B1','B2'].map(l=>(
+        {['all','A1','A2','B1','B2','C1'].map(l=>(
           <button key={l} onClick={()=>setFilter(l)} className={cn('relative px-4 py-2 text-xs font-bold uppercase tracking-wider border transition-all skew-x-[-10deg]', 
             filter===l ? 'bg-cyan/10 border-cyan text-cyan shadow-[0_0_15px_-3px_rgba(6,182,212,0.4)]' : 'bg-transparent text-slate-500 border-white/10 hover:border-white/30 hover:text-slate-300')}>
             <span className="skew-x-[10deg] inline-block">{l==='all'?'ALL_LEVELS':`${l}`}</span>
@@ -159,53 +160,73 @@ export default function MissionsPage() {
       ) : (
         <div className="flex flex-col gap-6">
           {/* Missions Container - 2 Column Grid */}
-          <div className="grid grid-cols-2 gap-5 min-h-[690px]">
+          <div className="grid grid-cols-2 gap-5">
             {paginatedMissions.map((m)=>{
               const st = STATUS[m.status as keyof typeof STATUS] ?? STATUS.not_started
+              const isCurrentOrPLevelAvailable = cefrLevel && ['A1','A2','B1','B2','C1'].indexOf(m.cefr_level) <= ['A1','A2','B1','B2','C1'].indexOf(cefrLevel)
+              const isLocked = !isCurrentOrPLevelAvailable
+              
               return (
-                <Link key={m.id} href={`/mission/${m.id}`} className="group block relative">
-                  {/* Cyber Card Background */}
-                  <div className={cn("absolute inset-0 border border-white/10 bg-black/40 backdrop-blur-sm transition-all duration-300 group-hover:border-cyan-500/50 group-hover:shadow-[0_0_30px_rgba(6,182,212,0.15)] clip-path-cyber", 
-                    m.status==='completed' ? 'opacity-80 grayscale-[0.8] border-dashed' : 'opacity-100')} />
-                  
-                  {/* Decorative Corners */}
-                  <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-white/20 group-hover:border-cyan transition-colors" />
-                  <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-white/20 group-hover:border-cyan transition-colors" />
-
-                  <div className={cn("relative p-6 pr-8 flex flex-col gap-3 h-full", m.status==='completed' && 'opacity-60')}>
-                    {/* Header with Level and ID */}
-                    <div className="flex items-center gap-2">
-                       <span className={cn('text-[12px] font-bold border px-2 py-1 rounded tracking-wider', LEVEL_COLORS[m.cefr_level], LEVEL_BG[m.cefr_level])}>{m.cefr_level}</span>
-                       <span className="text-[10px] text-slate-500 font-body tracking-tighter">ID:{m.id}</span>
-                       {st.label && <span className={cn('text-[10px] font-bold tracking-wider ml-auto', st.color)}>{st.label}</span>}
+                <div key={m.id} className={isLocked ? "relative" : ""}>
+                  {isLocked && (
+                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm z-20 rounded-lg flex items-center justify-center border border-red-500/30">
+                      <div className="text-center">
+                        <p className="text-xs text-red-400 font-bold uppercase tracking-wider">🔒 Bloqueado</p>
+                        <p className="text-[10px] text-red-300/70 mt-1">Completa las misiones de {cefrLevel ? (
+                          ['A1','A2','B1','B2','C1'][['A1','A2','B1','B2','C1'].indexOf(cefrLevel)] || 'tu nivel'
+                        ) : 'tu nivel'}</p>
+                      </div>
                     </div>
-                    
-                    <h3 className="font-body font-semibold text-md text-white group-hover:text-cyan-400 transition-colors uppercase tracking-tight">{m.title}</h3>
-                    <p className="text-xs text-slate-300 font-body line-clamp-2 leading-relaxed opacity-90">{m.description}</p>
-                    
-                    {/* Status Indicator Bar */}
-                    <div className={cn("w-1.5 h-1 rounded-full mt-auto",
-                       m.cefr_level === 'A1' ? 'bg-emerald' :
-                       m.cefr_level === 'A2' ? 'bg-cyan' :
-                       m.cefr_level === 'B1' ? 'bg-amber' : 'bg-violet'
+                  )}
+                  
+                  <Link href={isLocked ? '#' : `/mission/${m.id}`} onClick={e => isLocked && e.preventDefault()} className={cn("group block relative", isLocked && "cursor-not-allowed")}>
+                    {/* Cyber Card Background */}
+                    <div className={cn("absolute inset-0 border border-white/10 bg-black/40 backdrop-blur-sm transition-all duration-300 group-hover:border-cyan-500/50 group-hover:shadow-[0_0_30px_rgba(6,182,212,0.15)] clip-path-cyber", 
+                      m.status==='completed' ? 'opacity-80 grayscale-[0.8] border-dashed' : 'opacity-100',
+                      isLocked && 'border-red-500/20 group-hover:border-red-500/20 group-hover:shadow-none'
                     )} />
                     
-                    {/* Progress Bar (Visual) */}
-                    <div className="flex items-center gap-2 mt-2">
-                      <div className="h-0.5 flex-1 bg-white/5 rounded-full overflow-hidden">
-                        <div className={cn("h-full w-0 transition-all duration-1000 group-hover:w-full", 
-                          m.cefr_level === 'A1' ? 'bg-emerald' : m.cefr_level === 'A2' ? 'bg-cyan' : m.cefr_level === 'B1' ? 'bg-amber' : 'bg-violet'
-                        )} style={{ transitionDelay: '100ms' }} />
-                      </div>
-                      <span className="text-[10px] text-slate-500 font-mono">{Math.floor(m.base_duration_seconds/60)} MIN</span>
-                    </div>
+                    {/* Decorative Corners */}
+                    <div className={cn("absolute top-0 left-0 w-2 h-2 border-t border-l transition-colors", isLocked ? 'border-red-500/40' : 'border-white/20 group-hover:border-cyan')} />
+                    <div className={cn("absolute bottom-0 right-0 w-2 h-2 border-b border-r transition-colors", isLocked ? 'border-red-500/40' : 'border-white/20 group-hover:border-cyan')} />
 
-                    {/* Arrow Icon */}
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 text-cyan font-bold transition-all duration-300 transform -translate-x-2 group-hover:translate-x-0 group-hover:opacity-100">
-                      →
+                    <div className={cn("relative p-4 pr-8 flex flex-col gap-2 h-full", m.status==='completed' && 'opacity-60', isLocked && 'opacity-50')}>
+                      {/* Header with Level and ID */}
+                      <div className="flex items-center gap-2">
+                         <span className={cn('text-[12px] font-bold border px-2 py-1 rounded tracking-wider', LEVEL_COLORS[m.cefr_level], LEVEL_BG[m.cefr_level])}>{m.cefr_level}</span>
+                         <span className="text-[10px] text-slate-500 font-body tracking-tighter">ID:{m.id}</span>
+                         {st.label && <span className={cn('text-[10px] font-bold tracking-wider ml-auto', st.color)}>{st.label}</span>}
+                      </div>
+                      
+                      <h3 className={cn("font-body font-semibold text-sm uppercase tracking-tight", isLocked ? 'text-slate-400' : 'text-white group-hover:text-cyan-400 transition-colors')}>{m.title}</h3>
+                      <p className={cn("text-xs font-body line-clamp-2 leading-relaxed text-ellipsis", isLocked ? 'text-slate-500' : 'text-slate-300 opacity-90')}>{m.description}</p>
+                      
+                      {/* Status Indicator Bar */}
+                      <div className={cn("w-1.5 h-1 rounded-full",
+                         m.cefr_level === 'A1' ? 'bg-emerald' :
+                         m.cefr_level === 'A2' ? 'bg-cyan' :
+                         m.cefr_level === 'B1' ? 'bg-amber' : 'bg-violet'
+                      )} />
+                      
+                      {/* Progress Bar (Visual) */}
+                      <div className="flex items-center gap-2 mt-1">
+                        <div className="h-0.5 flex-1 bg-white/5 rounded-full overflow-hidden">
+                          <div className={cn("h-full w-0 transition-all duration-1000", isLocked ? 'bg-slate-600' : 'group-hover:w-full',
+                            m.cefr_level === 'A1' ? 'bg-emerald' : m.cefr_level === 'A2' ? 'bg-cyan' : m.cefr_level === 'B1' ? 'bg-amber' : 'bg-violet'
+                          )} style={{ transitionDelay: '100ms' }} />
+                        </div>
+                        <span className="text-[10px] text-slate-500 font-mono">{Math.floor(m.base_duration_seconds/60)} MIN</span>
+                      </div>
+
+                      {/* Arrow Icon */}
+                      {!isLocked && (
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 text-cyan font-bold transition-all duration-300 transform -translate-x-2 group-hover:translate-x-0 group-hover:opacity-100">
+                          →
+                        </div>
+                      )}
                     </div>
-                  </div>
-                </Link>
+                  </Link>
+                </div>
               )
             })}
             {paginatedMissions.length===0 && (

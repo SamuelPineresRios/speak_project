@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
         email: user.email, 
         role: user.role, 
         full_name: user.full_name, 
-        cefr_level: user.cefr_level 
+        cefr_level: user.cefr_level
       }
     })
     

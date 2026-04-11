@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
         email: newUser.email, 
         role: newUser.role, 
         full_name: newUser.full_name, 
-        cefr_level: newUser.cefr_level 
+        cefr_level: newUser.cefr_level
       }
     }, { status: 201 })
     

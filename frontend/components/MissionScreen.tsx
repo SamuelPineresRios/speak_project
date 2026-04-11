@@ -11,7 +11,9 @@ import { useAuth } from '@/lib/hooks/useAuth'
 interface Mission {
   id: string; title: string; objective: string; scene_context: string
   character_name: string; cefr_level: string; base_duration_seconds: number
-  example_conversation?: string
+  key_verbs?: string[]
+  useful_phrases?: string[]
+  grammar_tips?: string
 }
 interface MissionScreenProps {
   mission: Mission; studentId: string; groupId?: string
@@ -38,9 +40,9 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
   
   // Generate briefing data immediately from mission
   const briefing: BriefingData = {
-    key_verbs: ['can', 'would', 'please', 'help', 'need'],
-    useful_phrases: ['I need...', 'Could you...', 'Thank you', 'Please...', 'Can you help?'],
-    grammar_tips: 'Practice polite requests and clear communication',
+    key_verbs: mission.key_verbs || ['learn', 'practice', 'communicate'],
+    useful_phrases: mission.useful_phrases || ['Let me practice', 'I understand', 'Can you repeat?'],
+    grammar_tips: mission.grammar_tips || 'Focus on correct grammar and clear pronunciation',
     estimated_duration_minutes: Math.ceil(mission.base_duration_seconds / 60),
   }
   
@@ -51,7 +53,6 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
   const [isThinking, setIsThinking] = useState(false)
   const [isLastMessageTyping, setIsLastMessageTyping] = useState(false)
   const [timedOut, setTimedOut] = useState(false)
-  const [showExample, setShowExample] = useState(false)
   const [showHelp, setShowHelp] = useState(false)
   const [dynamicHints, setDynamicHints] = useState<BriefingData | null>(null)
   const [loadingHints, setLoadingHints] = useState(false)
@@ -356,36 +357,33 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
             </div>
             
             {/* Intel / Briefing Data */}
-            <div className="grid grid-cols-2 gap-4">
-                <div className="bg-slate-900/85 border border-slate-800 rounded-xl p-4">
-                    <p className="text-[12px] text-cyan uppercase tracking-widest mb-3">Verbos clave</p>
-                    <div className="flex flex-wrap gap-2">
-                        {briefing.key_verbs.map((v, i) => (
-                            <span key={i} className="text-[18px] font-body text-cyan bg-cyan/10 border border-cyan/20 px-2 py-1 rounded">{v}</span>
-                        ))}
+            <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-slate-900/85 border border-slate-800 rounded-xl p-4">
+                        <p className="text-[12px] text-cyan uppercase tracking-widest mb-3">Verbos clave</p>
+                        <div className="flex flex-wrap gap-2">
+                            {briefing.key_verbs.map((v, i) => (
+                                <span key={i} className="text-[18px] font-body text-cyan bg-cyan/10 border border-cyan/20 px-2 py-1 rounded">{v}</span>
+                            ))}
+                        </div>
+                    </div>
+                    <div className="bg-slate-900/85 border border-slate-800 rounded-xl p-4">
+                        <p className="text-[12px] text-emerald uppercase tracking-widest mb-3">Frases cotidianas</p>
+                        <ul className="space-y-2">
+                            {briefing.useful_phrases.slice(0, 3).map((p, i) => (
+                                <li key={i} className="text-[15px] text-emerald-50/70 border-l border-emerald/20 pl-2 leading-tight">{p}</li>
+                            ))}
+                        </ul>
                     </div>
                 </div>
-                <div className="bg-slate-900/85 border border-slate-800 rounded-xl p-4">
-                    <p className="text-[12px] text-emerald uppercase tracking-widest mb-3">Frases cotidianas</p>
-                    <ul className="space-y-2">
-                        {briefing.useful_phrases.slice(0, 3).map((p, i) => (
-                            <li key={i} className="text-[15px] text-emerald-50/70 border-l border-emerald/20 pl-2 leading-tight">{p}</li>
-                        ))}
-                    </ul>
+                <div className="bg-slate-900/85 border border-amber-700/40 rounded-xl p-4">
+                    <p className="text-[12px] text-amber-400 uppercase tracking-widest mb-2">💡 Consejo gramatical</p>
+                    <p className="text-[14px] text-amber-50/80 leading-relaxed">{briefing.grammar_tips}</p>
                 </div>
             </div>
 
             {/* Actions */}
             <div className="space-y-4 pt-4 border-t border-white/5">
-                {mission.example_conversation && (
-                    <button 
-                        onClick={() => setShowExample(true)}
-                        className="w-full py-3 px-4 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-slate-600 text-slate-300 text-xs font-body uppercase tracking-wider transition-all flex items-center justify-center gap-2 group"
-                    >
-                        <span className="opacity-50 group-hover:opacity-100 transition-opacity">👁️</span> Ejemplo de conversación
-                    </button>
-                )}
-
                 <div className="grid grid-cols-2 gap-3">
                      <button 
                         onClick={() => startMission('free')} 
@@ -419,51 +417,6 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
                 </div>
             </div>
       </div>
-      
-      {/* Example Modal */}
-      {showExample && mission.example_conversation && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-in fade-in duration-200">
-            <div className="bg-slate-950 border border-slate-800 w-full max-w-md rounded-xl p-6 shadow-2xl relative animate-in zoom-in-95 duration-200">
-                <button 
-                    onClick={() => setShowExample(false)}
-                    className="absolute top-4 right-4 text-slate-500 hover:text-cyan transition-colors font-body text-xs uppercase"
-                >
-                    [Close]
-                </button>
-                <div className="border-b border-slate-800 pb-4 mb-4">
-                    <h3 className="text-sm font-bold text-cyan uppercase tracking-widest flex items-center gap-2">
-                        <span>🔓</span> Decrypted Log
-                    </h3>
-                </div>
-                <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2 font-body scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent">
-                    {mission.example_conversation.split('\n').map((line, i) => {
-                        const [speaker, ...text] = line.split(':');
-                        const isUserContent = speaker.trim().toLowerCase() === 'user';
-                        return (
-                            <div key={i} className={cn(
-                                "p-3 rounded-xl border relative",
-                                isUserContent 
-                                    ? "bg-indigo-500/10 border-indigo-500/20 ml-8 text-right" 
-                                    : "bg-slate-800/50 border-slate-700 mr-8 text-left"
-                            )}>
-                                <span className={cn(
-                                    "text-[10px] font-bold uppercase tracking-wider block mb-1 opacity-70",
-                                    isUserContent ? "text-indigo-300" : "text-slate-400"
-                                )}>{speaker}</span>
-                                <span className="text-slate-200 leading-relaxed block">{text.join(':').trim()}</span>
-                            </div>
-                        )
-                    })}
-                </div>
-                <button 
-                    onClick={() => setShowExample(false)}
-                    className="w-full mt-6 bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-3 rounded-xl transition-colors shadow-lg shadow-indigo-500/20"
-                >
-                    Entendido, ¡estoy listo!
-                </button>
-            </div>
-        </div>
-      )}
     </div>
   )
 
