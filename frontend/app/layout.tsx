@@ -22,7 +22,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="es" suppressHydrationWarning>
       <head><link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" /></head>
-      <body className="h-screen bg-background antialiased overflow-hidden">
+      <body className="bg-background antialiased">
         <RouteTracker />
         {children}
         <ModuleTransitionLayer />

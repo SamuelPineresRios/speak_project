@@ -400,37 +400,9 @@
 }
 
 /* ================================
-   MOBILE KEYBOARD HANDLING
+   MOBILE KEYBOARD & CHAT HANDLING
    Prevent viewport resize when keyboard appears
    ================================ */
-
-html {
-  height: 100%;
-  width: 100%;
-  overflow: hidden;
-}
-
-body {
-  height: 100%;
-  width: 100%;
-  overflow: hidden;
-  position: fixed;
-  position: absolute;
-}
-
-/* Chat container structure - use Tailwind's h-screen with max constraints */
-.mission-screen-container {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  height: 100dvh;
-  min-height: 100vh;
-  width: 100%;
-  max-height: 100vh;
-  max-height: 100dvh;
-  overflow: hidden;
-  box-sizing: border-box;
-}
 
 /* Messages container - scrollable without affecting input */
 .mission-screen-messages {
@@ -438,7 +410,6 @@ body {
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
-  -webkit-box-sizing: border-box;
   box-sizing: border-box;
   position: relative;
   z-index: 1;
@@ -451,11 +422,10 @@ body {
   user-select: text;
 }
 
-/* Input area - sticky at bottom, doesn't compress messages */
+/* Input area - fixed at bottom, doesn't compress messages */
 .mission-screen-input {
   flex-shrink: 0;
   flex-grow: 0;
-  -webkit-box-sizing: border-box;
   box-sizing: border-box;
   position: relative;
   z-index: 10;
@@ -477,10 +447,6 @@ textarea {
 
 /* iOS safe area handling */
 @supports (padding: max(0px)) {
-  .mission-screen-container {
-    padding-bottom: max(0px, env(safe-area-inset-bottom));
-  }
-  
   .mission-screen-input {
     padding-bottom: max(0px, env(safe-area-inset-bottom));
   }

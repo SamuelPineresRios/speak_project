@@ -421,7 +421,7 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
   )
 
   return (
-    <div className="mission-screen-container max-w-lg mx-auto pt-4 pb-4">
+    <div className="h-screen flex flex-col max-w-lg mx-auto pt-4 pb-4">
       <div className="px-4 shrink-0 space-y-2">
         <div className="flex items-center gap-3 py-2">
           <button onClick={() => router.back()} className="text-slate-light hover:text-foreground transition-colors">←</button>
