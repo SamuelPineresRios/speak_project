@@ -92,8 +92,8 @@ Evaluate this response according to the ${cefrLevel} criteria.`
         headers: {
           "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
           "Content-Type": "application/json",
-          "HTTP-Referer": "https://speak-mvp.com", 
-          "X-Title": "Speak MVP Evaluation"
+          "HTTP-Referer": "https://vox.app", 
+          "X-Title": "VOX Evaluation"
         },
         body: JSON.stringify({
           "model": "google/gemini-2.0-flash-001",

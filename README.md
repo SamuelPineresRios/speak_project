@@ -1,4 +1,4 @@
-# SPEAK MVP — Sin Base de Datos Externa
+# VOX — Sin Base de Datos Externa
 
 Plataforma de aprendizaje de inglés donde escribir es el único camino para avanzar.  
 **Esta versión no usa Supabase ni ninguna base de datos externa.** Todo se persiste en un archivo `data/db.json` local.

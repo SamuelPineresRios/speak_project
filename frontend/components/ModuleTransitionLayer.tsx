@@ -63,7 +63,7 @@ export function ModuleTransitionLayer() {
 
   const [visible, setVisible] = useState(false)
   const [phase, setPhase] = useState<Phase>('idle')
-  const [label, setLabel] = useState('SPEAK')
+  const [label, setLabel] = useState('VOX')
   const [destinationLabel, setDestinationLabel] = useState('')
 
   const pendingPathRef = useRef<string | null>(null)

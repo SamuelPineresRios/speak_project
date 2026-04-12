@@ -2,7 +2,7 @@
 
 ## Overview
 
-All environment variables used in the SPEAK MVP project, organized by category, with descriptions, security level, and usage.
+All environment variables used in the VOX project, organized by category, with descriptions, security level, and usage.
 
 ---
 
@@ -155,8 +155,8 @@ REDIS_DB=0
 - **Format:** `http://` or `https://` URL
 - **Examples:**
   - Development: `http://localhost:3000`
-  - Staging: `https://staging.speak.app`
-  - Production: `https://speak.app`
+  - Staging: `https://staging.vox.app`
+  - Production: `https://vox.app`
 
 ```env
 NEXT_PUBLIC_API_BASE_URL=http://localhost:3000
@@ -175,7 +175,7 @@ NEXT_PUBLIC_API_BASE_URL=http://localhost:3000
 - **Examples:**
   - Development: `http://localhost:8000`
   - Docker: `http://evaluation-service:8000`
-  - Production: `https://eval.speak.app` or `http://127.0.0.1:8000`
+  - Production: `https://eval.vox.app` or `http://127.0.0.1:8000`
 
 ```env
 EVALUATION_SERVICE_URL=http://localhost:8000
@@ -270,11 +270,11 @@ LOG_LEVEL=info
   - Notifications
 - **Format:** Single email or comma-separated emails
 - **Examples:**
-  - Single: `admin@speak.app`
-  - Multiple: `admin@speak.app,support@speak.app,ops@company.com`
+  - Single: `admin@vox.app`
+  - Multiple: `admin@vox.app,support@vox.app,ops@company.com`
 
 ```env
-ADMIN_EMAILS=admin@speak.app,support@speak.app
+ADMIN_EMAILS=admin@vox.app,support@vox.app
 ```
 
 ---
@@ -320,9 +320,9 @@ OPENROUTER_API_KEY=sk-or-v1-staging-key
 JWT_SECRET=staging-secret-32-chars-minimum-required
 
 # Services
-NEXT_PUBLIC_API_BASE_URL=https://staging.speak.app
-EVALUATION_SERVICE_URL=https://api-staging.speak.app
-ALLOWED_ORIGIN=https://staging.speak.app
+NEXT_PUBLIC_API_BASE_URL=https://staging.vox.app
+EVALUATION_SERVICE_URL=https://api-staging.vox.app
+ALLOWED_ORIGIN=https://staging.vox.app
 
 # Cache
 REDIS_HOST=redis-staging.example.com
@@ -348,9 +348,9 @@ OPENROUTER_API_KEY=<FROM_SECRETS_MANAGER>
 JWT_SECRET=<FROM_SECRETS_MANAGER>
 
 # Services
-NEXT_PUBLIC_API_BASE_URL=https://speak.app
-EVALUATION_SERVICE_URL=https://api.speak.app
-ALLOWED_ORIGIN=https://speak.app
+NEXT_PUBLIC_API_BASE_URL=https://vox.app
+EVALUATION_SERVICE_URL=https://api.vox.app
+ALLOWED_ORIGIN=https://vox.app
 
 # Cache
 REDIS_HOST=redis.prod.internal

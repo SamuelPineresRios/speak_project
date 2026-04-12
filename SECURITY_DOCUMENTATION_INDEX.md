@@ -1,6 +1,6 @@
 # 📖 SECURITY DOCUMENTATION INDEX
 
-**Complete Security Remediation Toolkit for SPEAK MVP**
+**Complete Security Remediation Toolkit for VOX**
 
 This index helps you navigate the comprehensive security documentation created for your project.
 

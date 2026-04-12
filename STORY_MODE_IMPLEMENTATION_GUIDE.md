@@ -2,7 +2,7 @@
 
 ## Resumen Ejecutivo
 
-Este documento proporciona pasos concretos para implementar el Story Mode en la aplicación Speak MVP. El Sistema permitirá a estudiantes practicar lenguaje español dentro de narrativas interactivas progresivas (A1→B2) con evaluación contextual y retroalimentación en tiempo real.
+Este documento proporciona pasos concretos para implementar el Story Mode en la aplicación VOX. El Sistema permitirá a estudiantes practicar lenguaje español dentro de narrativas interactivas progresivas (A1→B2) con evaluación contextual y retroalimentación en tiempo real.
 
 ---
 

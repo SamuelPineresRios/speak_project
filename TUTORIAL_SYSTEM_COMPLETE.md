@@ -1,8 +1,8 @@
-# SPEAK MVP Tutorial System - Complete Implementation Guide
+# VOX Tutorial System - Complete Implementation Guide
 
 ## ✅ Implementation Status: 100% Complete
 
-This document outlines the fully implemented first-time user tutorial system for the SPEAK MVP, including all components, APIs, database integration, and page markers.
+This document outlines the fully implemented first-time user tutorial system for the VOX, including all components, APIs, database integration, and page markers.
 
 ---
 
@@ -12,7 +12,7 @@ This document outlines the fully implemented first-time user tutorial system for
 
 The tutorial system guides new users through the application's core modules in a structured, non-intrusive flow:
 
-1. **Welcome** (centered modal) → Introduction to SPEAK
+1. **Welcome** (centered modal) → Introduction to VOX
 2. **Missions** (spotlight) → Interactive conversation challenges
 3. **Guides** (spotlight) → Structured learning resources
 4. **Groups** (spotlight) → Team collaboration features
@@ -259,7 +259,7 @@ All 6 steps with Spanish descriptions, routes, positioning, and target elements.
 **Step Types:**
 1. **Welcome**
    - Route: None (centered modal)
-   - Title: "¡Bienvenido a SPEAK! 🚀"
+   - Title: "¡Bienvenido a VOX! 🚀"
    - Position: Center
    
 2. **Missions**
@@ -518,7 +518,7 @@ Testing Previous/Next Navigation:
 All tutorial text is in Spanish for LATA hispanophone audience:
 
 ### Welcome Step
-**Title:** "¡Bienvenido a SPEAK! 🚀"
+**Title:** "¡Bienvenido a VOX! 🚀"
 **Description:** "Te guiaremos a través de los módulos principales para que aproveches al máximo la plataforma. Este tutorial te tomará unos 3-5 minutos."
 
 ### Missions Step
@@ -539,7 +539,7 @@ All tutorial text is in Spanish for LATA hispanophone audience:
 
 ### Completion Step
 **Title:** "¡Felicidades! 🎉"
-**Description:** "Has completado la introducción a SPEAK. Ya estás listo para comenzar tu viaje de aprendizaje de inglés. ¡Adelante!"
+**Description:** "Has completado la introducción a VOX. Ya estás listo para comenzar tu viaje de aprendizaje de inglés. ¡Adelante!"
 
 ---
 

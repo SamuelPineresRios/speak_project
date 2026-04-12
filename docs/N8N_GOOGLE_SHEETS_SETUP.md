@@ -5,7 +5,7 @@ Este sistema captura automáticamente todas las actividades completadas (misione
 
 ## Arquitectura
 ```
-1. Estudiante completa actividad en Speak MVP
+1. Estudiante completa actividad en VOX
    ↓
 2. Frontend llama a `/api/events/activity-completed`
    ↓
@@ -20,12 +20,12 @@ Este sistema captura automáticamente todas las actividades completadas (misione
 Para que n8n acceda a Google Sheets:
 
 1. Ve a [Google Cloud Console](https://console.cloud.google.com/)
-2. Crea un nuevo proyecto: "Speak MVP"
+2. Crea un nuevo proyecto: "VOX"
 3. Habilita la API: **Google Sheets API**
 4. Crea una Service Account:
    - Ir a "APIs & Services" → "Credentials"
    - Click "Create Credentials" → "Service Account"
-   - Nombre: `speak-automation`
+   - Nombre: `vox-automation`
    - Dale acceso a Editor del proyecto
 5. Crea una clave JSON:
    - En la Service Account, ve a "Keys"

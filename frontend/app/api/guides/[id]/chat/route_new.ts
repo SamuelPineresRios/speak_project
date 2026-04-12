@@ -224,8 +224,8 @@ Return ONLY a warm, natural tutor response in Spanish.`;
     headers: {
       "Authorization": `Bearer ${apiKey}`,
       "Content-Type": "application/json",
-      "HTTP-Referer": "https://speak-mvp.vercel.app",
-      "X-Title": "Speak MVP"
+      "HTTP-Referer": "https://vox.app",
+      "X-Title": "VOX"
     },
     body: JSON.stringify({
       model: "google/gemini-2.0-flash-001",

@@ -1,8 +1,8 @@
-# 📚 SPEAK MVP - Guides Module Implementation Complete
+# 📚 VOX - Guides Module Implementation Complete
 
 ## Summary
 
-Se ha implementado **completamente** el módulo **Learning Guides** en SPEAK MVP, un sistema de recursos pedagógicos estructurados que permite a los estudiantes profundizar en conceptos gramaticales y de vocabulario.
+Se ha implementado **completamente** el módulo **Learning Guides** en VOX, un sistema de recursos pedagógicos estructurados que permite a los estudiantes profundizar en conceptos gramaticales y de vocabulario.
 
 ---
 

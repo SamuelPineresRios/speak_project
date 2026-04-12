@@ -3,7 +3,7 @@ import { ResponsiveBackgroundSprites } from "@/components/ResponsiveBackgroundSp
 import { TechBackground } from "@/components/TechBackground";
 
 export const metadata = {
-  title: "Learning Guides - SPEAK MVP",
+  title: "Learning Guides - VOX",
   description: "Recursos estructurados para aprender inglés",
 };
 

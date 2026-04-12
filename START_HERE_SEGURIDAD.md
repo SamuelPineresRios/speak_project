@@ -2,7 +2,7 @@
 
 ## 🎯 RESUMEN EJECUTIVO
 
-Se ha realizado una **auditoría de seguridad completa** de tu proyecto SPEAK MVP y se han preparado todos los recursos necesarios para:
+Se ha realizado una **auditoría de seguridad completa** de tu proyecto VOX y se han preparado todos los recursos necesarios para:
 
 1. ✅ **Identificar credenciales expuestas** (7 vulnerabilidades encontradas)
 2. ✅ **Consolidar en archivo .env centralizado** (plantillas creadas)

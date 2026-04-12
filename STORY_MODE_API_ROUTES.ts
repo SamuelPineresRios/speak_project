@@ -223,8 +223,8 @@ async function callOpenRouterForEvaluation(prompt: string) {
       headers: {
         Authorization: `Bearer ${OPENROUTER_API_KEY}`,
         'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://speak-mvp.com',
-        'X-Title': 'Speak MVP Story Mode',
+        'HTTP-Referer': 'https://vox.app',
+        'X-Title': 'VOX Story Mode',
       },
       body: JSON.stringify({
         model: 'google/gemini-2.0-flash-001',

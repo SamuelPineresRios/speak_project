@@ -1,4 +1,4 @@
-# 🔐 SECURITY SETUP GUIDE - SPEAK MVP
+# 🔐 SECURITY SETUP GUIDE - VOX
 
 ## Critical: Secrets Management & GitHub Publication Safety
 

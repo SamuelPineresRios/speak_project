@@ -2,7 +2,7 @@
 
 ## Implementation Summary
 
-The Story Mode system has been **fully implemented** in the Speak MVP project. This comprehensive narrative-based language learning module is now ready for testing and deployment.
+The Story Mode system has been **fully implemented** in the VOX project. This comprehensive narrative-based language learning module is now ready for testing and deployment.
 
 ---
 

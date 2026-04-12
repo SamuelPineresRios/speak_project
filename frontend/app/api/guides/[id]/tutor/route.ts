@@ -52,8 +52,8 @@ Return ONLY a warm, natural tutor response in Spanish.`;
       headers: {
         "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
         "Content-Type": "application/json",
-        "HTTP-Referer": "https://speak-mvp.com",
-        "X-Title": "Speak MVP"
+        "HTTP-Referer": "https://vox.app",
+        "X-Title": "VOX"
       },
       body: JSON.stringify({
         model: "google/gemini-2.0-flash-001",

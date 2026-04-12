@@ -1,5 +1,5 @@
 /**
- * SPEAK MVP — JSON File Database
+ * VOX — JSON File Database
  * All data is persisted in /data/db.json
  * Thread-safe via simple file locking with retries.
  */

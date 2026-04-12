@@ -50,8 +50,8 @@ Return a valid JSON object (all text values in English) with:
         headers: {
           "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
           "Content-Type": "application/json",
-          "HTTP-Referer": "https://speak-mvp.com",
-          "X-Title": "Speak MVP"
+          "HTTP-Referer": "https://vox.app",
+          "X-Title": "VOX"
         },
         body: JSON.stringify({
           "model": "google/gemini-2.0-flash-001",
@@ -93,8 +93,8 @@ Return a valid JSON object (all text values in English) with:
         headers: {
           "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
           "Content-Type": "application/json",
-          "HTTP-Referer": "https://speak-mvp.com",
-          "X-Title": "Speak MVP"
+          "HTTP-Referer": "https://vox.app",
+          "X-Title": "VOX"
         },
         body: JSON.stringify({
           "model": "google/gemini-2.5-flash-001",
@@ -174,8 +174,8 @@ Instructions:
       headers: {
         "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
         "Content-Type": "application/json",
-        "HTTP-Referer": "https://speak-mvp.com", // Required by OpenRouter
-        "X-Title": "Speak MVP"
+        "HTTP-Referer": "https://vox.app", // Required by OpenRouter
+        "X-Title": "VOX"
       },
       body: JSON.stringify({
         "model": "google/gemini-2.0-flash-001", // Using a standard reliable model ID

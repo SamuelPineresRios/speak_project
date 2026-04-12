@@ -1,4 +1,4 @@
-# 🔒 SECURITY AUDIT REPORT - SPEAK MVP
+# 🔐 SECURITY AUDIT REPORT - VOX
 
 **Date:** 2024
 **Status:** ⚠️ CRITICAL - Multiple exposed credentials detected

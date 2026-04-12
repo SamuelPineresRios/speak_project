@@ -25,10 +25,10 @@ export function StudentSidebar() {
       <div className="lg:hidden fixed top-0 left-0 right-0 h-16 border-b border-white/10 bg-black/80 backdrop-blur-xl z-50 flex items-center justify-between px-4">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-[0_0_15px_rgba(6,182,212,0.5)]">
-            <span className="font-bold text-black font-display text-lg">S</span>
+            <span className="font-bold text-black font-display text-lg">V</span>
           </div>
           <div>
-            <h1 className="font-display font-bold text-lg tracking-wider text-white">SPEAK</h1>
+            <h1 className="font-display font-bold text-lg tracking-wider text-white">VOX</h1>
           </div>
         </div>
         <button 

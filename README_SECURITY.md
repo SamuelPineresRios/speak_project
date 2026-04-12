@@ -8,7 +8,7 @@
 
 ## 🎯 SITUATION
 
-Your SPEAK MVP codebase contains **7 exposed security vulnerabilities** that must be fixed before publishing to GitHub.
+Your VOX codebase contains **7 exposed security vulnerabilities** that must be fixed before publishing to GitHub.
 
 ### Critical Issues:
 1. ✗ 4 OpenRouter API keys hardcoded in source files

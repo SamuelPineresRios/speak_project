@@ -4,7 +4,7 @@ import { ModuleTransitionLayer } from '@/components/ModuleTransitionLayer'
 import { RouteTracker } from '@/components/RouteTracker'
 
 export const metadata: Metadata = {
-  title: 'SPEAK — Aprende inglés escribiendo',
+  title: 'VOX — Aprende inglés escribiendo',
   description: 'Plataforma de aprendizaje de inglés donde escribir es el único camino para avanzar.',
   manifest: '/manifest.json',
 }
