@@ -8,34 +8,67 @@ if (!OPENROUTER_API_KEY) {
   throw new Error('OPENROUTER_API_KEY is not set in environment variables');
 }
 
+// Helper function to validate if response is serious/genuine
+function isGenuineResponse(text: string): boolean {
+  const normalized = text.trim().toLowerCase()
+  
+  // Reject if too short
+  if (normalized.length < 3) return false
+  if (normalized.split(/\s+/).length < 2) return false
+  
+  // Reject common nonsense patterns
+  const nonsensePatterns = [
+    /^(haha|hehe|lol|test|aaa+|bbb+|ccc+|zzz+|xxx+|123+|456+|789+|000+)$/,
+    /^(hi+|bye+|ok+|yes+|no+)$/,
+    /^(.)\1{4,}$/, // 5+ of same character
+  ]
+  
+  for (const pattern of nonsensePatterns) {
+    if (pattern.test(normalized)) return false
+  }
+  
+  // Reject if only numbers or special chars
+  if (!/[a-zA-Z]/.test(text)) return false
+  
+  return true
+}
+
 const SYSTEM_PROMPT_BASE = `You are an expert English language evaluator for Latin American Spanish-speaking students learning English.
 Your job: evaluate a student's written English response in a communicative mission context and provide CONSTRUCTIVE feedback.
 
-CRITICAL RULES:
-1. Be GENEROUS with ADVANCE judgments — prioritize communicative success over perfection
+🚫 VALIDATION RULES (REJECT IMMEDIATELY):
+- Response is too short (< 5 words/characters in English): REJECT with comprehensibility_score = 10, judgment = "PAUSE"
+- Response is nonsense/gibberish (HAHA, test, aaaaaa, etc): REJECT with comprehensibility_score = 15, judgment = "PAUSE"
+- Response does NOT answer the objective/question asked: REJECT with comprehensibility_score = 20, judgment = "PAUSE"
+- Response is in the WRONG LANGUAGE (not English): REJECT with comprehensibility_score = 5, judgment = "PAUSE"
+
+CRITICAL SCORING RULES:
+1. FIRST check: Does the response attempt to answer the objective? YES = continue evaluating, NO = automatic PAUSE
 2. Evaluate COMMUNICATIVE EFFECTIVENESS above all — not grammatical perfection
-3. Feedback must sound like a native Spanish-speaking English teacher giving friendly advice
+3. Feedback must sound like a native Spanish-speaking English teacher
 4. Return ONLY valid JSON — no markdown, no explanation, no preamble
 5. feedback_text MUST follow this exact 3-part structure (separated by \\n\\n):
    PART 1 (2 sentences max): Narrative result — did the character understand/achieve the objective?
-   PART 2 (2 sentences max): One thing the student did correctly — quote their exact words
-   PART 3 (2-3 sentences max): ONE single improvement with a corrected example sentence
+   PART 2 (2 sentences max): One thing the student did correctly
+   PART 3 (2-3 sentences max): ONE specific improvement with corrected example
 
 SCORING GUIDELINES:
+- Minimum score for ANY valid attempt: 50 (must answer the question meaningfully)
 - Score based on UNDERSTANDING and COMMUNICATIVE INTENT first, grammar second
 - A1/A2: Accept basic but correct responses. Core meaning is key.
 - B1: Accept mostly correct with minor errors
 - B2: Accept well-formed responses with natural flow
 
 JUDGMENT CALCULATION (AUTOMATIC):
-1. Calculate comprehensibility_score based on how well the message was understood
-2. Then AUTOMATICALLY apply this logic:
+1. Validate content quality first (reject if nonsense/off-topic)
+2. Calculate comprehensibility_score (0-100) based on how well the message answers the objective
+3. Apply this logic:
    - A1: judgment = "ADVANCE" if comprehensibility_score >= 55, else "PAUSE"
    - A2: judgment = "ADVANCE" if comprehensibility_score >= 65, else "PAUSE"
    - B1: judgment = "ADVANCE" if comprehensibility_score >= 75, else "PAUSE"
    - B2: judgment = "ADVANCE" if comprehensibility_score >= 80, else "PAUSE"
 
-KEY: If student answered the question correctly, comprehensibility_score should be AT LEAST 70+.
+KEY: Valid answer to objective = minimum comprehensibility_score of 55+. Invalid/gibberish = comprehensibility_score < 30.
 
 RETURN ONLY THIS JSON STRUCTURE:
 {
@@ -137,6 +170,48 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     }
     db.responses.push(responseRecord)
 
+    // Validate if response is genuine/serious (not gibberish like "HAHA")
+    if (!isGenuineResponse(response_text)) {
+      console.log('[Submit] Rejected non-genuine response:', response_text.substring(0, 50))
+      
+      const evaluation = {
+        comprehensibility_score: 15,
+        grammar_score: 10,
+        lexical_richness_score: 5,
+        judgment: 'PAUSE' as const,
+        feedback_text: `Tu respuesta debe ser seria y tener sentido. Escribe una respuesta completa que responda a la pregunta.`,
+        detected_structures: [],
+      }
+      
+      // Save evaluation
+      const evalRecord = {
+        id: generateId(),
+        response_id: responseRecord.id,
+        comprehensibility_score: evaluation.comprehensibility_score,
+        grammar_score: evaluation.grammar_score,
+        lexical_richness_score: evaluation.lexical_richness_score,
+        judgment: evaluation.judgment as 'ADVANCE' | 'PAUSE',
+        feedback_text: evaluation.feedback_text,
+        detected_structures: evaluation.detected_structures,
+        transcript: null,
+        evaluated_at: new Date().toISOString(),
+      }
+      db.evaluations.push(evalRecord)
+      db.responses[db.responses.length - 1] = { ...db.responses[db.responses.length - 1], status: 'in_progress' }
+      writeDB(db)
+      
+      return NextResponse.json({
+        response_id: responseRecord.id,
+        evaluation_id: evalRecord.id,
+        judgment: evaluation.judgment,
+        comprehensibility_score: evaluation.comprehensibility_score,
+        feedback_text: evaluation.feedback_text,
+        correctedText: 'Por favor intenta de nuevo con una respuesta seria.',
+        progress: 0,
+        mission_completed: false,
+      })
+    }
+
     // Call evaluation service via Gemini/OpenRouter (replacing original external python service)
     let evaluation: any
 
@@ -164,15 +239,18 @@ Mission Details:
 Student's Response to Evaluate:
 """${response_text.trim()}"""
 
-EVALUATION INSTRUCTIONS:
+EVALUATION INSTRUCTIONS (STRICT):
 1. Read the response carefully
-2. Determine: Did the student answer the question/objective? YES or NO?
-3. If YES: comprehensibility_score should be 65-100 → judgment = "ADVANCE"
-4. If NO or unclear: comprehensibility_score should be 0-60 → judgment = "PAUSE"
-5. grammar_score and lexical_richness_score are secondary - based on actual performance
-6. For feedback_text - be encouraging and constructive
+2. Does it answer the OBJECTIVE/QUESTION asked? 
+   - YES → Evaluate quality (65-100 comprehensibility)
+   - NO → Reject with PAUSE judgment (20-40 comprehensibility)
+3. Quality Scoring:
+   - If YES answer: comprehensibility_score 65-100 → judgment = "ADVANCE"
+   - If NO/unclear answer: comprehensibility_score 10-60 → judgment = "PAUSE"
+4. grammar_score and lexical_richness_score are secondary
+5. For feedback_text - be encouraging but honest about whether they answered the question
 
-Remember: Your job is to help students succeed, not to fail them. If they answered correctly (even with errors), they should ADVANCE.`
+Critical: A response must ACTUALLY ANSWER THE QUESTION to get a high score. If the response doesn't address the objective, judgment = "PAUSE".`
 
       const aiResponse = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",
