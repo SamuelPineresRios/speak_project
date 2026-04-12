@@ -150,7 +150,7 @@ export function GrammarCorrectionModal({
           <div>
             <label className="text-xs font-bold uppercase text-slate-400">❌ Lo que dijiste:</label>
             <div className="mt-2 p-3 bg-red-950/20 border border-red-500/30 rounded-lg text-sm text-red-300">
-              &quot;{originalText}&quot;
+              "{originalText}"
             </div>
           </div>
 
@@ -161,23 +161,35 @@ export function GrammarCorrectionModal({
                 {isRejected ? '💡 Forma correcta de responder:' : '✅ Forma correcta:'}
               </label>
               <div className="mt-2 space-y-2">
-                {/* Plantilla */}
-                <div className="p-3 bg-emerald-950/20 border border-emerald-500/30 rounded-lg text-sm text-emerald-300 font-semibold italic">
-                  {isRejected ? `Ejemplo: &quot;${correctedText}&quot;` : `&quot;${correctedText}&quot;`}
-                </div>
-                
-                {/* Ejemplo con nombre real si hay placeholders */}
+                {/* Plantilla (si tiene placeholders) o Respuesta directa */}
                 {(() => {
+                  const hasPlaceholder = /\[(.+?)\]/.test(correctedText)
                   const example = generateExampleFromTemplate(correctedText)
-                  if (example) {
+                  
+                  if (hasPlaceholder) {
                     return (
-                      <div className="p-3 bg-emerald-900/30 border border-emerald-500/20 rounded-lg text-sm text-emerald-200">
-                        <span className="text-xs text-emerald-400 font-bold">📝 Por ejemplo:</span>
-                        <div className="mt-1 text-emerald-300">&quot;{example}&quot;</div>
+                      <>
+                        <div className="p-3 bg-emerald-950/20 border border-emerald-500/30 rounded-lg text-sm text-emerald-300 font-semibold italic">
+                          {isRejected ? '📋 Plantilla:' : '📋 Estructura:'}
+                          <div className="mt-1">"{correctedText}"</div>
+                        </div>
+                        
+                        {example && (
+                          <div className="p-3 bg-emerald-900/30 border border-emerald-500/20 rounded-lg text-sm text-emerald-200">
+                            <span className="text-xs text-emerald-400 font-bold">✨ Ejemplo:</span>
+                            <div className="mt-1">"{example}"</div>
+                          </div>
+                        )}
+                      </>
+                    )
+                  } else {
+                    // Sin placeholders, mostrar directamente
+                    return (
+                      <div className="p-3 bg-emerald-950/20 border border-emerald-500/30 rounded-lg text-sm text-emerald-300 font-semibold italic">
+                        "{correctedText}"
                       </div>
                     )
                   }
-                  return null
                 })()}
               </div>
             </div>
