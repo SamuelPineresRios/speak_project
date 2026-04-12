@@ -150,7 +150,7 @@ export function GrammarCorrectionModal({
           <div>
             <label className="text-xs font-bold uppercase text-slate-400">❌ Lo que dijiste:</label>
             <div className="mt-2 p-3 bg-red-950/20 border border-red-500/30 rounded-lg text-sm text-red-300">
-              "{originalText}"
+              {`"${originalText}"`}
             </div>
           </div>
 
@@ -171,13 +171,13 @@ export function GrammarCorrectionModal({
                       <>
                         <div className="p-3 bg-emerald-950/20 border border-emerald-500/30 rounded-lg text-sm text-emerald-300 font-semibold italic">
                           {isRejected ? '📋 Plantilla:' : '📋 Estructura:'}
-                          <div className="mt-1">"{correctedText}"</div>
+                          <div className="mt-1">{`"${correctedText}"`}</div>
                         </div>
                         
                         {example && (
                           <div className="p-3 bg-emerald-900/30 border border-emerald-500/20 rounded-lg text-sm text-emerald-200">
                             <span className="text-xs text-emerald-400 font-bold">✨ Ejemplo:</span>
-                            <div className="mt-1">"{example}"</div>
+                            <div className="mt-1">{`"${example}"`}</div>
                           </div>
                         )}
                       </>
@@ -186,7 +186,7 @@ export function GrammarCorrectionModal({
                     // Sin placeholders, mostrar directamente
                     return (
                       <div className="p-3 bg-emerald-950/20 border border-emerald-500/30 rounded-lg text-sm text-emerald-300 font-semibold italic">
-                        "{correctedText}"
+                        {`"${correctedText}"`}
                       </div>
                     )
                   }
