@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { readDB, writeDB, findById, generateId, getWeekStart } from '@/lib/db'
+import { createClient } from '@supabase/supabase-js'
 import { CEFR_THRESHOLDS } from '@/lib/utils'
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
@@ -8,27 +9,33 @@ if (!OPENROUTER_API_KEY) {
 }
 
 const SYSTEM_PROMPT_BASE = `You are an expert English language evaluator for Latin American Spanish-speaking students learning English.
-Your job: evaluate a student's written English response in a communicative mission context.
+Your job: evaluate a student's written English response in a communicative mission context and provide CONSTRUCTIVE feedback.
 
 CRITICAL RULES:
-1. Evaluate COMMUNICATIVE EFFECTIVENESS above all — not grammatical perfection
-2. Feedback must sound like a native Spanish-speaking English teacher giving friendly advice
-3. Return ONLY valid JSON — no markdown, no explanation, no preamble
-4. feedback_text MUST follow this exact 3-part structure (separated by \\n\\n):
+1. Be GENEROUS with ADVANCE judgments — prioritize communicative success over perfection
+2. Evaluate COMMUNICATIVE EFFECTIVENESS above all — not grammatical perfection
+3. Feedback must sound like a native Spanish-speaking English teacher giving friendly advice
+4. Return ONLY valid JSON — no markdown, no explanation, no preamble
+5. feedback_text MUST follow this exact 3-part structure (separated by \\n\\n):
    PART 1 (2 sentences max): Narrative result — did the character understand/achieve the objective?
    PART 2 (2 sentences max): One thing the student did correctly — quote their exact words
    PART 3 (2-3 sentences max): ONE single improvement with a corrected example sentence
 
-JUDGMENT THRESHOLDS BY LEVEL:
-- A1: ADVANCE if comprehensibility_score >= 60
-- A2: ADVANCE if comprehensibility_score >= 70
-- B1: ADVANCE if comprehensibility_score >= 80
-- B2: ADVANCE if comprehensibility_score >= 85
+SCORING GUIDELINES:
+- Score based on UNDERSTANDING and COMMUNICATIVE INTENT first, grammar second
+- A1/A2: Accept basic but correct responses. Core meaning is key.
+- B1: Accept mostly correct with minor errors
+- B2: Accept well-formed responses with natural flow
 
-COMPREHENSIBILITY (most important score):
-- A1/A2: Is the core meaning intelligible despite errors? YES = high score
-- B1: Is the message clear and mostly accurate?
-- B2: Is the message precise, well-structured, appropriate register?
+JUDGMENT CALCULATION (AUTOMATIC):
+1. Calculate comprehensibility_score based on how well the message was understood
+2. Then AUTOMATICALLY apply this logic:
+   - A1: judgment = "ADVANCE" if comprehensibility_score >= 55, else "PAUSE"
+   - A2: judgment = "ADVANCE" if comprehensibility_score >= 65, else "PAUSE"
+   - B1: judgment = "ADVANCE" if comprehensibility_score >= 75, else "PAUSE"
+   - B2: judgment = "ADVANCE" if comprehensibility_score >= 80, else "PAUSE"
+
+KEY: If student answered the question correctly, comprehensibility_score should be AT LEAST 70+.
 
 RETURN ONLY THIS JSON STRUCTURE:
 {
@@ -48,13 +55,73 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     const { response_text, group_id, time_taken_seconds } = await req.json()
     if (!response_text?.trim()) return NextResponse.json({ error: 'response_text required' }, { status: 400 })
 
-    const db = readDB()
-    const mission = findById(db.missions, params.id)
-    if (!mission) return NextResponse.json({ error: 'Mission not found' }, { status: 404 })
+    const missionId = params.id
 
-    const user = findById(db.users, userId)
+    // Try to fetch mission from Supabase first, then fallback to local DB
+    let mission: any = null
+    
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+    if (supabaseUrl && supabaseKey) {
+      try {
+        const supabase = createClient(supabaseUrl, supabaseKey)
+        const { data } = await supabase
+          .from('missions')
+          .select('*')
+          .eq('id', missionId)
+          .single()
+        
+        if (data) {
+          mission = data
+        }
+      } catch (e) {
+        console.log('[Submit] Supabase fallback to local DB')
+      }
+    }
+
+    // Fallback to local DB if not found in Supabase
+    if (!mission) {
+      const db = readDB()
+      mission = findById(db.missions, missionId)
+    }
+
+    if (!mission) {
+      console.error('[Submit] Mission not found:', missionId)
+      return NextResponse.json({ error: 'Mission not found' }, { status: 404 })
+    }
+
+    // Try to fetch user from Supabase first, then fallback to local DB
+    let user: any = null
+    
+    if (supabaseUrl && supabaseKey) {
+      try {
+        const supabase = createClient(supabaseUrl, supabaseKey)
+        const { data } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', userId)
+          .single()
+        
+        if (data) {
+          user = data
+        }
+      } catch (e) {
+        console.log('[Submit] User fetch from Supabase failed, using local DB')
+      }
+    }
+
+    // Fallback to local DB if not found in Supabase
+    if (!user) {
+      const db = readDB()
+      user = findById(db.users, userId)
+    }
+
     const cefrLevel = user?.cefr_level ?? 'B1'
     const langPref = user?.language_preference ?? 'es'
+
+    // Read DB for saving responses and narrative states
+    const db = readDB()
 
     // Save response
     const responseRecord = {
@@ -76,16 +143,36 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     try {
       const t0 = Date.now()
       
-      const prompt = `Evaluation Context:
-Student CEFR Level: ${cefrLevel}
-Mission Objective: ${mission.objective}
-Scene Context: ${mission.scene_context}
-Language for Feedback: ${langPref}
+      const levelCriteria = {
+        'A1': 'Accept basic responses with simple structures. Focus: Can you understand the core meaning? Grammar perfection is NOT required.',
+        'A2': 'Accept mostly correct responses with minor errors. Focus: Is the message clear? Minor grammar errors are OK.',
+        'B1': 'Accept well-formed responses with natural flow. Minor errors acceptable if meaning is clear.',
+        'B2': 'Expect more sophisticated language. Minor errors still acceptable if communication is successful.'
+      }
+      
+      const prompt = `EVALUATION TASK - ${cefrLevel} Level Student
 
-Response to Evaluate:
+Student Profile:
+- CEFR Level: ${cefrLevel}
+- Evaluation Criteria: ${levelCriteria[cefrLevel as keyof typeof levelCriteria] || levelCriteria['B1']}
+
+Mission Details:
+- Objective: ${mission.objective}
+- Scene: ${mission.scene_context}
+- Feedback Language: ${langPref} (Spanish)
+
+Student's Response to Evaluate:
 """${response_text.trim()}"""
 
-Evaluate this response according to the ${cefrLevel} criteria.`
+EVALUATION INSTRUCTIONS:
+1. Read the response carefully
+2. Determine: Did the student answer the question/objective? YES or NO?
+3. If YES: comprehensibility_score should be 65-100 → judgment = "ADVANCE"
+4. If NO or unclear: comprehensibility_score should be 0-60 → judgment = "PAUSE"
+5. grammar_score and lexical_richness_score are secondary - based on actual performance
+6. For feedback_text - be encouraging and constructive
+
+Remember: Your job is to help students succeed, not to fail them. If they answered correctly (even with errors), they should ADVANCE.`
 
       const aiResponse = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",
@@ -195,6 +282,50 @@ Evaluate this response according to the ${cefrLevel} criteria.`
     }
 
     writeDB(db)
+
+    // Also update Supabase narrative_states if configured
+    if (supabaseUrl && supabaseKey && completed) {
+      try {
+        const supabase = createClient(supabaseUrl, supabaseKey)
+        const existingState = await supabase
+          .from('narrative_states')
+          .select('id')
+          .eq('student_id', userId)
+          .eq('mission_id', params.id)
+          .single()
+        
+        if (existingState.data) {
+          // Update existing record
+          await supabase
+            .from('narrative_states')
+            .update({
+              state: 'completed',
+              character_reaction: 'positive',
+              scene_position: 1,
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', existingState.data.id)
+          console.log('[Submit] Updated narrative_state in Supabase:', existingState.data.id)
+        } else {
+          // Insert new record
+          await supabase
+            .from('narrative_states')
+            .insert([{
+              student_id: userId,
+              mission_id: params.id,
+              group_id: group_id ?? null,
+              state: 'completed',
+              character_reaction: 'positive',
+              scene_position: 1,
+              updated_at: new Date().toISOString()
+            }])
+          console.log('[Submit] Inserted narrative_state to Supabase')
+        }
+      } catch (e) {
+        console.log('[Submit] Could not update Supabase narrative_states:', e)
+        // Continue anyway - we already saved to local DB
+      }
+    }
 
     // Get guide recommendations based on detected structures (defensive)
     let recommendedGuides: any[] = []

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { findById, readDB, writeDB, getWeekStart } from '@/lib/db'
+import { createClient } from '@supabase/supabase-js'
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   const userId = req.headers.get('x-user-id')
@@ -29,11 +30,46 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   const student = findById(db.users, params.id)
   if (!student) return NextResponse.json({ error: 'User not found' }, { status: 404 })
 
+  // Try to get narrative_states from Supabase first
+  let completedMissionsFromSupabase: any[] = []
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  
+  if (supabaseUrl && supabaseKey) {
+    try {
+      const supabase = createClient(supabaseUrl, supabaseKey)
+      const { data } = await supabase
+        .from('narrative_states')
+        .select('*')
+        .eq('student_id', params.id)
+        .eq('state', 'completed')
+      
+      if (data) {
+        completedMissionsFromSupabase = data
+        console.log('[Profile] Loaded', data.length, 'completed missions from Supabase')
+      }
+    } catch (e) {
+      console.log('[Profile] Could not load from Supabase, using local DB only')
+    }
+  }
+
+  // Fallback to local DB narrative_states
+  const completedMissionsLocal = db.narrative_states
+    .filter(n => n.student_id === params.id && n.state === 'completed')
+  
+  // Prefer Supabase data if available, otherwise use local
+  const completedMissions = completedMissionsFromSupabase.length > 0 
+    ? completedMissionsFromSupabase 
+    : completedMissionsLocal
+
   const weeklyData = db.weekly_aggregates
     .filter(a => a.student_id === params.id)
     .sort((a, b) => b.week_start_date.localeCompare(a.week_start_date))
 
-  const missionsCompleted = weeklyData.reduce((sum, w) => sum + w.missions_completed, 0)
+  const missionsCompleted = Math.max(
+    completedMissions.length, // Use count from narrative_states
+    weeklyData.reduce((sum, w) => sum + w.missions_completed, 0) // Or from weekly aggregates
+  )
   const writingTimeSeconds = weeklyData.reduce((sum, w) => sum + w.total_writing_time_seconds, 0)
   const withComp = weeklyData.filter(w => w.avg_comprehensibility !== null)
   const avgComprehensibility = withComp.length

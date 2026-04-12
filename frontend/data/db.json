@@ -518,6 +518,42 @@
       "time_taken_seconds": null,
       "submitted_at": "2026-04-04T05:15:01.199Z",
       "status": "completed"
+    },
+    {
+      "id": "d8wgiw84r7gmnw25vk9",
+      "mission_id": "m-008",
+      "student_id": "bb34efb3-7773-4319-a16d-15072dc2798e",
+      "group_id": null,
+      "text_content": "ASSISTANT: Hey, welcome to the team! I'm so glad to finally meet you. I'm [Colleague's Name]. What's your name?\n\nUSER: i am sick\n\nASSISTANT: Hi [User's Name], it's great to be here! I'm [Your Name], and I'm the new Marketing Manager. I've been working in marketing for about five years, mostly in digital strategy and campaign management.",
+      "input_mode": "text",
+      "transcript": null,
+      "time_taken_seconds": 19,
+      "submitted_at": "2026-04-12T17:49:14.889Z",
+      "status": "in_progress"
+    },
+    {
+      "id": "8o58gllc51hmnw3tn0i",
+      "mission_id": "39ed4076-a89a-4cf4-a11a-49e775edb667",
+      "student_id": "bb34efb3-7773-4319-a16d-15072dc2798e",
+      "group_id": null,
+      "text_content": "ASSISTANT: Good morning! Lovely day in London, isn't it? I'm John, by the way.\n\nUSER: I am Samuel\n\nASSISTANT: Good morning, Samuel! It's a pleasure to meet you. Where are you from?\n\nUSER: I am from Colombia,  and you?\n\nASSISTANT: That's interesting! What's something you really enjoy doing in your free time?\n\nUSER: In my free time i enjoy reading and playing soccer\n\nASSISTANT: That sounds like a good way to spend your time! Do you have a favourite author?\n\nUSER: Yeah, its Mario Mendoza\n\nASSISTANT: Interesting. I don't know that author - is he well-known? It was nice meeting you!",
+      "input_mode": "text",
+      "transcript": null,
+      "time_taken_seconds": 231,
+      "submitted_at": "2026-04-12T18:35:43.170Z",
+      "status": "completed"
+    },
+    {
+      "id": "rdi3w91mr9imnw6v9d9",
+      "mission_id": "39ed4076-a89a-4cf4-a11a-49e775edb667",
+      "student_id": "bb34efb3-7773-4319-a16d-15072dc2798e",
+      "group_id": null,
+      "text_content": "ASSISTANT: Good morning! Lovely day in London, isn't it? What's your name?\n\nUSER: i am sick\n\nASSISTANT: I'm sorry, I don't understand. I asked for your name - could you tell me that?\n\nUSER: my name is Samuel\n\nASSISTANT: It's a pleasure to meet you, Samuel. Where are you from?\n\nUSER: i have three brothers\n\nASSISTANT: I'm sorry, Samuel, I don't understand. I asked where you are from. Could you tell me that?\n\nUSER: I am from Colombia\n\nASSISTANT: That's interesting! What's something you really enjoy doing, Samuel?\n\nUSER: i have an exam}\n\nASSISTANT: I'm sorry, Samuel, I don't understand. I asked what you enjoy doing. Could you tell me that?\n\nUSER: I enjoy reading a book\n\nASSISTANT: That's great, Samuel! How often do you get to read?\n\nUSER: once in a week\n\nASSISTANT: Alright! Well, it was a pleasure meeting you, Samuel from Colombia!",
+      "input_mode": "text",
+      "transcript": null,
+      "time_taken_seconds": 113,
+      "submitted_at": "2026-04-12T20:00:57.646Z",
+      "status": "in_progress"
     }
   ],
   "evaluations": [
@@ -815,6 +851,50 @@
         "simple present"
       ],
       "evaluated_at": "2026-03-24T04:39:37.872Z"
+    },
+    {
+      "id": "eeraeri4whlmnw25x67",
+      "response_id": "d8wgiw84r7gmnw25vk9",
+      "comprehensibility_score": 50,
+      "grammar_score": 90,
+      "lexical_richness_score": 20,
+      "judgment": "PAUSE",
+      "feedback_text": "Mala suerte, no entendí muy bien tu respuesta. No te preocupes, ¡vamos a intentarlo de nuevo!\n\nLo hiciste bien al usar \"I am\".\n\nPara presentarte y hablar de tu experiencia, puedes decir algo como: \"Hi, I'm [Your Name], the Marketing Manager. I have five years of experience in digital strategy.\"",
+      "detected_structures": [
+        "simple present"
+      ],
+      "transcript": null,
+      "evaluated_at": "2026-04-12T17:49:16.975Z"
+    },
+    {
+      "id": "cdtwzyfh0i9mnw3tpe2",
+      "response_id": "8o58gllc51hmnw3tn0i",
+      "comprehensibility_score": 90,
+      "grammar_score": 85,
+      "lexical_richness_score": 75,
+      "judgment": "ADVANCE",
+      "feedback_text": "¡Hola Samuel! La conversación fue muy clara y pudiste presentarte y hablar de tus intereses.\n\nUsaste muy bien la estructura \"I am from Colombia\". ¡Excelente!\n\nRecuerda usar preposiciones correctamente. Por ejemplo, puedes decir, \"In my free time, I enjoy reading and playing soccer\" o también \"Yeah, it's Mario Mendoza\".",
+      "detected_structures": [
+        "Simple Present",
+        "Present Continuous (progressive)"
+      ],
+      "transcript": null,
+      "evaluated_at": "2026-04-12T18:35:46.250Z"
+    },
+    {
+      "id": "lhpoxi8i1gfmnw6vb5i",
+      "response_id": "rdi3w91mr9imnw6v9d9",
+      "comprehensibility_score": 75,
+      "grammar_score": 70,
+      "lexical_richness_score": 65,
+      "judgment": "PAUSE",
+      "feedback_text": "Hola Samuel, noté que te costó un poquito mantener la conversación, ¡pero no te preocupes! \n\nUsaste muy bien \"My name is Samuel\" para presentarte, ¡súper!\n\nPara mejorar, recuerda responder directamente a las preguntas. Por ejemplo, en vez de decir \"i have an exam\", podrías decir \"I enjoy studying because I have an exam\" para conectar tus respuestas con lo que te preguntan. ¡Sigue practicando!",
+      "detected_structures": [
+        "name",
+        "present-simple"
+      ],
+      "transcript": null,
+      "evaluated_at": "2026-04-12T20:00:59.958Z"
     }
   ],
   "groups": [
@@ -986,6 +1066,26 @@
       "character_reaction": "positive",
       "scene_position": 1,
       "updated_at": "2026-03-23T22:51:12.549Z"
+    },
+    {
+      "id": "9jc7kch1rivmnw25x68",
+      "student_id": "bb34efb3-7773-4319-a16d-15072dc2798e",
+      "mission_id": "m-008",
+      "group_id": null,
+      "state": "completed",
+      "character_reaction": "positive",
+      "scene_position": 1,
+      "updated_at": "2026-04-12T17:49:18.999Z"
+    },
+    {
+      "id": "j1e12zjdb3hmnw3tpe3",
+      "student_id": "bb34efb3-7773-4319-a16d-15072dc2798e",
+      "mission_id": "39ed4076-a89a-4cf4-a11a-49e775edb667",
+      "group_id": null,
+      "state": "completed",
+      "character_reaction": "positive",
+      "scene_position": 1,
+      "updated_at": "2026-04-12T20:01:03.951Z"
     }
   ],
   "weekly_aggregates": [
@@ -1038,6 +1138,16 @@
       "missions_completed": 1,
       "avg_comprehensibility": 90,
       "updated_at": "2026-03-24T04:39:37.875Z"
+    },
+    {
+      "id": "l2vd793nyoomnw25x69",
+      "student_id": "bb34efb3-7773-4319-a16d-15072dc2798e",
+      "group_id": null,
+      "week_start_date": "2026-04-06",
+      "total_writing_time_seconds": 363,
+      "missions_completed": 1,
+      "avg_comprehensibility": 90,
+      "updated_at": "2026-04-12T20:00:59.962Z"
     }
   ],
   "guides": [

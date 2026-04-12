@@ -65,10 +65,10 @@ export function FeedbackScreen({
                 <span className="text-2xl">{isAdvance ? '🏆' : '⚠️'}</span>
                 <div>
                     <h1 className="text-xl font-black uppercase tracking-widest leading-none">
-                        {isAdvance ? 'Mission Success' : 'Mission Failed'}
+                        {isAdvance ? 'Misión Completada' : 'Misión Fallida'}
                     </h1>
                     <p className="text-[10px] font-mono opacity-80 uppercase tracking-widest mt-1">
-                        {isAdvance ? 'Objectives Met' : 'Retraining Required'}
+                        {isAdvance ? 'Objetivo Logrado' : 'Reintentá'}
                     </p>
                 </div>
             </div>

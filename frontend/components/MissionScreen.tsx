@@ -5,6 +5,7 @@ import { Timer } from './Timer'
 import { NarrativeCharacter } from './NarrativeCharacter'
 import { TypewriterMessage } from './TypewriterMessage'
 import { ResponsiveBackgroundSprites } from './ResponsiveBackgroundSprites'
+import { GrammarCorrectionModal } from './GrammarCorrectionModal'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/lib/hooks/useAuth'
 
@@ -32,6 +33,7 @@ interface Message {
   content: string
   feedback?: string
   rating?: number // 1-5
+  correctedText?: string // Corrected version if exists
 }
 
 export function MissionScreen({ mission, studentId, groupId }: MissionScreenProps) {
@@ -61,6 +63,15 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
   const [missionProgress, setMissionProgress] = useState(0)
   const [timerDuration, setTimerDuration] = useState(mission.base_duration_seconds)
   const [timerKey, setTimerKey] = useState(0)
+  
+  // Grammar Correction Modal states
+  const [showGrammarModal, setShowGrammarModal] = useState(false)
+  const [grammarModalData, setGrammarModalData] = useState<{
+    original: string
+    corrected: string
+    feedback: string
+  } | null>(null)
+  const [lastUserMessageIndexForRetry, setLastUserMessageIndexForRetry] = useState<number | null>(null)
 
   const scrollRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -158,11 +169,37 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
                     updated[lastUserIdx] = { 
                         ...updated[lastUserIdx], 
                         rating: data.message.rating,
-                        feedback: data.feedback // Attach feedback here!
+                        feedback: data.feedback, // Attach feedback here!
+                        correctedText: data.correctedText
                     }
                 }
                 return [...updated, newAssistantMsg]
              })
+            
+            // Check if we need to show modal
+            // Show modal for ratings 1-3 (off-topic or grammar errors)
+            if (data.message.rating && data.message.rating >= 1 && data.message.rating <= 3) {
+              // Off-topic or Grammar errors
+              setLastUserMessageIndexForRetry(newMessages.length - 1)
+              
+              // Get corrected text from API
+              const correctedVersion = data.correctedText || (data.message.rating === 1 ? '[Respuesta rechazada]' : userMsg.content)
+              
+              console.log('[Grammar Modal]', {
+                rating: data.message.rating,
+                apiCorrectedText: data.correctedText,
+                userOriginal: userMsg.content,
+                finalCorrected: correctedVersion,
+                feedback: data.feedback
+              })
+              
+              setGrammarModalData({
+                original: userMsg.content,
+                corrected: correctedVersion,
+                feedback: data.feedback || 'Tu respuesta no es correcta para esta pregunta.'
+              })
+              setShowGrammarModal(true)
+            }
             
             // Enable typewriter effect for the new assistant message
             setIsLastMessageTyping(true)
@@ -206,8 +243,47 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
     }
   }
 
+  const handleRetryGrammar = () => {
+    // Remove the last user message and the assistant response
+    // This allows the user to try again
+    setMessages(current => {
+      const updated = [...current]
+      // Find and remove the last user message and its assistant response
+      let lastUserIdx = updated.findLastIndex(m => m.role === 'user')
+      if (lastUserIdx !== -1) {
+        updated.splice(lastUserIdx, 1)
+        // Also remove the following assistant message if it exists
+        if (lastUserIdx < updated.length && updated[lastUserIdx]?.role === 'assistant') {
+          updated.splice(lastUserIdx, 1)
+        }
+      }
+      return updated
+    })
+    
+    // Close modal and focus input
+    setShowGrammarModal(false)
+    setGrammarModalData(null)
+    setTimeout(() => textareaRef.current?.focus(), 100)
+  }
+
+  const handleUnderstandGrammar = () => {
+    // Just close the modal and continue
+    // Optionally, copy the corrected text to clipboard for user reference
+    if (grammarModalData?.corrected) {
+      navigator.clipboard.writeText(grammarModalData.corrected).catch(() => {
+        console.log('Could not copy to clipboard')
+      })
+    }
+    setShowGrammarModal(false)
+    setGrammarModalData(null)
+  }
+
   const handleCompleteMission = async () => {
     if (state !== 'active') return
+    if (!user?.id) {
+      alert('Error: User not found. Please log in again.')
+      return
+    }
     const timeTaken = startTime ? Math.floor((Date.now() - startTime) / 1000) : null
     setState('submitting'); setIsThinking(true)
     
@@ -216,7 +292,11 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
 
         try {
             const res = await fetch(`/api/missions/${mission.id}/submit`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                method: 'POST', 
+                headers: { 
+                  'Content-Type': 'application/json',
+                  'x-user-id': user.id
+                },
                 body: JSON.stringify({ response_text: transcript, student_id: studentId, group_id: groupId, time_taken_seconds: timeTaken }),
             })
             const data = await res.json().catch(() => ({}))
@@ -235,7 +315,11 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
                         // Also request server to explicitly persist narrative_state as completed
                         try {
                             await fetch(`/api/missions/${mission.id}/mark-completed`, {
-                                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                                method: 'POST', 
+                                headers: { 
+                                  'Content-Type': 'application/json',
+                                  'x-user-id': user.id
+                                },
                                 body: JSON.stringify({ group_id: groupId ?? null }),
                             })
                         } catch (e) {
@@ -442,20 +526,31 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
           </div>
         </div>
         
+        {/* Mission Objective Card */}
+        <div className="bg-gradient-to-r from-cyan-950/40 to-slate-900/40 p-3 rounded-lg border border-cyan/30 space-y-2">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[0.7rem] md:text-[0.75rem] text-cyan-300 font-bold uppercase tracking-widest">🎯 Objetivo</span>
+            {missionMode === 'evaluation' && (
+              <Timer key={timerKey} durationSeconds={timerDuration} onTimeout={() => setTimedOut(true)} />
+            )}
+          </div>
+          <p className="text-[0.8rem] md:text-sm text-cyan-50 leading-snug line-clamp-3">{mission.objective}</p>
+        </div>
+        
         {/* Mission Progress Bar & Status */}
         <div className="relative pt-1">
-            <div className="flex justify-between items-center mb-1">
-                <span className="text-[9px] text-slate-400 font-body uppercase tracking-widest">
-                    Mission Progress
+            <div className="flex justify-between items-center mb-2">
+                <span className="text-[0.7rem] md:text-[0.75rem] text-slate-400 font-body uppercase tracking-widest">
+                    Progreso
                 </span>
                 <span className={cn(
-                    "text-[9px] font-bold font-body",
+                    "text-[0.8rem] md:text-sm font-bold font-body",
                     missionProgress >= 100 ? "text-emerald animate-pulse" : "text-cyan"
                 )}>
                     {missionProgress}%
                 </span>
             </div>
-            <div className="overflow-hidden h-1.5 mb-2 text-xs flex rounded bg-slate-800 border border-slate-700">
+            <div className="overflow-hidden h-2 md:h-2.5 mb-2 text-xs flex rounded bg-slate-800 border border-slate-700/50">
                 <div 
                     style={{ width: `${missionProgress}%` }}
                     className={cn(
@@ -464,13 +559,6 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
                     )}
                 ></div>
             </div>
-        </div>
-
-        <div className="flex justify-between items-center bg-black/30 p-2 rounded-lg border border-white/5">
-           <span className="text-[10px] text-slate-500 uppercase tracking-wider line-clamp-1 flex-1 mr-4">{mission.objective}</span>
-           {missionMode === 'evaluation' && (
-              <Timer key={timerKey} durationSeconds={timerDuration} onTimeout={() => setTimedOut(true)} />
-           )}
         </div>
       </div>
 
@@ -713,6 +801,18 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
                 </button>
             </div>
         </div>
+      )}
+
+      {/* Grammar Correction Modal */}
+      {grammarModalData && (
+        <GrammarCorrectionModal
+          isOpen={showGrammarModal}
+          originalText={grammarModalData.original}
+          correctedText={grammarModalData.corrected}
+          feedback={grammarModalData.feedback}
+          onRetry={handleRetryGrammar}
+          onContinue={handleUnderstandGrammar}
+        />
       )}
     </div>
   )
