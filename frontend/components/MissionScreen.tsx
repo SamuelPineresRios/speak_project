@@ -421,7 +421,7 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
   )
 
   return (
-    <div className="h-screen flex flex-col max-w-lg mx-auto pt-4 pb-4">
+    <div className="mission-screen-container max-w-lg mx-auto pt-4 pb-4">
       <div className="px-4 shrink-0 space-y-2">
         <div className="flex items-center gap-3 py-2">
           <button onClick={() => router.back()} className="text-slate-light hover:text-foreground transition-colors">←</button>
@@ -475,7 +475,7 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
       </div>
 
       {/* Chat Area */}
-      <div className="flex-1 overflow-y-auto px-4 py-2 space-y-4 scrollbar-hide" ref={scrollRef}>
+      <div className="mission-screen-messages px-4 py-2 space-y-4 scrollbar-hide" ref={scrollRef}>
           {/* Messages */}
           {messages.map((msg, i) => {
               const isUser = msg.role === 'user'
@@ -538,7 +538,7 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
       </div>
 
       {/* Input Area */}
-      <div className="px-4 pt-2 shrink-0">
+      <div className="mission-screen-input px-4 pt-2">
         <div className={cn('relative rounded-xl border transition-all duration-200 bg-white/5 border-white/10 flex items-end gap-2 p-2', currentInput.trim() && 'border-cyan/40 bg-cyan/5')}>
           <textarea 
              ref={textareaRef} 

@@ -133,7 +133,7 @@ export function ModuleTransitionLayer() {
 
       pendingPathRef.current = targetPath
       fromPathRef.current = normalizePath(pathname)
-      setLabel('SPEAK')
+      setLabel('VOX')
       setDestinationLabel(getNavigationLabel(targetPath))
       setVisible(true)
       setPhase('closing')

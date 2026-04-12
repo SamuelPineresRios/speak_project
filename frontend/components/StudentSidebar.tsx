@@ -56,10 +56,10 @@ export function StudentSidebar() {
         <div className="p-6 border-b border-white/10 hidden lg:block">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded bg-gradient-to-br from-cyan to-blue-600 flex items-center justify-center shadow-[0_0_15px_rgba(6,182,212,0.5)]">
-            <span className="font-bold text-black font-display text-lg">S</span>
+            <span className="font-bold text-black font-display text-lg">V</span>
           </div>
           <div>
-            <h1 className="font-display font-bold text-lg tracking-wider text-white">SPEAK</h1>
+            <h1 className="font-display font-bold text-lg tracking-wider text-white">VOX</h1>
           </div>
         </div>
       </div>
