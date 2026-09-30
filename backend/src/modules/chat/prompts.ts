@@ -1,7 +1,92 @@
 /**
  * Prompts del modo conversación (roleplay) y de las pistas de vocabulario.
  */
-import type { ChatMessage } from '../../lib/ai.ts'
+import type { ChatMessage, JsonSchema } from '../../lib/ai.ts'
+
+/** Esquema de las pistas de vocabulario. */
+export const HINTS_SCHEMA: JsonSchema = {
+  type: 'object',
+  properties: {
+    key_verbs: {
+      type: 'array',
+      items: { type: 'string' },
+      description: 'Verbos útiles para responder a la pregunta actual.',
+    },
+    useful_phrases: {
+      type: 'array',
+      items: { type: 'string' },
+      description: 'Frases hechas para usar en la respuesta.',
+    },
+    grammar_tips: {
+      type: 'string',
+      description: 'Consejo gramatical concreto para esta pregunta.',
+    },
+  },
+  required: ['key_verbs', 'useful_phrases', 'grammar_tips'],
+  additionalProperties: false,
+}
+
+/**
+ * Esquema del turno de apertura.
+ *
+ * Aún no hay respuesta del alumno que evaluar, así que el esquema no incluye
+ * `rating`, `feedback` ni `correctedText`: si se permitieran como nullables, el
+ * modelo también los dejaría vacíos en los turnos siguientes.
+ */
+export const ROLEPLAY_OPENING_SCHEMA: JsonSchema = {
+  type: 'object',
+  properties: {
+    message: {
+      type: 'string',
+      description: 'Saludo inicial del personaje, en inglés, presentando la escena.',
+    },
+    progress: { type: 'integer', description: '0.' },
+    mission_completed: { type: 'boolean', description: 'false.' },
+  },
+  required: ['message', 'progress', 'mission_completed'],
+  additionalProperties: false,
+}
+
+/**
+ * Esquema de un turno con respuesta del alumno.
+ *
+ * `rating` y `feedback` son obligatorios: si el alumno ha escrito algo, tiene
+ * que haber valoración y corrección.
+ */
+export const ROLEPLAY_TURN_SCHEMA: JsonSchema = {
+  type: 'object',
+  properties: {
+    message: {
+      type: 'string',
+      description: 'Respuesta del personaje, en inglés.',
+    },
+    rating: {
+      type: 'integer',
+      description:
+        '1-5 según lo bien que respondió el alumno. 1 si no respondió a la pregunta; 4-5 si respondió bien.',
+    },
+    feedback: {
+      type: 'string',
+      description:
+        'Retroalimentación en español explicando la nota y qué mejorar. Nunca vacía.',
+    },
+    correctedText: {
+      anyOf: [{ type: 'string' }, { type: 'null' }],
+      description:
+        'Versión corregida de la respuesta del alumno. Obligatoria si rating es 1-3; null si rating es 4-5.',
+    },
+    progress: {
+      type: 'integer',
+      description: '0-100, pasos del objetivo completados.',
+    },
+    mission_completed: {
+      type: 'boolean',
+      description: 'true cuando el alumno completó todos los pasos del objetivo.',
+    },
+  },
+  required: ['message', 'rating', 'feedback', 'correctedText', 'progress', 'mission_completed'],
+  additionalProperties: false,
+}
 
 export interface MissionContext {
   character_name: string

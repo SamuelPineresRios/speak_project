@@ -5,6 +5,49 @@
  * frecuencia y no deben mezclarse con la orquestación ni con el acceso a datos.
  */
 import type { CefrLevel } from '@vox/shared'
+import type { JsonSchema } from '../../lib/ai.ts'
+
+/**
+ * Esquema que debe cumplir la evaluación.
+ *
+ * Se envía como salida estructurada: el proveedor garantiza un JSON válido con
+ * estas claves, así que no depende de que el prompt se obedezca.
+ */
+export const EVALUATION_SCHEMA: JsonSchema = {
+  type: 'object',
+  properties: {
+    comprehensibility_score: {
+      type: 'integer',
+      description: '0-100. Qué tan bien responde la respuesta al objetivo de la misión.',
+    },
+    grammar_score: { type: 'integer', description: '0-100.' },
+    lexical_richness_score: { type: 'integer', description: '0-100.' },
+    judgment: {
+      type: 'string',
+      enum: ['ADVANCE', 'PAUSE'],
+      description: 'ADVANCE si el alumno avanza; PAUSE si debe reintentar.',
+    },
+    feedback_text: {
+      type: 'string',
+      description:
+        'Retroalimentación en el idioma indicado, con las tres partes: resultado narrativo, acierto y una mejora concreta.',
+    },
+    detected_structures: {
+      type: 'array',
+      items: { type: 'string' },
+      description: 'Estructuras gramaticales detectadas, p. ej. "present-simple".',
+    },
+  },
+  required: [
+    'comprehensibility_score',
+    'grammar_score',
+    'lexical_richness_score',
+    'judgment',
+    'feedback_text',
+    'detected_structures',
+  ],
+  additionalProperties: false,
+}
 
 export const SYSTEM_PROMPT_BASE = `You are an expert English language evaluator for Latin American Spanish-speaking students learning English.
 Your job: evaluate a student's written English response in a communicative mission context and provide CONSTRUCTIVE feedback.

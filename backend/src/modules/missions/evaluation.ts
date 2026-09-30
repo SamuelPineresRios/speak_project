@@ -7,7 +7,12 @@
  * reventar el INSERT.
  */
 import { completeChat } from '../../lib/ai.ts'
-import { SYSTEM_PROMPT_BASE, buildEvaluationPrompt, type EvaluationPromptContext } from './prompts.ts'
+import {
+  EVALUATION_SCHEMA,
+  SYSTEM_PROMPT_BASE,
+  buildEvaluationPrompt,
+  type EvaluationPromptContext,
+} from './prompts.ts'
 
 export interface EvaluationResult {
   comprehensibility_score: number
@@ -115,7 +120,7 @@ export async function evaluateResponse(
         { role: 'system', content: SYSTEM_PROMPT_BASE },
         { role: 'user', content: buildEvaluationPrompt(context) },
       ],
-      jsonMode: true,
+      schema: EVALUATION_SCHEMA,
     })
 
     const parsed = parseEvaluation(content)

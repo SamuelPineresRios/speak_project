@@ -25,6 +25,9 @@ export const DEFAULT_AI_MODEL = env.anthropicModel ?? 'claude-haiku-4-5-20251001
 /** Anthropic exige `max_tokens`; este es el valor si la ruta no lo indica. */
 const DEFAULT_MAX_TOKENS = 1024
 
+/** Corta la petición si el proveedor no responde; evita peticiones colgadas. */
+const REQUEST_TIMEOUT_MS = 60_000
+
 export interface ChatMessage {
   role: 'system' | 'user' | 'assistant'
   content: string
@@ -61,9 +64,16 @@ interface CompletionOptions {
   model?: string
   temperature?: number
   maxTokens?: number
-  /** Pide al proveedor que responda con un objeto JSON. */
-  jsonMode?: boolean
+  /**
+   * Esquema JSON que la respuesta debe cumplir. Anthropic lo aplica con
+   * decodificación restringida (`output_config.format`), así que el cuerpo
+   * llega siempre como JSON válido y sin vallas de markdown.
+   */
+  schema?: JsonSchema
 }
+
+/** Esquema JSON de la respuesta esperada. */
+export type JsonSchema = Record<string, unknown>
 
 interface AnthropicTurn {
   role: 'user' | 'assistant'
@@ -101,13 +111,6 @@ function toAnthropicPayload(messages: ChatMessage[]): {
 }
 
 /**
- * Anthropic no tiene `response_format`: el JSON se pide por prompt. Los
- * prompts de VOX ya lo exigen; aquí se refuerza en las rutas que lo activan.
- */
-const JSON_MODE_INSTRUCTION =
-  'Reply with a single valid JSON object only. No prose, no markdown, no code fences.'
-
-/**
  * Ejecuta una completion y devuelve el texto del asistente.
  * Lanza `AIProviderError` si el proveedor falla o responde vacío.
  */
@@ -116,32 +119,37 @@ export async function completeChat({
   model = DEFAULT_AI_MODEL,
   temperature,
   maxTokens,
-  jsonMode = false,
+  schema,
 }: CompletionOptions): Promise<string> {
   const apiKey = requireAnthropicKey()
   const payload = toAnthropicPayload(messages)
-
-  const system = [payload.system, jsonMode ? JSON_MODE_INSTRUCTION : '']
-    .filter(Boolean)
-    .join('\n\n')
 
   const body: Record<string, unknown> = {
     model,
     max_tokens: maxTokens ?? DEFAULT_MAX_TOKENS,
     messages: payload.messages,
   }
-  if (system) body.system = system
+  if (payload.system) body.system = payload.system
   if (temperature !== undefined) body.temperature = temperature
+  if (schema) body.output_config = { format: { type: 'json_schema', schema } }
 
-  const response = await fetch(ANTHROPIC_MESSAGES_URL, {
-    method: 'POST',
-    headers: {
-      'x-api-key': apiKey,
-      'anthropic-version': ANTHROPIC_VERSION,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(body),
-  })
+  let response: Response
+  try {
+    response = await fetch(ANTHROPIC_MESSAGES_URL, {
+      method: 'POST',
+      headers: {
+        'x-api-key': apiKey,
+        'anthropic-version': ANTHROPIC_VERSION,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+    })
+  } catch (err) {
+    // Red caída, DNS, timeout...: es un fallo del proveedor, no del backend.
+    console.error('[AI] No se pudo contactar con Anthropic:', err)
+    throw new AIProviderError('No se pudo contactar con el proveedor de IA', 502)
+  }
 
   if (!response.ok) {
     const detail = await response.text().catch(() => '')

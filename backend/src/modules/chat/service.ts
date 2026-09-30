@@ -4,6 +4,9 @@
 import { completeChat, type ChatMessage } from '../../lib/ai.ts'
 import { HttpError } from '../../utils/http-error.ts'
 import {
+  HINTS_SCHEMA,
+  ROLEPLAY_OPENING_SCHEMA,
+  ROLEPLAY_TURN_SCHEMA,
   buildHintsPrompt,
   buildOpeningMessage,
   buildRoleplaySystemPrompt,
@@ -38,7 +41,7 @@ export async function requestHints(params: {
 }): Promise<HintsResult> {
   const content = await completeChat({
     messages: [{ role: 'user', content: buildHintsPrompt(params) }],
-    jsonMode: true,
+    schema: HINTS_SCHEMA,
   })
 
   const parsed = parseJsonObject(content)
@@ -105,15 +108,17 @@ export async function requestRoleplayTurn(params: {
 
   const fullMessages: ChatMessage[] = [{ role: 'system', content: systemPrompt }, ...apiMessages]
 
-  // Sin turnos previos, se pide al personaje que abra la escena.
-  if (messages.length === 0) {
+  // Sin turnos previos, se pide al personaje que abra la escena. El esquema es
+  // distinto porque no hay respuesta del alumno que valorar.
+  const isOpening = messages.length === 0
+  if (isOpening) {
     fullMessages.push(buildOpeningMessage(params.mission))
   }
 
   const content = await completeChat({
     messages: fullMessages,
     maxTokens: 500,
-    jsonMode: true,
+    schema: isOpening ? ROLEPLAY_OPENING_SCHEMA : ROLEPLAY_TURN_SCHEMA,
   })
 
   try {

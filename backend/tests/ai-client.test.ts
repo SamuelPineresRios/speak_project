@@ -111,7 +111,7 @@ describe('traducción al formato de Anthropic', () => {
     ])
   })
 
-  it('sin system ni jsonMode no envía el campo system', async () => {
+  it('sin mensajes system no envía el campo system', async () => {
     mockProviderReply()
 
     await completeChat({ messages: [{ role: 'user', content: 'Hola' }] })
@@ -119,21 +119,38 @@ describe('traducción al formato de Anthropic', () => {
     expect(sentBody()).not.toHaveProperty('system')
   })
 
-  it('refuerza el JSON en jsonMode (Anthropic no tiene response_format)', async () => {
+  it('con schema usa salida estructurada en output_config', async () => {
     mockProviderReply('{"ok":true}')
+
+    const schema = {
+      type: 'object',
+      properties: { ok: { type: 'boolean' } },
+      required: ['ok'],
+      additionalProperties: false,
+    }
 
     await completeChat({
       messages: [
         { role: 'system', content: 'Eres un evaluador.' },
         { role: 'user', content: 'Evalúa.' },
       ],
-      jsonMode: true,
+      schema,
     })
 
     const body = sentBody()
-    expect(body).not.toHaveProperty('response_format')
-    expect(String(body.system)).toContain('Eres un evaluador.')
-    expect(String(body.system).toLowerCase()).toContain('json')
+    expect(body.output_config).toEqual({
+      format: { type: 'json_schema', schema },
+    })
+    // El system no se contamina con instrucciones extra.
+    expect(body.system).toBe('Eres un evaluador.')
+  })
+
+  it('sin schema no envía output_config (el proveedor no restringe la salida)', async () => {
+    mockProviderReply()
+
+    await completeChat({ messages: [{ role: 'user', content: 'Hola' }] })
+
+    expect(sentBody()).not.toHaveProperty('output_config')
   })
 
   it('propaga la temperatura sólo si se indica', async () => {
@@ -176,6 +193,17 @@ describe('respuesta y errores', () => {
     expect(error).toBeInstanceOf(AIProviderError)
     expect((error as AIProviderError).status).toBe(429)
     expect((error as AIProviderError).detail).toContain('rate limited')
+  })
+
+  it('traduce un fallo de red a AIProviderError 502 (no un 500 genérico)', async () => {
+    fetchMock.mockRejectedValue(new TypeError('fetch failed'))
+
+    const error = await completeChat({
+      messages: [{ role: 'user', content: 'Hola' }],
+    }).catch((err: unknown) => err)
+
+    expect(error).toBeInstanceOf(AIProviderError)
+    expect((error as AIProviderError).status).toBe(502)
   })
 
   it('lanza AIProviderError si no hay bloque de texto', async () => {

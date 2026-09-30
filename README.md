@@ -132,6 +132,20 @@ reglas que el propio `tsc` verifica (`erasableSyntaxOnly`, `verbatimModuleSyntax
 - extensiones explícitas en imports relativos (`./schema.ts`);
 - nada de `enum`, `namespace` con código ni parameter properties.
 
+### Salida estructurada de la IA
+
+Las tres llamadas al modelo que devuelven JSON —evaluación de misión, turno del
+roleplay y pistas de vocabulario— envían un **esquema JSON** en
+`output_config.format`. Anthropic lo aplica con decodificación restringida, así
+que la respuesta es siempre JSON válido: no depende de que el prompt se obedezca,
+no llega envuelta en vallas de markdown y no hacen falta reintentos por formato.
+Los esquemas viven junto a sus prompts, en `backend/src/modules/*/prompts.ts`.
+
+El turno de apertura del roleplay usa un esquema distinto al resto: sin respuesta
+del alumno no hay nada que valorar, así que `rating` y `feedback` no existen en
+ese caso (si se declararan nullables, el modelo también los dejaría vacíos en los
+turnos siguientes).
+
 ---
 
 ## Autenticación y autorización
