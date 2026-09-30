@@ -125,6 +125,19 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
     }
   }, [mission, user])
 
+  /**
+   * Un envío fallido no debe dejar al alumno bloqueado: se retira su mensaje
+   * del chat y se devuelve al cuadro de texto para reintentar con un toque.
+   */
+  const restoreFailedMessage = (failedMessage: Message, notice: string) => {
+    setMessages(current => [
+      ...current.filter(message => message !== failedMessage),
+      { role: 'system', content: notice },
+    ])
+    setCurrentInput(failedMessage.content)
+    setTimeout(() => textareaRef.current?.focus(), 100)
+  }
+
   const handleSendMessage = async () => {
     if (!currentInput.trim() || isThinking) return;
     
@@ -183,8 +196,9 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
               // Off-topic or Grammar errors
               setLastUserMessageIndexForRetry(newMessages.length - 1)
               
-              // Get corrected text from API
-              const correctedVersion = data.correctedText || (data.message.rating === 1 ? '[Respuesta rechazada]' : userMsg.content)
+              // Si el modelo no devolvió corrección, no se le muestra al alumno
+              // su propia respuesta errónea como si fuera la correcta.
+              const correctedVersion = data.correctedText || '[Respuesta rechazada]'
               
               console.log('[Grammar Modal]', {
                 rating: data.message.rating,
@@ -234,11 +248,17 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
             }
         } else {
             console.error("API Error", data)
-            setMessages(prev => [...prev, { role: 'system', content: `⚠️ Transmission Error: ${data.error || 'No signal'}` }])
+            restoreFailedMessage(
+                userMsg,
+                '⚠️ No se pudo contactar con el personaje. Tu mensaje sigue en el cuadro de texto: vuelve a enviarlo.',
+            )
         }
     } catch (e) {
         console.error("Failed to send message", e)
-        setMessages(prev => [...prev, { role: 'system', content: "⚠️ System Failure: Unable to reach mission command." }])
+        restoreFailedMessage(
+            userMsg,
+            '⚠️ Sin conexión con el personaje. Tu mensaje sigue en el cuadro de texto: vuelve a enviarlo.',
+        )
     } finally {
         setIsThinking(false)
     }

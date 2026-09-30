@@ -206,6 +206,50 @@ describe('respuesta y errores', () => {
     expect((error as AIProviderError).status).toBe(502)
   })
 
+  it('reintenta un fallo de red y devuelve la respuesta del intento que funciona', async () => {
+    fetchMock
+      .mockRejectedValueOnce(new TypeError('fetch failed'))
+      .mockImplementationOnce(() => Promise.resolve(textResponse('recuperado')))
+
+    await expect(
+      completeChat({ messages: [{ role: 'user', content: 'Hola' }] }),
+    ).resolves.toBe('recuperado')
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+  })
+
+  it('reintenta un 429 y respeta retry-after', async () => {
+    fetchMock
+      .mockResolvedValueOnce(
+        new Response('rate limited', { status: 429, headers: { 'retry-after': '0' } }),
+      )
+      .mockImplementationOnce(() => Promise.resolve(textResponse('ok tras esperar')))
+
+    await expect(
+      completeChat({ messages: [{ role: 'user', content: 'Hola' }] }),
+    ).resolves.toBe('ok tras esperar')
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+  })
+
+  it('no reintenta un 400 (error del cliente)', async () => {
+    fetchMock.mockResolvedValue(new Response('bad request', { status: 400 }))
+
+    await expect(
+      completeChat({ messages: [{ role: 'user', content: 'Hola' }] }),
+    ).rejects.toBeInstanceOf(AIProviderError)
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('se rinde tras agotar los intentos y responde 502', async () => {
+    fetchMock.mockRejectedValue(new TypeError('fetch failed'))
+
+    const error = await completeChat({
+      messages: [{ role: 'user', content: 'Hola' }],
+    }).catch((err: unknown) => err)
+
+    expect((error as AIProviderError).status).toBe(502)
+    expect(fetchMock).toHaveBeenCalledTimes(3)
+  })
+
   it('lanza AIProviderError si no hay bloque de texto', async () => {
     fetchMock.mockResolvedValue(
       new Response(JSON.stringify({ content: [{ type: 'thinking' }] }), { status: 200 }),

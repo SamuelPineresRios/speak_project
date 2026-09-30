@@ -25,8 +25,38 @@ export const DEFAULT_AI_MODEL = env.anthropicModel ?? 'claude-haiku-4-5-20251001
 /** Anthropic exige `max_tokens`; este es el valor si la ruta no lo indica. */
 const DEFAULT_MAX_TOKENS = 1024
 
-/** Corta la petición si el proveedor no responde; evita peticiones colgadas. */
+/** Corta cada intento si el proveedor no responde. */
 const REQUEST_TIMEOUT_MS = 60_000
+
+/** Intentos totales ante fallos transitorios del proveedor. */
+const MAX_ATTEMPTS = 3
+
+/** Códigos que merecen un reintento: saturación, límite de tasa o caída. */
+const RETRYABLE_STATUSES = new Set([408, 429, 500, 502, 503, 504, 529])
+
+/** Espera máxima aunque el proveedor pida más (no bloquear al alumno). */
+const MAX_RETRY_DELAY_MS = 10_000
+
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
+
+/** Espera antes del intento `attempt`: lineal con algo de aleatoriedad. */
+function backoffMs(attempt: number): number {
+  const base = attempt * 600
+  return base + Math.floor(Math.random() * 250)
+}
+
+/** Respeta `retry-after` del proveedor si viene y es razonable. */
+function retryDelayMs(attempt: number, retryAfterHeader: string | null): number {
+  if (retryAfterHeader) {
+    const seconds = Number.parseInt(retryAfterHeader, 10)
+    if (Number.isFinite(seconds) && seconds >= 0) {
+      return Math.min(seconds * 1000, MAX_RETRY_DELAY_MS)
+    }
+  }
+  return backoffMs(attempt)
+}
 
 export interface ChatMessage {
   role: 'system' | 'user' | 'assistant'
@@ -133,23 +163,7 @@ export async function completeChat({
   if (temperature !== undefined) body.temperature = temperature
   if (schema) body.output_config = { format: { type: 'json_schema', schema } }
 
-  let response: Response
-  try {
-    response = await fetch(ANTHROPIC_MESSAGES_URL, {
-      method: 'POST',
-      headers: {
-        'x-api-key': apiKey,
-        'anthropic-version': ANTHROPIC_VERSION,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(body),
-      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
-    })
-  } catch (err) {
-    // Red caída, DNS, timeout...: es un fallo del proveedor, no del backend.
-    console.error('[AI] No se pudo contactar con Anthropic:', err)
-    throw new AIProviderError('No se pudo contactar con el proveedor de IA', 502)
-  }
+  const response = await requestWithRetry(apiKey, body)
 
   if (!response.ok) {
     const detail = await response.text().catch(() => '')
@@ -171,4 +185,61 @@ export async function completeChat({
   }
 
   return text
+}
+
+/**
+ * POST a Anthropic con reintentos.
+ *
+ * Los fallos de red y los códigos de saturación (429, 529...) son transitorios:
+ * sin reintentos, un parpadeo de red dejaba al alumno con un error en mitad de
+ * la conversación y tenía que reescribir su respuesta.
+ *
+ * Cada intento lleva su propio timeout: reutilizar la señal de un intento
+ * abortado haría fallar el siguiente de inmediato.
+ */
+async function requestWithRetry(
+  apiKey: string,
+  body: Record<string, unknown>,
+): Promise<Response> {
+  let lastNetworkError: unknown
+
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    try {
+      const response = await fetch(ANTHROPIC_MESSAGES_URL, {
+        method: 'POST',
+        headers: {
+          'x-api-key': apiKey,
+          'anthropic-version': ANTHROPIC_VERSION,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+        signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+      })
+
+      const isLastAttempt = attempt === MAX_ATTEMPTS
+      if (!RETRYABLE_STATUSES.has(response.status) || isLastAttempt) {
+        return response
+      }
+
+      const delay = retryDelayMs(attempt, response.headers.get('retry-after'))
+      console.warn(
+        `[AI] El proveedor respondió ${response.status}; reintento ${attempt + 1}/${MAX_ATTEMPTS} en ${delay}ms`,
+      )
+      await sleep(delay)
+    } catch (err) {
+      lastNetworkError = err
+      if (attempt === MAX_ATTEMPTS) break
+
+      const delay = backoffMs(attempt)
+      console.warn(
+        `[AI] Fallo de red; reintento ${attempt + 1}/${MAX_ATTEMPTS} en ${delay}ms`,
+        err,
+      )
+      await sleep(delay)
+    }
+  }
+
+  // Red caída, DNS o timeouts agotados: es un fallo del proveedor, no del backend.
+  console.error('[AI] No se pudo contactar con Anthropic tras varios intentos:', lastNetworkError)
+  throw new AIProviderError('No se pudo contactar con el proveedor de IA', 502)
 }
