@@ -10,6 +10,8 @@
  */
 import {
   boolean,
+  date,
+  doublePrecision,
   index,
   integer,
   jsonb,
@@ -19,6 +21,9 @@ import {
   uniqueIndex,
 } from 'drizzle-orm/pg-core'
 import type { CefrLevel, UserRole } from '@vox/shared'
+
+/** Estados por los que pasa una respuesta de misión. */
+export type ResponseStatus = 'submitted' | 'in_progress' | 'completed' | 'paused'
 
 export const users = pgTable(
   'users',
@@ -81,6 +86,194 @@ export const guides = pgTable(
   (t) => [index('guides_cefr_level_idx').on(t.cefr_level)],
 )
 
+export const groups = pgTable(
+  'groups',
+  {
+    id: text('id').primaryKey(),
+    teacher_id: text('teacher_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    name: text('name').notNull(),
+    // El código se genera con un bucle de comprobación en el handler; la
+    // restricción única es la garantía real frente a carreras.
+    access_code: text('access_code').notNull(),
+    institution_name: text('institution_name'),
+    parental_consent_confirmed: boolean('parental_consent_confirmed').notNull().default(false),
+    created_at: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex('groups_access_code_key').on(t.access_code),
+    index('groups_teacher_idx').on(t.teacher_id),
+  ],
+)
+
+export const group_members = pgTable(
+  'group_members',
+  {
+    id: text('id').primaryKey(),
+    group_id: text('group_id')
+      .notNull()
+      .references(() => groups.id, { onDelete: 'cascade' }),
+    student_id: text('student_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    joined_at: timestamp('joined_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex('group_members_group_student_key').on(t.group_id, t.student_id),
+    index('group_members_student_idx').on(t.student_id),
+  ],
+)
+
+export const mission_assignments = pgTable(
+  'mission_assignments',
+  {
+    id: text('id').primaryKey(),
+    group_id: text('group_id')
+      .notNull()
+      .references(() => groups.id, { onDelete: 'cascade' }),
+    mission_id: text('mission_id')
+      .notNull()
+      .references(() => missions.id, { onDelete: 'cascade' }),
+    assigned_by: text('assigned_by')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    due_date: date('due_date'),
+    created_at: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index('mission_assignments_group_idx').on(t.group_id),
+    index('mission_assignments_mission_idx').on(t.mission_id),
+  ],
+)
+
+export const responses = pgTable(
+  'responses',
+  {
+    id: text('id').primaryKey(),
+    mission_id: text('mission_id')
+      .notNull()
+      .references(() => missions.id, { onDelete: 'cascade' }),
+    student_id: text('student_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    // La respuesta pertenece al alumno: si el grupo desaparece, se conserva.
+    group_id: text('group_id').references(() => groups.id, { onDelete: 'set null' }),
+    text_content: text('text_content').notNull(),
+    input_mode: text('input_mode'),
+    transcript: text('transcript'),
+    time_taken_seconds: integer('time_taken_seconds'),
+    submitted_at: timestamp('submitted_at', { withTimezone: true }).notNull().defaultNow(),
+    // Nullable a propósito: las respuestas históricas no siempre lo traían.
+    status: text('status').$type<ResponseStatus>(),
+  },
+  (t) => [
+    index('responses_student_submitted_idx').on(t.student_id, t.submitted_at),
+    index('responses_mission_idx').on(t.mission_id),
+    index('responses_group_idx').on(t.group_id),
+  ],
+)
+
+export const evaluations = pgTable(
+  'evaluations',
+  {
+    id: text('id').primaryKey(),
+    response_id: text('response_id')
+      .notNull()
+      .references(() => responses.id, { onDelete: 'cascade' }),
+    comprehensibility_score: integer('comprehensibility_score').notNull(),
+    grammar_score: integer('grammar_score').notNull(),
+    lexical_richness_score: integer('lexical_richness_score').notNull(),
+    judgment: text('judgment').notNull().$type<'ADVANCE' | 'PAUSE'>(),
+    feedback_text: text('feedback_text').notNull(),
+    detected_structures: jsonb('detected_structures').$type<string[]>().notNull().default([]),
+    transcript: text('transcript'),
+    evaluated_at: timestamp('evaluated_at', { withTimezone: true }).notNull().defaultNow(),
+    /** Puntos de gamificación; hoy siempre null (ver README, deuda conocida). */
+    xp_awarded: integer('xp_awarded'),
+  },
+  // Una respuesta se evalúa una sola vez: el código busca la evaluación por
+  // `response_id` asumiendo unicidad.
+  (t) => [uniqueIndex('evaluations_response_key').on(t.response_id)],
+)
+
+export const weekly_aggregates = pgTable(
+  'weekly_aggregates',
+  {
+    id: text('id').primaryKey(),
+    student_id: text('student_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    group_id: text('group_id').references(() => groups.id, { onDelete: 'set null' }),
+    week_start_date: date('week_start_date').notNull(),
+    total_writing_time_seconds: integer('total_writing_time_seconds').notNull().default(0),
+    missions_completed: integer('missions_completed').notNull().default(0),
+    avg_comprehensibility: doublePrecision('avg_comprehensibility'),
+    updated_at: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  // Un único agregado por alumno y semana; el handler hace upsert sobre esta clave.
+  (t) => [
+    uniqueIndex('weekly_aggregates_student_week_key').on(t.student_id, t.week_start_date),
+    index('weekly_aggregates_group_idx').on(t.group_id),
+  ],
+)
+
+export const guide_progress = pgTable(
+  'guide_progress',
+  {
+    id: text('id').primaryKey(),
+    student_id: text('student_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    guide_id: text('guide_id')
+      .notNull()
+      .references(() => guides.id, { onDelete: 'cascade' }),
+    status: text('status').notNull(),
+    exercises_completed: integer('exercises_completed'),
+    exercises_total: integer('exercises_total'),
+    started_at: timestamp('started_at', { withTimezone: true }),
+    completed_at: timestamp('completed_at', { withTimezone: true }),
+    score: integer('score'),
+  },
+  // El progreso es único por alumno y guía; el handler hace upsert sobre esta clave.
+  (t) => [uniqueIndex('guide_progress_student_guide_key').on(t.student_id, t.guide_id)],
+)
+
+export const chat_messages = pgTable(
+  'chat_messages',
+  {
+    id: text('id').primaryKey(),
+    guide_id: text('guide_id')
+      .notNull()
+      .references(() => guides.id, { onDelete: 'cascade' }),
+    student_id: text('student_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    role: text('role').notNull().$type<'user' | 'assistant'>(),
+    content: text('content').notNull(),
+    sent_at: timestamp('sent_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index('chat_messages_student_guide_idx').on(t.student_id, t.guide_id, t.sent_at)],
+)
+
+export const exercise_submissions = pgTable(
+  'exercise_submissions',
+  {
+    id: text('id').primaryKey(),
+    guide_id: text('guide_id')
+      .notNull()
+      .references(() => guides.id, { onDelete: 'cascade' }),
+    exercise_id: text('exercise_id').notNull(),
+    student_id: text('student_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    selected_answer: text('selected_answer'),
+    is_correct: boolean('is_correct'),
+    submitted_at: timestamp('submitted_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index('exercise_submissions_student_guide_idx').on(t.student_id, t.guide_id)],
+)
+
 export const narrative_states = pgTable(
   'narrative_states',
   {
@@ -93,9 +286,7 @@ export const narrative_states = pgTable(
     mission_id: text('mission_id')
       .notNull()
       .references(() => missions.id, { onDelete: 'cascade' }),
-    // `groups` vive en este mismo esquema desde la unificación; la FK se añade
-    // junto al resto de constraints en el módulo de grupos.
-    group_id: text('group_id'),
+    group_id: text('group_id').references(() => groups.id, { onDelete: 'set null' }),
     state: text('state').notNull(),
     character_reaction: text('character_reaction'),
     scene_position: integer('scene_position'),
