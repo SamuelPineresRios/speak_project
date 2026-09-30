@@ -1,26 +1,24 @@
 import { readDB, writeDB } from "@/lib/db";
+import { eq } from "drizzle-orm";
+import { getDb } from "@/lib/postgres";
+import { guides } from "@/lib/schema";
+import { completeChat } from "@/lib/ai";
+import { isAuthFailure, requireUser } from "@/lib/session";
 import { NextRequest, NextResponse } from "next/server";
-
-const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
-if (!OPENROUTER_API_KEY) {
-  throw new Error('OPENROUTER_API_KEY is not set in environment variables');
-}
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const studentId = request.headers.get("x-user-id");
-    if (!studentId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const session = await requireUser(request);
+    if (isAuthFailure(session)) return session;
 
     const db = readDB();
     const guideId = params.id;
 
     const chatMessages = (db.chat_messages || []).filter(
-      (msg: any) => msg.guide_id === guideId && msg.student_id === studentId
+      (msg: any) => msg.guide_id === guideId && msg.student_id === session.userId
     );
 
     return NextResponse.json({
@@ -38,10 +36,9 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
-    const studentId = request.headers.get("x-user-id");
-    if (!studentId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const session = await requireUser(request);
+    if (isAuthFailure(session)) return session;
+    const studentId = session.userId;
 
     const db = readDB();
     const guideId = params.id;
@@ -52,7 +49,11 @@ export async function POST(
       return NextResponse.json({ error: "Message content is required" }, { status: 400 });
     }
 
-    const guide = db.guides?.find((g: any) => g.id === guideId);
+    const [guide] = await getDb()
+      .select()
+      .from(guides)
+      .where(eq(guides.id, guideId))
+      .limit(1);
     if (!guide) {
       return NextResponse.json({ error: "Guide not found" }, { status: 404 });
     }
@@ -139,39 +140,14 @@ Return ONLY a warm, natural tutor response in Spanish.`;
 
   console.log("[CHAT] 🚀 Llamando OpenRouter/Gemini...");
 
-  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
-      "Content-Type": "application/json",
-      "HTTP-Referer": "https://vox.app",
-      "X-Title": "VOX"
-    },
-    body: JSON.stringify({
-      model: "google/gemini-2.0-flash-001",
-      messages: [
-        {
-          role: "system",
-          content: systemPrompt
-        },
-        {
-          role: "user",
-          content: userMessage
-        }
-      ],
-      temperature: 0.7,
-      max_tokens: 1024
-    })
+  const tutorResponse = await completeChat({
+    messages: [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userMessage },
+    ],
+    temperature: 0.7,
+    maxTokens: 1024,
   });
-
-  if (!response.ok) {
-    const errorData = await response.json();
-    console.error("[CHAT] ❌ OpenRouter error:", errorData);
-    throw new Error(`OpenRouter error: ${response.status}`);
-  }
-
-  const result = await response.json();
-  const tutorResponse = result.choices[0].message.content;
 
   console.log("[CHAT] ✅ Respuesta recibida");
   return tutorResponse;

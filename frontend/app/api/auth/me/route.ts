@@ -1,33 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { eq } from 'drizzle-orm'
+import { getDb } from '@/lib/postgres'
+import { users } from '@/lib/schema'
+import { isAuthFailure, requireUser } from '@/lib/session'
 
 export async function GET(req: NextRequest) {
   try {
-    const userId = req.headers.get('x-user-id')
-    
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+    const session = await requireUser(req)
+    if (isAuthFailure(session)) return session
 
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    const [user] = await getDb()
+      .select({
+        id: users.id,
+        email: users.email,
+        role: users.role,
+        full_name: users.full_name,
+        cefr_level: users.cefr_level,
+      })
+      .from(users)
+      .where(eq(users.id, session.userId))
+      .limit(1)
 
-    if (!supabaseUrl || !supabaseKey) {
-      console.error('[Auth ME] Missing Supabase credentials')
-      return NextResponse.json({ error: 'Server misconfigured' }, { status: 500 })
-    }
-
-    const supabase = createClient(supabaseUrl, supabaseKey)
-
-    // Fetch user from Supabase
-    const { data: user, error } = await supabase
-      .from('users')
-      .select('id, email, role, full_name, cefr_level')
-      .eq('id', userId)
-      .single()
-
-    if (error || !user) {
-      console.log('[Auth ME] User not found:', userId)
+    if (!user) {
+      console.log('[Auth ME] User not found:', session.userId)
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 

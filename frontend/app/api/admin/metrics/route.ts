@@ -1,15 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { count, eq } from 'drizzle-orm'
 import { readDB, getWeekStart } from '@/lib/db'
+import { getDb } from '@/lib/postgres'
+import { users } from '@/lib/schema'
+import { forbidden, isAuthFailure, requireUser } from '@/lib/session'
 export async function GET(req: NextRequest) {
-  const email = req.headers.get('x-user-email')
+  const session = await requireUser(req)
+  if (isAuthFailure(session)) return session
   const admins = (process.env.ADMIN_EMAILS ?? '').split(',').map(e => e.trim())
-  if (!admins.includes(email ?? '')) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  if (!admins.includes(session.email)) return forbidden()
 
   const db = readDB()
   const weekStart = getWeekStart()
   const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString()
 
-  const totalStudents = db.users.filter(u => u.role === 'student').length
+  const roleCounts = new Map(
+    (await getDb().select({ role: users.role, value: count() }).from(users).groupBy(users.role))
+      .map(r => [r.role, r.value])
+  )
+  const totalStudents = roleCounts.get('student') ?? 0
+  const totalTeachers = roleCounts.get('teacher') ?? 0
+
   const weeklyAggs = db.weekly_aggregates.filter(a => a.week_start_date === weekStart)
   const activeStudents = weeklyAggs.filter(a => a.missions_completed >= 3).length
   const retentionRate = totalStudents ? (activeStudents / totalStudents) * 100 : 0
@@ -26,7 +37,7 @@ export async function GET(req: NextRequest) {
       eval_advance_rate: { value: advanceRate.toFixed(1), unit: '%', target: 80 },
       avg_comprehensibility: { value: avgComp.toFixed(1), unit: '%' },
     },
-    counts: { total_students: totalStudents, total_teachers: db.users.filter(u => u.role === 'teacher').length, total_responses: db.responses.length, active_students_this_week: weeklyAggs.filter(a => a.missions_completed > 0).length },
+    counts: { total_students: totalStudents, total_teachers: totalTeachers, total_responses: db.responses.length, active_students_this_week: weeklyAggs.filter(a => a.missions_completed > 0).length },
     generated_at: new Date().toISOString(),
   })
 }

@@ -3,7 +3,7 @@
 
 ## 📋 RESUMEN EJECUTIVO
 
-El archivo `db.json` contiene **8 guías de aprendizaje** (Learning Guides) diseñadas para enseñar gramática, vocabulario y habilidades de conversación en inglés. Estas guías están organizadas por niveles CEFR (A2, B1, B2) y están vinculadas a las misiones de conversación.
+PostgreSQL contiene **9 guías de aprendizaje** (Learning Guides) diseñadas para enseñar gramática, vocabulario y habilidades de conversación en inglés. Estas guías están organizadas por niveles CEFR (A1, A2, B1, B2) y están vinculadas a las misiones de conversación.
 
 ---
 
@@ -310,8 +310,8 @@ CREATE TABLE guides (
 
 ## 🚀 PRÓXIMOS PASOS
 
-1. **Revisar la estructura SQL** según tu motor de BD
-2. **Ejecutar los INSERT statements** del archivo `GUIDES_SQL_INSERTS.sql`
+1. **Crear las tablas** con `npx drizzle-kit push` (esquema en `frontend/lib/schema.ts`)
+2. **Cargar los datos** con `node --env-file-if-exists=.env.local frontend/scripts/seed.ts`
 3. **Validar datos** con consultas de verificación
 4. **Crear relaciones** con la tabla de usuarios para tracking
 5. **Implementar progress tracking** para cada estudiante

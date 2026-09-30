@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Users, BookOpen, Clock, AlertCircle, PlayCircle, Trophy, Target, Award, ShieldAlert, Cpu } from 'lucide-react'
+import { Users, Clock, AlertCircle, PlayCircle, Trophy, Target, Award, ShieldAlert, Cpu } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/lib/hooks/useAuth'
 import { ResponsiveBackgroundSprites } from '@/components/ResponsiveBackgroundSprites'
@@ -144,11 +144,7 @@ export default function StudentGroupsPage() {
                       {group.assignments.map((assignment: any) => (
                         <div key={assignment.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5 hover:bg-cyan-950/20 transition-colors gap-4">
                           <div className="flex items-start gap-3">
-                            {assignment.type === 'story' ? (
-                                <BookOpen className="w-5 h-5 text-blue-400 mt-0.5" />
-                            ) : (
-                                <Award className="w-5 h-5 text-purple-400 mt-0.5" />
-                            )}
+                            <Award className="w-5 h-5 text-purple-400 mt-0.5" />
                             <div>
                                 <h4 className="text-sm font-bold text-slate-200">{assignment.title}</h4>
                                 <div className="flex items-center gap-3 mt-1">
@@ -173,9 +169,7 @@ export default function StudentGroupsPage() {
                           
                           {assignment.status !== 'completed' && (
                              <button
-                               onClick={() => router.push(assignment.type === 'story'
-                                 ? `/story/${assignment.content_id}?group_id=${group.id}&assignment_id=${assignment.id}`
-                                 : `/mission/${assignment.content_id}?group_id=${group.id}&assignment_id=${assignment.id}`)}
+                               onClick={() => router.push(`/mission/${assignment.content_id}?group_id=${group.id}&assignment_id=${assignment.id}`)}
                                className="flex items-center justify-center gap-2 px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white font-mono text-[10px] tracking-widest font-bold rounded-lg transition-all"
                              >
                                <PlayCircle className="w-3.5 h-3.5" /> EJECUTAR

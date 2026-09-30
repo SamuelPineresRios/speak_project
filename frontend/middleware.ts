@@ -3,7 +3,7 @@ import { getSessionFromRequest } from '@/lib/auth'
 
 const PUBLIC_PATHS = ['/login', '/signup', '/api/auth/login', '/api/auth/signup']
 const TEACHER_PATHS = ['/dashboard', '/group/', '/api/teachers', '/group/create']
-const STUDENT_PATHS = ['/missions', '/missiones', '/mission/', '/mission/', '/feedback', '/session-summary', '/join-group', '/groups', '/squads', '/stories', '/story', '/guides', '/profile']
+const STUDENT_PATHS = ['/missions', '/mission/', '/feedback', '/session-summary', '/join-group', '/groups', '/guides', '/profile']
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname
@@ -32,13 +32,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/missions', request.url))
   }
 
-  // Add user info to headers for API routes
-  const requestHeaders = new Headers(request.headers)
-  requestHeaders.set('x-user-id', session.userId)
-  requestHeaders.set('x-user-role', session.role)
-  requestHeaders.set('x-user-email', session.email)
-
-  return NextResponse.next({ request: { headers: requestHeaders } })
+  return NextResponse.next()
 }
 
 export const config = {

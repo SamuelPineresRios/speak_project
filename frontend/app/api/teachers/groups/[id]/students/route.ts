@@ -1,24 +1,49 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { inArray } from 'drizzle-orm'
 import { readDB, findById, getWeekStart } from '@/lib/db'
+import { getDb } from '@/lib/postgres'
+import { missions, users } from '@/lib/schema'
+import { forbidden, isAuthFailure, requireTeacher } from '@/lib/session'
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
-  const userId = req.headers.get('x-user-id')
-  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const session = await requireTeacher(req)
+  if (isAuthFailure(session)) return session
+  const userId = session.userId
   const db = readDB()
   const group = findById(db.groups, params.id)
-  if (!group || group.teacher_id !== userId) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  if (!group || group.teacher_id !== userId) return forbidden()
 
   const weekStartDate = getWeekStart()
   const members = db.group_members.filter(m => m.group_id === params.id)
   const assignments = db.mission_assignments.filter(a => a.group_id === params.id)
   const totalMissions = assignments.length
 
+  // Dos consultas en vez de una por miembro/asignación (evita N+1).
+  const studentIds = [...new Set(members.map(m => m.student_id))]
+  const missionIds = [...new Set(assignments.map(a => a.mission_id))]
+  const [studentRows, missionRows] = await Promise.all([
+    studentIds.length > 0
+      ? getDb().select({
+          id: users.id,
+          full_name: users.full_name,
+          email: users.email,
+        }).from(users).where(inArray(users.id, studentIds))
+      : Promise.resolve([]),
+    missionIds.length > 0
+      ? getDb().select({ id: missions.id, title: missions.title })
+          .from(missions)
+          .where(inArray(missions.id, missionIds))
+      : Promise.resolve([]),
+  ])
+  const studentById = new Map(studentRows.map(u => [u.id, u]))
+  const missionById = new Map(missionRows.map(m => [m.id, m]))
+
   const students = members.map(m => {
-    const user = findById(db.users, m.student_id)
+    const user = studentById.get(m.student_id)
 
     // For each assignment, find the latest response from this student for that mission within this group
     const enrichedAssignments = assignments.map(a => {
-      const mission = db.missions.find((mm: any) => mm.id === a.mission_id)
+      const mission = missionById.get(a.mission_id)
       const type = mission ? 'mission' : 'activity'
       const title = mission ? mission.title : 'Desconocida'
 

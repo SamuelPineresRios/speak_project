@@ -1,26 +1,28 @@
 import { readDB, writeDB } from "@/lib/db";
+import { eq } from "drizzle-orm";
+import { getDb } from "@/lib/postgres";
+import { guides } from "@/lib/schema";
 import { NextRequest, NextResponse } from "next/server";
+import { isAuthFailure, requireUser } from '@/lib/session'
 
 export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    // Verificar autenticación del middleware
-    const studentId = request.headers.get("x-user-id");
-
-    if (!studentId) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
+    const session = await requireUser(request);
+    if (isAuthFailure(session)) return session;
+    const studentId = session.userId;
 
     const db = readDB();
     const guideId = params.id;
 
-    // Verificar que la guía existe
-    const guide = db.guides?.find((g: any) => g.id === guideId);
+    // Las guías viven en PostgreSQL; el progreso sigue en db.json.
+    const [guide] = await getDb()
+      .select()
+      .from(guides)
+      .where(eq(guides.id, guideId))
+      .limit(1);
     if (!guide) {
       return NextResponse.json(
         { error: "Guide not found" },

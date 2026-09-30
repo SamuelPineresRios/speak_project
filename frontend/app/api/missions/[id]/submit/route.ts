@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { readDB, writeDB, findById, generateId, getWeekStart } from '@/lib/db'
-import { createClient } from '@supabase/supabase-js'
+import { readDB, writeDB, generateId, getWeekStart } from '@/lib/db'
+import { completeChat } from '@/lib/ai'
+import { eq } from 'drizzle-orm'
+import { getDb } from '@/lib/postgres'
+import { missions as missionsTable, users as usersTable, narrative_states } from '@/lib/schema'
+import { isAuthFailure, requireUser } from '@/lib/session'
+import { getRecommendedGuides, detectConceptsInResponse } from '@/lib/guides-integration'
 import { CEFR_THRESHOLDS } from '@/lib/utils'
-
-const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
-if (!OPENROUTER_API_KEY) {
-  throw new Error('OPENROUTER_API_KEY is not set in environment variables');
-}
 
 // Helper function to validate if response is serious/genuine
 function isGenuineResponse(text: string): boolean {
@@ -81,74 +81,34 @@ RETURN ONLY THIS JSON STRUCTURE:
 }`
 
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
-  const userId = req.headers.get('x-user-id')
-  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  let userId: string
 
   try {
+    const session = await requireUser(req)
+    if (isAuthFailure(session)) return session
+    userId = session.userId
+
     const { response_text, group_id, time_taken_seconds } = await req.json()
     if (!response_text?.trim()) return NextResponse.json({ error: 'response_text required' }, { status: 400 })
 
     const missionId = params.id
 
-    // Try to fetch mission from Supabase first, then fallback to local DB
-    let mission: any = null
-    
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-
-    if (supabaseUrl && supabaseKey) {
-      try {
-        const supabase = createClient(supabaseUrl, supabaseKey)
-        const { data } = await supabase
-          .from('missions')
-          .select('*')
-          .eq('id', missionId)
-          .single()
-        
-        if (data) {
-          mission = data
-        }
-      } catch (e) {
-        console.log('[Submit] Supabase fallback to local DB')
-      }
-    }
-
-    // Fallback to local DB if not found in Supabase
-    if (!mission) {
-      const db = readDB()
-      mission = findById(db.missions, missionId)
-    }
+    const [mission] = await getDb()
+      .select()
+      .from(missionsTable)
+      .where(eq(missionsTable.id, missionId))
+      .limit(1)
 
     if (!mission) {
       console.error('[Submit] Mission not found:', missionId)
       return NextResponse.json({ error: 'Mission not found' }, { status: 404 })
     }
 
-    // Try to fetch user from Supabase first, then fallback to local DB
-    let user: any = null
-    
-    if (supabaseUrl && supabaseKey) {
-      try {
-        const supabase = createClient(supabaseUrl, supabaseKey)
-        const { data } = await supabase
-          .from('users')
-          .select('*')
-          .eq('id', userId)
-          .single()
-        
-        if (data) {
-          user = data
-        }
-      } catch (e) {
-        console.log('[Submit] User fetch from Supabase failed, using local DB')
-      }
-    }
-
-    // Fallback to local DB if not found in Supabase
-    if (!user) {
-      const db = readDB()
-      user = findById(db.users, userId)
-    }
+    const [user] = await getDb()
+      .select()
+      .from(usersTable)
+      .where(eq(usersTable.id, userId))
+      .limit(1)
 
     const cefrLevel = user?.cefr_level ?? 'B1'
     const langPref = user?.language_preference ?? 'es'
@@ -252,30 +212,15 @@ EVALUATION INSTRUCTIONS (STRICT):
 
 Critical: A response must ACTUALLY ANSWER THE QUESTION to get a high score. If the response doesn't address the objective, judgment = "PAUSE".`
 
-      const aiResponse = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
-          "Content-Type": "application/json",
-          "HTTP-Referer": "https://vox.app", 
-          "X-Title": "VOX Evaluation"
-        },
-        body: JSON.stringify({
-          "model": "google/gemini-2.0-flash-001",
-          "messages": [
-            { role: "system", content: SYSTEM_PROMPT_BASE },
-            { role: "user", content: prompt }
-          ],
-          "response_format": { "type": "json_object" }
-        })
+      const aiContent = await completeChat({
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT_BASE },
+          { role: "user", content: prompt }
+        ],
+        jsonMode: true,
       });
 
-      if (!aiResponse.ok) {
-        throw new Error(`AI service error: ${aiResponse.status}`);
-      }
-
-      const aiData = await aiResponse.json();
-      evaluation = JSON.parse(aiData.choices[0].message.content);
+      evaluation = JSON.parse(aiContent);
       
       console.log(`[Eval] ${Date.now() - t0}ms judgment=${evaluation.judgment} score=${evaluation.comprehensibility_score}`)
     } catch (e) {
@@ -308,19 +253,6 @@ Critical: A response must ACTUALLY ANSWER THE QUESTION to get a high score. If t
     // Accept completion either when the model explicitly judges ADVANCE
     // or when the numeric comprehensibility score meets the threshold.
     const completed = (evaluation.judgment === 'ADVANCE') || (evaluation.comprehensibility_score >= threshold)
-    const existingStateIdx = db.narrative_states.findIndex(n => n.student_id === userId && n.mission_id === params.id)
-    const narrativeState = {
-      id: existingStateIdx >= 0 ? db.narrative_states[existingStateIdx].id : generateId(),
-      student_id: userId,
-      mission_id: params.id,
-      group_id: group_id ?? null,
-      state: (completed ? 'completed' : 'paused') as 'completed' | 'paused',
-      character_reaction: completed ? 'positive' : 'confused',
-      scene_position: completed ? 1 : 0,
-      updated_at: new Date().toISOString(),
-    }
-    if (existingStateIdx >= 0) db.narrative_states[existingStateIdx] = narrativeState
-    else db.narrative_states.push(narrativeState)
 
     // Update response status so group assignment views can detect completion
     const respIdx = db.responses.findIndex(r => r.id === responseRecord.id)
@@ -361,56 +293,42 @@ Critical: A response must ACTUALLY ANSWER THE QUESTION to get a high score. If t
 
     writeDB(db)
 
-    // Also update Supabase narrative_states if configured
-    if (supabaseUrl && supabaseKey && completed) {
-      try {
-        const supabase = createClient(supabaseUrl, supabaseKey)
-        const existingState = await supabase
-          .from('narrative_states')
-          .select('id')
-          .eq('student_id', userId)
-          .eq('mission_id', params.id)
-          .single()
-        
-        if (existingState.data) {
-          // Update existing record
-          await supabase
-            .from('narrative_states')
-            .update({
-              state: 'completed',
-              character_reaction: 'positive',
-              scene_position: 1,
-              updated_at: new Date().toISOString()
-            })
-            .eq('id', existingState.data.id)
-          console.log('[Submit] Updated narrative_state in Supabase:', existingState.data.id)
-        } else {
-          // Insert new record
-          await supabase
-            .from('narrative_states')
-            .insert([{
-              student_id: userId,
-              mission_id: params.id,
-              group_id: group_id ?? null,
-              state: 'completed',
-              character_reaction: 'positive',
-              scene_position: 1,
-              updated_at: new Date().toISOString()
-            }])
-          console.log('[Submit] Inserted narrative_state to Supabase')
-        }
-      } catch (e) {
-        console.log('[Submit] Could not update Supabase narrative_states:', e)
-        // Continue anyway - we already saved to local DB
-      }
+    // El estado narrativo vive en PostgreSQL. El upsert aprovecha la
+    // restricción UNIQUE (student_id, mission_id), de modo que un mismo envío
+    // concurrente no puede duplicar filas.
+    try {
+      await getDb()
+        .insert(narrative_states)
+        .values({
+          id: generateId(),
+          student_id: userId,
+          mission_id: params.id,
+          group_id: group_id ?? null,
+          state: completed ? 'completed' : 'paused',
+          character_reaction: completed ? 'positive' : 'confused',
+          scene_position: completed ? 1 : 0,
+          updated_at: new Date(),
+        })
+        .onConflictDoUpdate({
+          target: [narrative_states.student_id, narrative_states.mission_id],
+          set: {
+            state: completed ? 'completed' : 'paused',
+            character_reaction: completed ? 'positive' : 'confused',
+            scene_position: completed ? 1 : 0,
+            updated_at: new Date(),
+          },
+        })
+    } catch (e) {
+      // La respuesta y su evaluación ya están persistidas: el estado narrativo
+      // no debe tirarse abajo el envío completo.
+      console.error('[Submit] Could not upsert narrative_states:', e)
     }
 
     // Get guide recommendations based on detected structures (defensive)
     let recommendedGuides: any[] = []
     try {
-      const { detectConceptsInResponse, getRecommendedGuides } = require('@/lib/guides-integration')
       const detectedConcepts = detectConceptsInResponse(evaluation.detected_structures || [])
-      recommendedGuides = getRecommendedGuides(detectedConcepts, cefrLevel)
+      recommendedGuides = await getRecommendedGuides(detectedConcepts, cefrLevel)
     } catch (e) {
       console.error('[GuidesIntegration] failed', e)
       recommendedGuides = []
@@ -426,8 +344,6 @@ Critical: A response must ACTUALLY ANSWER THE QUESTION to get a high score. If t
   } catch (err) {
     console.error('[Submit] error:', err)
     const message = err instanceof Error ? err.message : 'Unknown error'
-    const details = err && (err as any).stack ? (err as any).stack : undefined
-    // Return safe error info for local debugging
     return NextResponse.json({ error: 'Internal server error', message }, { status: 500 })
   }
 }

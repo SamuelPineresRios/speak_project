@@ -58,11 +58,16 @@ Actualmente con contenido completo:
 
 ## 📊 Datos Almacenados
 
+### En PostgreSQL (tabla `guides`):
+```
+- id, title, description, cover_emoji, cefr_level
+- concept_tags[], content (jsonb: definition, explanation, exercises...)
+```
+
 ### En `db.json`:
 ```
-- guides[] - Definiciones y contenido
 - guide_progress[] - Progreso del estudiante
-- chat_messages[] - Historial de chat con Claude
+- chat_messages[] - Historial de chat con el tutor
 - exercise_submissions[] - Registro de ejercicios
 ```
 
@@ -117,16 +122,6 @@ Registra un ejercicio completado
 }
 ```
 
-### POST `/api/guides/:id/ai-evaluation`
-Evalúa una respuesta libre con Claude
-```json
-{
-  "user_response": "I have been studying for 2 years",
-  "guide_title": "Present Perfect",
-  "concept": "present-perfect"
-}
-```
-
 ## 🎨 Características del UI
 
 ### Colores por Sección
@@ -167,23 +162,22 @@ Evalúa una respuesta libre con Claude
 
 ## 🐛 Troubleshooting
 
-### "Claude no responde"
-- Verifica que el servicio de evaluación está corriendo: `python evaluation_service/main.py`
-- Comprueba la env var: `EVALUATION_SERVICE_URL`
+### "El tutor no responde"
+- Comprueba la env var `OPENROUTER_API_KEY` en `frontend/.env.local`
 
 ### "Ejercicios no se guardan"
-- Verifica que el middleware está inyectando `x-user-id`
-- Revisa que estés autenticado
+- Revisa que la cookie de sesión sea válida: cada ruta re-valida el JWT en el servidor
 
 ### "Guía vacía"
-- Asegúrate que la guía está en db.json con estructura completa
+- Asegúrate que la guía existe en PostgreSQL (tabla `guides`)
 - Recarga la página (limpia caché)
 
 ## 💡 Tips
 
 1. **Para Profesores**: Exporta `db.json` regularmente para backups
 2. **Para Estudiantes**: Usa Tutoría cuando estés confundido
-3. **Para Desarrolladores**: Agrega más guías editando `update_guides.py`
+3. **Para Desarrolladores**: Agrega guías insertando filas en la tabla
+   `guides` de PostgreSQL (el esquema está en `frontend/lib/schema.ts`)
 
 ---
 

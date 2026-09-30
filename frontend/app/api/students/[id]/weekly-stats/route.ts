@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { readDB, getWeekStart } from '@/lib/db'
+import { forbidden, isAuthFailure, ownsResource, requireUser } from '@/lib/session'
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
-  const userId = req.headers.get('x-user-id')
-  const role = req.headers.get('x-user-role')
-  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  if (userId !== params.id && role !== 'teacher') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  const session = await requireUser(req)
+  if (isAuthFailure(session)) return session
+  if (!ownsResource(session, params.id, ['teacher'])) return forbidden()
 
   const db = readDB()
   const weeks = Array.from({ length: 4 }, (_, i) => {

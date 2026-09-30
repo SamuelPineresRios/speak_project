@@ -1,20 +1,15 @@
 import { readDB, writeDB } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
+import { isAuthFailure, requireUser } from '@/lib/session'
 
 export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    // Verificar autenticación del middleware
-    const studentId = request.headers.get("x-user-id");
-
-    if (!studentId) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
+    const session = await requireUser(request);
+    if (isAuthFailure(session)) return session;
+    const studentId = session.userId;
 
     const { exercise_id, selected_answer, is_correct } = await request.json();
 

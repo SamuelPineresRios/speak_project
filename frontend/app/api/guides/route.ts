@@ -1,54 +1,37 @@
-import { createClient } from "@supabase/supabase-js"
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest, NextResponse } from 'next/server'
+import { and, eq, sql, type SQL } from 'drizzle-orm'
+import { getDb } from '@/lib/postgres'
+import { guides, type CefrLevel } from '@/lib/schema'
+import { isAuthFailure, requireUser } from '@/lib/session'
 
 export async function GET(request: NextRequest) {
   try {
-    const studentId = request.headers.get("x-user-id") || "test-student-001"
+    const session = await requireUser(request)
+    if (isAuthFailure(session)) return session
 
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    const query = getDb().select().from(guides)
 
-    if (!supabaseUrl || !supabaseKey) {
-      return NextResponse.json(
-        { error: "Server misconfigured" },
-        { status: 500 }
-      )
-    }
-
-    const supabase = createClient(supabaseUrl, supabaseKey)
-
-    // Get filter parameters
+    // Filtros: ?cefr_level=B1 y ?concept_tag=present-perfect
     const { searchParams } = new URL(request.url)
-    const cefrLevel = searchParams.get("cefr_level")
-    const conceptTag = searchParams.get("concept_tag")
+    const cefrLevel = searchParams.get('cefr_level')
+    const conceptTag = searchParams.get('concept_tag')
 
-    // Fetch guides from Supabase
-    let query = supabase.from("guides").select("*")
-
-    if (cefrLevel) {
-      query = query.eq("cefr_level", cefrLevel)
-    }
-
+    const conditions: SQL[] = []
+    if (cefrLevel) conditions.push(eq(guides.cefr_level, cefrLevel as CefrLevel))
     if (conceptTag) {
-      query = query.contains("concept_tags", [conceptTag])
+      // concept_tags es jsonb; equivalente al `contains` de PostgREST (`@>`).
+      conditions.push(sql`${guides.concept_tags} @> ${JSON.stringify([conceptTag])}::jsonb`)
     }
 
-    const { data: guides, error } = await query
+    const data = conditions.length
+      ? await query.where(and(...conditions))
+      : await query
 
-    if (error) {
-      console.error("[Guides API] Supabase error:", error.message)
-      return NextResponse.json(
-        { error: "Failed to fetch guides" },
-        { status: 500 }
-      )
-    }
-
-    console.log("[Guides API] Loaded", guides?.length || 0, "guides from Supabase")
-    return NextResponse.json({ guides: guides || [] })
+    return NextResponse.json({ guides: data })
   } catch (e) {
-    console.error("[Guides API] Error:", e)
+    console.error('[Guides API] Error:', e)
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: 'Internal server error' },
       { status: 500 }
     )
   }

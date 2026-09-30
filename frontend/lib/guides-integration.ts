@@ -1,4 +1,5 @@
-import { readDB} from "@/lib/db";
+import { getDb } from "@/lib/postgres";
+import { guides } from "@/lib/schema";
 
 export function detectConceptsInResponse(
   detectedStructures: string[],
@@ -40,34 +41,36 @@ export function detectConceptsInResponse(
   return Array.from(concepts);
 }
 
-export function getRecommendedGuides(
+export async function getRecommendedGuides(
   concepts: string[],
   cefrLevel?: string
-): any[] {
+): Promise<any[]> {
   if (concepts.length === 0) return [];
 
-  const db = readDB();
-  const guides = db.guides || [];
+  // 5 de las 9 guías no traen concept_tags (usan `concepts` en su lugar):
+  // sin el optional chaining este filtro lanzaba y las recomendaciones
+  // se perdían en silencio.
+  const db = await getDb();
+  const allGuides = await db.select().from(guides);
 
   // Filtrar guías que coincidan con los conceptos detectados
-  let recommended = guides.filter((guide: any) => {
-    const hasRelevantConcept = guide.concept_tags.some((tag: string) =>
-      concepts.includes(tag)
-    );
+  let recommended = allGuides.filter((guide) => {
+    const tags = guide.concept_tags ?? [];
+    const hasRelevantConcept = tags.some((tag) => concepts.includes(tag));
 
     const matchesCefr = cefrLevel
       ? guide.cefr_level === cefrLevel ||
-      (guide.cefr_level <= cefrLevel && cefrLevel >= "A2")
+      (guide.cefr_level !== null && guide.cefr_level <= (cefrLevel as any) && cefrLevel >= "A2")
       : true;
 
     return hasRelevantConcept && matchesCefr;
   });
 
   // Limitar a 3 recomendaciones
-  return recommended.slice(0, 3).map((guide: any) => ({
+  return recommended.slice(0, 3).map((guide) => ({
     id: guide.id,
     title: guide.title,
-    concept_connection: guide.concept_tags.filter((tag: string) =>
+    concept_connection: (guide.concept_tags ?? []).filter((tag) =>
       concepts.includes(tag)
     ),
     cover_emoji: guide.cover_emoji,

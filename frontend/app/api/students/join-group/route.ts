@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { readDB, writeDB, findBy, generateId } from '@/lib/db'
+import { isAuthFailure, requireUser } from '@/lib/session'
 export async function POST(req: NextRequest) {
-  const userId = req.headers.get('x-user-id')
-  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const session = await requireUser(req)
+  if (isAuthFailure(session)) return session
+  const userId = session.userId
   const { access_code } = await req.json()
   if (!access_code?.trim()) return NextResponse.json({ error: 'access_code required' }, { status: 400 })
   const db = readDB()

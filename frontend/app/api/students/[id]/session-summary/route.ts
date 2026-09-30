@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { readDB, getWeekStart } from '@/lib/db'
+import { forbidden, isAuthFailure, ownsResource, requireUser } from '@/lib/session'
 
 function generateSuggestion(topStructures: { structure: string; count: number }[]): string {
   if (!topStructures.length) return 'Completa tu primera misión para recibir sugerencias personalizadas.'
@@ -15,10 +16,9 @@ function generateSuggestion(topStructures: { structure: string; count: number }[
 }
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
-  const userId = req.headers.get('x-user-id')
-  const role = req.headers.get('x-user-role')
-  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  if (userId !== params.id && role !== 'teacher') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  const session = await requireUser(req)
+  if (isAuthFailure(session)) return session
+  if (!ownsResource(session, params.id, ['teacher'])) return forbidden()
 
   const weekOffset = parseInt(req.nextUrl.searchParams.get('week_offset') ?? '0')
   const db = readDB()

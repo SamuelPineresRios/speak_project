@@ -22,15 +22,11 @@ export default function MissionsPage() {
   const [currentPage, setCurrentPage] = useState(0)
   
   useEffect(() => { 
-    // Use user.id if available, otherwise try localStorage
-    const userId = user?.id || (typeof window !== 'undefined' ? localStorage.getItem('userId') : null)
-    
-    if (!userId) {
+    if (!user?.id) {
       setLoading(true)
       return
     }
     
-    console.log('[Missions] Loading with userId:', userId.substring(0, 8))
     setLoading(true)
     
     const timeoutId = setTimeout(() => {
@@ -38,7 +34,7 @@ export default function MissionsPage() {
       setLoading(false)
     }, 5000)
     
-    fetch('/api/missions', { headers: { 'x-user-id': userId } })
+    fetch('/api/missions')
       .then(r => {
         if (!r.ok) throw new Error(`${r.status}`)
         return r.json()

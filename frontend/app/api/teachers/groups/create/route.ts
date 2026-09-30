@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { readDB, writeDB, generateId } from '@/lib/db'
 import { generateAccessCode as genCode } from '@/lib/utils'
+import { isAuthFailure, requireTeacher } from '@/lib/session'
 export async function POST(req: NextRequest) {
-  const userId = req.headers.get('x-user-id')
-  const role = req.headers.get('x-user-role')
-  if (!userId || role !== 'teacher') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  const session = await requireTeacher(req)
+  if (isAuthFailure(session)) return session
+  const userId = session.userId
   const { name, institution_name, parental_consent_confirmed } = await req.json()
   if (!name?.trim()) return NextResponse.json({ error: 'name required' }, { status: 400 })
   if (!parental_consent_confirmed) return NextResponse.json({ error: 'Consentimiento requerido' }, { status: 400 })

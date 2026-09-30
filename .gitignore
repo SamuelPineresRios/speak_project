@@ -25,8 +25,6 @@ logs/
 .env.test.local
 .env.*.secret
 .env.example.local
-evaluation_service/.env
-evaluation_service/.env.local
 frontend/.env.local
 frontend/.env.*.local
 *.pem

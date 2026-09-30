@@ -34,10 +34,7 @@ export default function ProfilePage() {
     try {
       const res = await fetch('/api/auth/update-profile', {
         method: 'PATCH',
-        headers: { 
-          'Content-Type': 'application/json',
-          'x-user-id': user?.id || ''
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ full_name: editName })
       })
       if (res.ok) {

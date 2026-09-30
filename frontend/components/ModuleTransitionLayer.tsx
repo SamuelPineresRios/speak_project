@@ -14,8 +14,7 @@ function moduleKey(path: string) {
   const [segment] = clean.split('/').filter(Boolean)
   if (!segment) return 'home'
 
-  if (segment === 'story' || segment === 'stories') return 'story-module'
-  if (segment === 'mission' || segment === 'missions' || segment === 'missiones') return 'mission-module'
+  if (segment === 'mission' || segment === 'missions') return 'mission-module'
 
   return segment
 }
@@ -40,9 +39,6 @@ function getNavigationLabel(path: string) {
   const labels: Record<string, string> = {
     missions: 'Missions',
     mission: 'Mission',
-    missiones: 'Missions',
-    stories: 'Stories',
-    story: 'Story',
     feedback: 'Feedback',
     profile: 'Profile',
     'join-group': 'Join Group',

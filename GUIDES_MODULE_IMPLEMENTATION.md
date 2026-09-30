@@ -8,10 +8,10 @@ Se ha implementado **completamente** el módulo **Learning Guides** en VOX, un s
 
 ## ✅ Implementación Realizada
 
-### 1. **Database Models** (`data/db.json`)
-- ✅ `guides` array (8 guides totales)
-- ✅ `guide_progress` array (tracking de progreso)
-- ✅ `chat_messages` array (historial de conversaciones)
+### 1. **Database**
+- ✅ `guides` en PostgreSQL (tabla `guides`, esquema en `frontend/lib/schema.ts`)
+- ✅ `guide_progress` array en `data/db.json` (tracking de progreso)
+- ✅ `chat_messages` array en `data/db.json` (historial de conversaciones)
 
 ### 2. **API Routes** (7 endpoints)
 
@@ -21,8 +21,6 @@ Se ha implementado **completamente** el módulo **Learning Guides** en VOX, un s
 | `/api/guides/[id]` | GET | Obtener detalle de una guía específica |
 | `/api/guides/[id]/mark-completed` | POST | Marcar una guía como completada |
 | `/api/guides/[id]/chat` | GET \| POST | Obtener historial y enviar mensajes al tutor |
-| `/api/guides/recommend` | GET | Obtener recomendaciones basadas en conceptos |
-| `/api/guides/[id]/progress` | PUT | Actualizar progreso del estudiante en la guía |
 
 **Ubicación:** `frontend/app/api/guides/`
 
@@ -79,7 +77,6 @@ Funciones exportadas:
 
 **Integración en:**
 - `/api/missions/[id]/submit` - Retorna `recommended_guides` en respuesta
-- `/api/stories/[id]/scene/[sceneId]/submit` - Retorna `recommended_guides` en respuesta
 
 ### 6. **Seed Data**
 
@@ -95,8 +92,7 @@ Funciones exportadas:
 8. **Question Formation** (A2) - Yes/No, WH-questions, Tag questions
 
 **Ubicación:**
-- `frontend/seed_guides.json` (Archivo de referencia)
-- Ya cargados en `frontend/data/db.json`
+- Tabla `guides` en PostgreSQL (esquema en `frontend/lib/schema.ts`)
 
 ### 7. **Navigation Integration**
 
@@ -144,8 +140,6 @@ frontend/
 │   ├── api/
 │   │   └── guides/
 │   │       ├── route.ts                    (GET /guides)
-│   │       ├── recommend/
-│   │       │   └── route.ts               (GET /guides/recommend)
 │   │       └── [id]/
 │   │           ├── route.ts               (GET /guides/[id])
 │   │           ├── mark-completed/
@@ -167,9 +161,8 @@ frontend/
 │   └── StudentSidebar.tsx                 (UPDATED)
 ├── lib/
 │   └── guides-integration.ts              (Helper functions)
-├── data/
-│   └── db.json                            (∆ Updated with guides)
-└── seed_guides.json                       (Reference seed data)
+└── data/
+    └── db.json                            (Progreso de guías: guide_progress, chat_messages)
 ```
 
 ---
@@ -200,8 +193,6 @@ curl -X POST http://localhost:3000/api/guides/guide-001/mark-completed \
   -H "Content-Type: application/json" \
   -d '{"score": 100}'
 
-# Test recommendations
-curl "http://localhost:3000/api/guides/recommend?concepts=present-perfect,verb-usage&cefr_level=A2"
 ```
 
 ### 2. UI Navigation
@@ -223,9 +214,8 @@ curl "http://localhost:3000/api/guides/recommend?concepts=present-perfect,verb-u
 
 ### 4. Database Integrity
 ```bash
-# Check guides loaded
-json_count=$(jq '.guides | length' frontend/data/db.json)
-echo "Total guides in DB: $json_count"  # Should be 8
+# Check guides loaded (PostgreSQL)
+psql "$DATABASE_URL" -tAc 'select count(*) from guides;'
 ```
 
 ---
@@ -307,13 +297,12 @@ getRecommendedGuides(["present-perfect"], "B1")
   - guide_progress (tracking)
   - chat_messages (logging)
 
-✅ API Routes (7 endpoints)
+✅ API Routes (5 endpoints)
   - /api/guides
   - /api/guides/[id]
   - /api/guides/[id]/mark-completed
   - /api/guides/[id]/chat
-  - /api/guides/[id]/progress
-  - /api/guides/recommend
+  - /api/guides/[id]/exercise-submission
   - (Helper: guides-integration.ts)
 
 ✅ Components (4 components)
@@ -345,8 +334,9 @@ getRecommendedGuides(["present-perfect"], "B1")
 
 Para actualizar o modificar guías:
 
-1. Edit `seed_guides.json` o `db.json` directamente
-2. Agregar nuevas guías al array `guides`
+1. Editar la fila correspondiente en la tabla `guides` de PostgreSQL
+2. Agregar nuevas guías con `INSERT` (el contenido pedagógico va en la
+   columna `content`, formato jsonb)
 3. Reiniciar el servidor para cargar cambios
 4. Las recomendaciones se actualizan automáticamente
 

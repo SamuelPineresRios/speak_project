@@ -1,36 +1,18 @@
 /**
  * VOX — JSON File Database
- * All data is persisted in /data/db.json
+ *
+ * Persistencia legada: sólo recoge las colecciones de apoyo que todavía no
+ * están en PostgreSQL (respuestas, evaluaciones, grupos, agregados semanales).
+ *
+ * users, missions, guides y narrative_states viven en PostgreSQL
+ * (ver lib/postgres.ts y lib/schema.ts). NO se re-introduzcan aquí.
+ *
  * Thread-safe via simple file locking with retries.
  */
 import fs from 'fs'
 import path from 'path'
 
 const DB_PATH = path.join(process.cwd(), 'data', 'db.json')
-
-export interface User {
-  id: string
-  email: string
-  password_hash: string
-  role: 'student' | 'teacher'
-  full_name: string | null
-  cefr_level: 'A1' | 'A2' | 'B1' | 'B2' | null
-  language_preference: 'es' | 'en'
-  created_at: string
-}
-
-export interface Mission {
-  id: string
-  title: string
-  description: string | null
-  objective: string
-  scene_context: string
-  character_name: string
-  expected_outcome_indicator: string | null
-  cefr_level: 'A1' | 'A2' | 'B1' | 'B2'
-  base_duration_seconds: number
-  created_at: string
-}
 
 export interface Response {
   id: string
@@ -82,17 +64,6 @@ export interface MissionAssignment {
   created_at: string
 }
 
-export interface NarrativeState {
-  id: string
-  student_id: string
-  mission_id: string
-  group_id?: string | null
-  state: 'not_started' | 'in_progress' | 'completed' | 'paused'
-  character_reaction: string | null
-  scene_position: number
-  updated_at: string
-}
-
 export interface WeeklyAggregate {
   id: string
   student_id: string
@@ -104,67 +75,29 @@ export interface WeeklyAggregate {
   updated_at: string
 }
 
-export interface StoryMoment {
-  id: string
-  story_id: string
-  order: number
-  title: string
-  narrative_context: string
-  character_name: string
-  character_opening_dialogue: string
-  prompt: string
-  character_advance_dialogue: string | null
-  character_pause_dialogue: string | null
-  is_final_scene: boolean
-  base_duration_seconds: number
-  atmosphere: string
-  created_at: string
-}
 
-export interface StoryProgress {
-  id: string
-  student_id: string
-  story_id: string
-  current_moment_order: number
-  status: 'not_started' | 'in_progress' | 'completed'
-  moments_completed: number[]
-  character_memory: string[]
-  started_at: string
-  updated_at: string
-  completed_at: string | null
-}
 
 export interface Database {
-  users: User[]
-  missions: Mission[]
   responses: Response[]
   evaluations: Evaluation[]
   groups: Group[]
   group_members: GroupMember[]
   mission_assignments: MissionAssignment[]
-  narrative_states: NarrativeState[]
   weekly_aggregates: WeeklyAggregate[]
-  story_moments: StoryMoment[]
-  story_progress: StoryProgress[]
-  guides?: any[]
+
   guide_progress?: any[]
   chat_messages?: any[]
   exercise_submissions?: any[]
 }
 
 const EMPTY_DB: Database = {
-  users: [],
-  missions: [],
   responses: [],
   evaluations: [],
   groups: [],
   group_members: [],
   mission_assignments: [],
-  narrative_states: [],
   weekly_aggregates: [],
-  story_moments: [],
-  story_progress: [],
-  guides: [],
+
   guide_progress: [],
   chat_messages: [],
 }
@@ -177,16 +110,7 @@ function ensureDataDir() {
 export function readDB(): Database {
   ensureDataDir()
   if (!fs.existsSync(DB_PATH)) {
-    // Initialize with seed missions and story moments on first run
-    const seedMissionsPath = path.join(process.cwd(), 'data', 'seed_missions.json')
-    const seedStoryMomentsPath = path.join(process.cwd(), 'data', 'seed_story_moments.json')
     const db: Database = { ...EMPTY_DB }
-    if (fs.existsSync(seedMissionsPath)) {
-      db.missions = JSON.parse(fs.readFileSync(seedMissionsPath, 'utf-8'))
-    }
-    if (fs.existsSync(seedStoryMomentsPath)) {
-      db.story_moments = JSON.parse(fs.readFileSync(seedStoryMomentsPath, 'utf-8'))
-    }
     writeDB(db)
     return db
   }

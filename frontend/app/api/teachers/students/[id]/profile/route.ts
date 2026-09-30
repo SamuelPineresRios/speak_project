@@ -1,17 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { readDB, findById, getWeekStart } from '@/lib/db'
+import { eq, inArray } from 'drizzle-orm'
+import { readDB, getWeekStart } from '@/lib/db'
+import { getDb } from '@/lib/postgres'
+import { missions, users } from '@/lib/schema'
+import { forbidden, isAuthFailure, requireTeacher } from '@/lib/session'
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
-  const userId = req.headers.get('x-user-id')
-  const role = req.headers.get('x-user-role')
-  if (!userId || role !== 'teacher') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  const session = await requireTeacher(req)
+  if (isAuthFailure(session)) return session
+  const userId = session.userId
   const db = readDB()
 
   // Verify teacher has this student
   const teacherGroupIds = db.groups.filter(g => g.teacher_id === userId).map(g => g.id)
   const isMember = db.group_members.some(m => m.student_id === params.id && teacherGroupIds.includes(m.group_id))
-  if (!isMember) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  if (!isMember) return forbidden()
 
-  const student = findById(db.users, params.id)
+  const [student] = await getDb()
+    .select({
+      full_name: users.full_name,
+      email: users.email,
+      cefr_level: users.cefr_level,
+    })
+    .from(users)
+    .where(eq(users.id, params.id))
+    .limit(1)
   const weeks = Array.from({ length: 4 }, (_, i) => {
     const d = new Date(); d.setDate(d.getDate() - i * 7); return getWeekStart(d)
   })
@@ -44,9 +56,16 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     .forEach(e => e.detected_structures.forEach(s => { freq[s] = (freq[s] ?? 0) + 1 }))
   const topStructures = Object.entries(freq).sort(([,a],[,b]) => b-a).slice(0,5).map(([structure,count])=>({structure,count}))
 
+  // Una sola consulta para todas las misiones referenciadas (evita N+1).
+  const missionIds = [...new Set(recentResponses.map(r => r.mission_id))]
+  const missionRows = missionIds.length > 0
+    ? await getDb().select().from(missions).where(inArray(missions.id, missionIds))
+    : []
+  const missionById = new Map(missionRows.map(m => [m.id, m]))
+
   // Build completed mission details: only include responses with evaluation.judgment === 'ADVANCE'
   const completed = recentResponses.filter(r => r.judgment === 'ADVANCE').map(r => {
-    const mission = db.missions.find(m => m.id === r.mission_id)
+    const mission = missionById.get(r.mission_id)
     // Parse QA pairs from the conversation text: keep assistant prompts and user answers
     const qa_pairs: Array<{ prompt: string | null; answer: string }> = []
     try {

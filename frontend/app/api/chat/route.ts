@@ -1,12 +1,12 @@
+import { AIProviderError, completeChat } from '@/lib/ai';
+import { isAuthFailure, requireUser } from '@/lib/session';
 import { NextRequest, NextResponse } from 'next/server';
-
-const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
-if (!OPENROUTER_API_KEY) {
-  throw new Error('OPENROUTER_API_KEY is not set in environment variables');
-}
 
 export async function POST(req: NextRequest) {
   try {
+    const session = await requireUser(req);
+    if (isAuthFailure(session)) return session;
+
     // Defensive parsing of request body to surface malformed JSON from client
     const rawBody = await req.text();
     let parsedBody: any = {};
@@ -29,45 +29,6 @@ export async function POST(req: NextRequest) {
 
     const specificInstruction = levelDirectives[userLevel] || levelDirectives['A2'];
 
-    if (mode === 'briefing') {
-      const prompt = `
-Generate a short preparation briefing for an English learning roleplay mission.
-Context: "${mission.scene_context}"
-Objective: "${mission.objective}"
-Student Level: ${userLevel || 'A2'}
-
-Return a valid JSON object (all text values in English) with:
-{
-  "key_verbs": ["verb1", "verb2", "verb3"],
-  "useful_phrases": ["phrase1", "phrase2", "phrase3"],
-  "grammar_tips": "Brief advice on relevant grammar in English",
-  "estimated_duration_minutes": 2
-}
-      `.trim();
-      
-      const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
-          "Content-Type": "application/json",
-          "HTTP-Referer": "https://vox.app",
-          "X-Title": "VOX"
-        },
-        body: JSON.stringify({
-          "model": "google/gemini-2.0-flash-001",
-          "messages": [{ role: 'user', content: prompt }],
-          "response_format": { "type": "json_object" }
-        })
-      });
-      
-      const result = await response.json();
-      if (!result.choices || result.choices.length === 0 || !result.choices[0].message) {
-        console.error("Briefing Mode: Invalid API Response", result);
-        return NextResponse.json({ error: "Invalid response from AI provider" }, { status: 500 });
-      }
-      return NextResponse.json(JSON.parse(result.choices[0].message.content));
-    }
-
     if (mode === 'hints') {      
       const hintsPrompt = `
 You are a helpful English learning coach. A student is doing a roleplay mission and the AI character just asked them this question:
@@ -87,28 +48,14 @@ Return a valid JSON object (all text values in English) with:
   "grammar_tips": "Specific grammar advice for answering this question in English"
 }
       `.trim();
-      
-      const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
-          "Content-Type": "application/json",
-          "HTTP-Referer": "https://vox.app",
-          "X-Title": "VOX"
-        },
-        body: JSON.stringify({
-          "model": "google/gemini-2.5-flash-001",
-          "messages": [{ role: 'user', content: hintsPrompt }],
-          "response_format": { "type": "json_object" }
-        })
+
+      const content = await completeChat({
+        messages: [{ role: 'user', content: hintsPrompt }],
+        model: 'google/gemini-2.5-flash-001',
+        jsonMode: true,
       });
-      
-      const result = await response.json();
-      if (!result.choices || result.choices.length === 0 || !result.choices[0].message) {
-        console.error("Hints Mode: Invalid API Response", result);
-        return NextResponse.json({ error: "Invalid response from AI provider" }, { status: 500 });
-      }
-      return NextResponse.json(JSON.parse(result.choices[0].message.content));
+
+      return NextResponse.json(JSON.parse(content));
     }
 
     const systemPrompt = `You are ${mission.character_name} in a roleplay conversation.
@@ -288,36 +235,22 @@ REMEMBER:
       });
     }
 
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
-        "Content-Type": "application/json",
-        "HTTP-Referer": "https://vox.app", // Required by OpenRouter
-        "X-Title": "VOX"
-      },
-      body: JSON.stringify({
-        "model": "google/gemini-2.0-flash-001", // Using a standard reliable model ID
-        "messages": fullMessages,
-        "max_tokens": 500, // Explicitly increase output token limit
-        "response_format": { "type": "json_object" }
-      })
-    });
-
-    if (!response.ok) {
-        const errorText = await response.text();
-        console.error("OpenRouter API Error:", errorText);
-        return NextResponse.json({ error: `AI Provider Error: ${response.status} - ${errorText}` }, { status: response.status });
-    }
-
-    const result = await response.json();
-    if (!result.choices || result.choices.length === 0 || !result.choices[0].message) {
-        console.error("Invalid API Response", result);
-        return NextResponse.json({ error: "Invalid response from AI provider" }, { status: 500 });
-    }
-    
+    let content: string;
     try {
-        const parsed = JSON.parse(result.choices[0].message.content);
+      content = await completeChat({
+        messages: fullMessages,
+        maxTokens: 500,
+        jsonMode: true,
+      });
+    } catch (error) {
+      if (error instanceof AIProviderError) {
+        return NextResponse.json({ error: error.message }, { status: error.status });
+      }
+      throw error;
+    }
+
+    try {
+        const parsed = JSON.parse(content);
         return NextResponse.json({ 
             message: { 
                 role: 'assistant', 
@@ -330,14 +263,10 @@ REMEMBER:
             progress: parsed.progress || 0, // Pass progress to frontend
             mission_completed: parsed.mission_completed
         });
-    } catch (e) {
+    } catch {
         // Fallback for non-JSON response
-        if (!result.choices || result.choices.length === 0 || !result.choices[0].message) {
-            console.error("Fallback Mode: Invalid API Response", result);
-            return NextResponse.json({ error: "Invalid response from AI provider" }, { status: 500 });
-        }
         return NextResponse.json({ 
-            message: result.choices[0].message,
+            message: { role: 'assistant', content },
             estimated_time: 30,
             feedback: null
         });

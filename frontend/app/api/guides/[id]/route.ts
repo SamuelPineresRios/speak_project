@@ -1,79 +1,35 @@
-import { createClient } from "@supabase/supabase-js"
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest, NextResponse } from 'next/server'
+import { eq } from 'drizzle-orm'
+import { getDb } from '@/lib/postgres'
+import { guides } from '@/lib/schema'
+import { isAuthFailure, requireUser } from '@/lib/session'
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const studentId = request.headers.get("x-user-id")
+    const session = await requireUser(request)
+    if (isAuthFailure(session)) return session
 
-    if (!studentId) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      )
+    const [guide] = await getDb()
+      .select()
+      .from(guides)
+      .where(eq(guides.id, params.id))
+      .limit(1)
+
+    if (!guide) {
+      return NextResponse.json({ error: 'Guide not found' }, { status: 404 })
     }
 
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-
-    if (!supabaseUrl || !supabaseKey) {
-      return NextResponse.json(
-        { error: "Server misconfigured" },
-        { status: 500 }
-      )
-    }
-
-    const supabase = createClient(supabaseUrl, supabaseKey)
-    const guideId = params.id
-
-    // Fetch guide from Supabase
-    const { data: guide, error: guideError } = await supabase
-      .from("guides")
-      .select("*")
-      .eq("id", guideId)
-      .single()
-
-    if (guideError || !guide) {
-      return NextResponse.json(
-        { error: "Guide not found" },
-        { status: 404 }
-      )
-    }
-
-    // Parse JSON fields
-    const parseField = (field: any) => {
-      if (typeof field === 'string') {
-        try {
-          return JSON.parse(field)
-        } catch {
-          return field
-        }
-      }
-      return field
-    }
-
-    // Construct complete guide with parsed content
-    const completeGuide = {
-      ...guide,
-      content: {
-        definition: parseField(guide.definition),
-        explanation: parseField(guide.explanation),
-        formula: parseField(guide.formula),
-        exercises: parseField(guide.exercises),
-        key_structures: parseField(guide.key_structures),
-        common_expressions: parseField(guide.common_expressions),
-        real_life_examples: parseField(guide.real_life_examples),
-      },
-    }
-
-    console.log("[Guides Get] Successfully fetched guide", guideId)
-    return NextResponse.json({ guide: completeGuide })
+    // `content` viaja como jsonb con la forma completa que consume la UI
+    // (introduction, definition, key_structures, exercises, ...), así que la
+    // fila se devuelve tal cual.
+    return NextResponse.json({ guide })
   } catch (e) {
-    console.error("[Guides Get] Error:", e)
+    console.error('[Guides Get] Error:', e)
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: 'Internal server error' },
       { status: 500 }
     )
   }

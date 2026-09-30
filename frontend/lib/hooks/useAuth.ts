@@ -10,66 +10,43 @@ export interface AuthUser {
   cefr_level: string | null
 }
 
+/**
+ * The session lives in an HttpOnly cookie, so the identity always comes from
+ * the server — never from localStorage.
+ */
+async function fetchCurrentUser(): Promise<AuthUser | null> {
+  const res = await fetch('/api/auth/me')
+  if (!res.ok) return null
+  const data = await res.json()
+  return data.user ?? null
+}
+
 export function useAuth() {
   const [user, setUser] = useState<AuthUser | null>(null)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
 
   useEffect(() => {
-    const loadUser = async () => {
-      try {
-        if (typeof window === 'undefined') {
-          setLoading(false)
-          return
-        }
+    let cancelled = false
 
-        const userId = localStorage.getItem('userId')
-        
-        if (!userId) {
-          setLoading(false)
-          return
-        }
-        
-        const res = await fetch('/api/auth/me', { 
-          headers: { 'x-user-id': userId }
-        })
+    fetchCurrentUser()
+      .then((nextUser) => { if (!cancelled) setUser(nextUser) })
+      .catch((e) => console.error('[Auth] Error:', e))
+      .finally(() => { if (!cancelled) setLoading(false) })
 
-        if (res.ok) {
-          const data = await res.json()
-          console.log('✅ User loaded from API:', data.user)
-          setUser(data.user)
-        } else {
-          console.log('❌ API response not OK:', res.status)
-          localStorage.removeItem('userId')
-        }
-      } catch (e) {
-        console.error('[Auth] Error:', e)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    loadUser()
+    return () => { cancelled = true }
   }, [])
 
   const logout = useCallback(async () => {
-    localStorage.removeItem('userId')
     localStorage.removeItem('speak:last-route')
     await fetch('/api/auth/logout', { method: 'POST' }).catch(() => {})
     setUser(null)
     router.push('/login')
   }, [router])
 
-  return { user, loading, logout, refetch: async () => {
-    const userId = localStorage.getItem('userId')
-    if (!userId) return
-    
-    const res = await fetch('/api/auth/me', { 
-      headers: { 'x-user-id': userId }
-    })
-    if (res.ok) {
-      const data = await res.json()
-      setUser(data.user)
-    }
-  } }
+  const refetch = useCallback(async () => {
+    setUser(await fetchCurrentUser())
+  }, [])
+
+  return { user, loading, logout, refetch }
 }

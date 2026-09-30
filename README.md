@@ -1,7 +1,8 @@
-# VOX — Sin Base de Datos Externa
+# VOX
 
-Plataforma de aprendizaje de inglés donde escribir es el único camino para avanzar.  
-**Esta versión no usa Supabase ni ninguna base de datos externa.** Todo se persiste en un archivo `data/db.json` local.
+Plataforma de aprendizaje de inglés donde **escribir es el único camino para avanzar**.
+Estudiantes completan misiones de conversación escritas, reciben evaluación de un LLM y
+desbloquean guías de gramática; los docentes crean grupos, asignan misiones y siguen el progreso.
 
 ---
 
@@ -10,42 +11,56 @@ Plataforma de aprendizaje de inglés donde escribir es el único camino para ava
 | Capa | Tecnología |
 |------|-----------|
 | Frontend + API | Next.js 14 (App Router) + TypeScript + Tailwind CSS |
-| Base de datos | Archivo JSON local (`data/db.json`) |
-| Autenticación | JWT con `jose` + cookies HttpOnly (sin Supabase) |
-| Evaluación LLM | FastAPI + LangChain + Claude claude-sonnet-4-20250514 |
-| Despliegue | Vercel (Next.js) + Railway (FastAPI) |
+| Autenticación | JWT (`jose`) en cookie HttpOnly + `bcryptjs` |
+| Base de datos 1 | **PostgreSQL local + Drizzle ORM** — usuarios, misiones, guías, estado narrativo |
+| Base de datos 2 | **Archivo JSON local** (`frontend/data/db.json`) — respuestas, evaluaciones, grupos, progreso |
+| Evaluación / chat LLM | OpenRouter (modelos Gemini) vía `frontend/lib/ai.ts` |
+| Despliegue | Vercel |
+
+> ⚠️ **La persistencia está dividida en dos almacenes.** Ver
+> [Limitaciones conocidas](#limitaciones-conocidas).
 
 ---
 
-## Cómo funciona la base de datos JSON
+## Estructura del repositorio
 
 ```
-frontend/
-└── data/
-    ├── seed_missions.json   ← misiones iniciales (se carga una vez)
-    └── db.json              ← se crea automáticamente al primer uso
+.
+├── frontend/                 # Aplicación Next.js (aquí vive todo lo ejecutable)
+│   ├── app/
+│   │   ├── (auth)/           # /login, /signup
+│   │   ├── (student)/        # /missions, /guides, /groups, /profile, /feedback...
+│   │   ├── (teacher)/        # /dashboard, /group/...
+│   │   └── api/              # Rutas de la API
+│   ├── components/           # Componentes React
+│   │   └── ui/               # Primitivas (button, card, tabs...)
+│   ├── lib/
+│   │   ├── ai.ts             # Cliente OpenRouter (único punto de llamada al LLM)
+│   │   ├── auth.ts           # Firmado/verificación de JWT
+│   │   ├── session.ts        # Guards de autorización para rutas de la API
+│   │   ├── postgres.ts       # Cliente PostgreSQL (lazy, singleton)
+│   │   ├── schema.ts         # Esquema Drizzle de las 4 tablas relacionales
+│   │   ├── db.ts             # Acceso al archivo JSON
+│   │   └── utils.ts          # Helpers compartidos (cn, CEFR, códigos...)
+│   ├── data/
+│   │   └── db.json           # Almacén JSON (se crea/usar en runtime)
+│   ├── drizzle.config.ts     # Configuración de drizzle-kit
+│   └── scripts/
+│       └── seed.ts           # Migración puntual db.json -> PostgreSQL
+├── scripts/                  # Utilidades de datos (no forman parte del build)
+│   ├── lib/env.js            # Cargador de .env compartido
+│   └── test_openrouter_connection.js
+└── README.md
 ```
-
-`lib/db.ts` expone funciones simples:
-
-```typescript
-const db = readDB()          // leer todo
-db.users.push(newUser)       // modificar
-writeDB(db)                  // persistir
-```
-
-Todas las "queries" son arrays de JavaScript: `Array.filter`, `Array.find`, `Array.sort`.  
-No hay ORM, no hay SQL, no hay conexión a internet para los datos.
 
 ---
 
-## Setup Local (3 pasos)
+## Puesta en marcha
 
-### 1. Clonar e instalar
+### 1. Instalar
 
 ```bash
-git clone https://github.com/yourorg/speak-mvp-json
-cd speak-mvp-json/frontend
+cd frontend
 npm install
 ```
 
@@ -53,138 +68,161 @@ npm install
 
 ```bash
 cp .env.example .env.local
-# Solo necesitas cambiar JWT_SECRET si vas a producción
 ```
+
+Ver [Variables de entorno](#variables-de-entorno).
 
 ### 3. Arrancar
 
 ```bash
 npm run dev
-# Abre http://localhost:3000
-# El archivo data/db.json se crea automáticamente con las 15 misiones
-```
-
-¡Listo! No necesitas configurar ningún servicio externo para correr la app.
-
----
-
-## Variables de Entorno
-
-### `frontend/.env.local`
-
-```env
-# JWT Secret — cambiar en producción (usa una cadena aleatoria larga)
-JWT_SECRET=speak-dev-secret-change-in-production-32chars
-
-# URL del servicio de evaluación (FastAPI)
-# Si no tienes el servicio corriendo, las misiones igual funcionan con feedback de fallback
-EVALUATION_SERVICE_URL=http://localhost:8000
-
-# Admin (para /api/admin/metrics)
-ADMIN_EMAILS=tu@email.com
-```
-
-### `evaluation_service/.env`
-
-```env
-ANTHROPIC_API_KEY=sk-ant-...
+# http://localhost:3000
 ```
 
 ---
 
-## Evaluation Service (Opcional)
+## Variables de entorno
 
-El servicio de evaluación usa Claude para dar feedback real. Sin él, la app funciona con un mensaje de fallback genérico.
+Plantilla: `frontend/.env.example`. **Ninguna** de estas variables está versionada.
 
-```bash
-cd evaluation_service
-python -m venv venv && source venv/bin/activate
-pip install -r requirements.txt
-cp .env.example .env   # agregar ANTHROPIC_API_KEY
-uvicorn main:app --reload --port 8000
-```
-
----
-
-## Estructura del JSON (db.json)
-
-```json
-{
-  "users": [...],
-  "missions": [...],
-  "responses": [...],
-  "evaluations": [...],
-  "groups": [...],
-  "group_members": [...],
-  "mission_assignments": [...],
-  "narrative_states": [...],
-  "weekly_aggregates": [...]
-}
-```
-
-Para resetear todos los datos: `rm frontend/data/db.json` y reiniciar el servidor.  
-Para ver los datos en cualquier momento: abre `frontend/data/db.json` en cualquier editor.
+| Variable | Obligatoria | Uso |
+|----------|-------------|-----|
+| `JWT_SECRET` | Sí | Firma de la cookie de sesión. `openssl rand -hex 32` |
+| `DATABASE_URL` | Sí | PostgreSQL con las 4 tablas relacionales |
+| `OPENROUTER_API_KEY` | Sí | Evaluación y chat con el tutor (`lib/ai.ts`) |
+| `ADMIN_EMAILS` | No | Emails (separados por coma) permitidos en `/api/admin/metrics` |
+| `NODE_ENV` | No | `development` \| `production` |
 
 ---
 
 ## Autenticación
 
-- Registro y login vía email/contraseña (bcrypt)
-- Sesión guardada en cookie HttpOnly con JWT firmado
-- Middleware de Next.js verifica el JWT en cada request protegido
-- Sin OAuth en esta versión (se puede agregar con NextAuth.js si se necesita)
+- Registro y login con email/contraseña (`bcryptjs`, cost 12).
+- Sesión en **cookie HttpOnly** con JWT firmado (7 días).
+- `frontend/middleware.ts` valida el JWT y protege páginas + rutas `/api/*`.
+- Además, **cada ruta de la API vuelve a validar la sesión** con
+  `requireUser()` / `requireTeacher()` de `lib/session.ts`, y comprueba la
+  propiedad del recurso antes de devolver datos. Ver `SECURITY.md`.
 
----
-
-## Roles
+### Roles
 
 | Rol | Acceso |
 |-----|--------|
-| `student` | Misiones, feedback, resumen de sesión, unirse a grupos |
+| `student` | Misiones, guías, feedback, resumen, grupos |
 | `teacher` | Dashboard, crear grupos, asignar misiones, ver progreso |
 
 ---
 
-## Limitaciones conocidas de la versión JSON
+## Base de datos
 
-| Limitación | Impacto | Solución si escala |
-|------------|---------|-------------------|
-| Un solo proceso puede escribir a la vez | En Vercel serverless, cada función es independiente — puede haber conflictos de escritura con muchos usuarios simultáneos | Migrar a Supabase/PostgreSQL o usar un KV store (Redis, Vercel KV) |
-| Sin realtime push | El dashboard docente hace polling cada 10s | Sin impacto para piloto. Para producción: Supabase Realtime o Server-Sent Events |
-| Archivo crece con el tiempo | Sin paginación en db.json | Para > 1000 usuarios, migrar a DB real |
+### PostgreSQL (`DATABASE_URL`)
 
-**Esta versión es ideal para:** pilotos institucionales con < 200 usuarios, demostraciones, desarrollo local.
+Tablas: `users`, `missions`, `guides`, `narrative_states`.
 
----
+Esquema: `frontend/lib/schema.ts` (Drizzle). Cliente: `frontend/lib/postgres.ts`.
+Las claves JS se nombran **iguales que las columnas** (`cefr_level`,
+`scene_context`, `cover_emoji`), así que la fila de la BD y el JSON de la API
+son el mismo objeto y no hace falta capa de traducción.
 
-## Despliegue en Vercel
+**Puesta en marcha de la base:**
 
 ```bash
-npm install -g vercel
+createdb vox                     # o desde pgAdmin
 cd frontend
-vercel --prod
+npx drizzle-kit push             # crea/actualiza las 4 tablas
+node --env-file-if-exists=.env.local scripts/seed.ts   # db.json -> PostgreSQL
 ```
 
-Variables en Vercel Dashboard:
-- `JWT_SECRET` → cadena aleatoria segura
-- `EVALUATION_SERVICE_URL` → URL de Railway
-- `ADMIN_EMAILS`
+Se accede **siempre** desde `lib/postgres.ts`:
 
-**Nota importante en Vercel:** El filesystem de Vercel es efímero entre deploys. Para que `db.json` persista en producción, configura `EVALUATION_SERVICE_URL` apuntando a Railway, y usa Vercel KV o Supabase para los datos. Para desarrollo local, el archivo JSON funciona perfecto.
+```typescript
+import { getDb } from '@/lib/postgres'
+import { missions } from '@/lib/schema'
+import { eq } from 'drizzle-orm'
 
-### Alternativa recomendada para producción con JSON: Railway
+const rows = await getDb().select().from(missions).where(eq(missions.id, id))
+```
 
-Railway mantiene el filesystem persistente entre deploys:
+`lib/supabase.ts` y el paquete `@supabase/supabase-js` ya no existen.
+
+> `scripts/seed.ts` es una **migración puntual**, no un seed diario. Una vez
+> ejecutada, PostgreSQL es la fuente de verdad de esas 4 tablas y `db.json` ya
+> no las contiene. Para reconstruirlas desde cero, recupera el `db.json`
+> anterior desde el historial de git.
+
+### Archivo JSON (`frontend/data/db.json`)
+
+Colecciones: `responses`, `evaluations`, `groups`, `group_members`,
+`mission_assignments`, `weekly_aggregates`, `guide_progress`,
+`chat_messages`, `exercise_submissions`.
+
+Se accede desde `lib/db.ts`:
+
+```typescript
+const db = readDB()
+db.responses.push(newResponse)
+writeDB(db)
+```
+
+Para resetear: `rm frontend/data/db.json` y reiniciar.
+
+> No re-introduzcas `users`, `missions`, `guides` ni `narrative_states` en
+> este archivo: ya viven en PostgreSQL.
+
+---
+
+## Limitaciones conocidas
+
+| Limitación | Impacto | Solución |
+|------------|---------|----------|
+| **Dos almacenes a la vez**: auth/misiones/guías en PostgreSQL, pero grupos/evaluaciones en `db.json` | Un usuario creado en PostgreSQL no tiene fila en `db.json` si se resetea el archivo; algunos cruces leen de un almacén y escriben en otro | Unificar en PostgreSQL y eliminar `lib/db.ts` |
+| `db.json` se lee y escribe completo | En Vercel el filesystem es efímero y las escrituras concurrentes pueden perderse | Migrar el resto de colecciones a PostgreSQL |
+| Sin realtime | El dashboard docente refresca con polling | SSE o polling con caché |
+| Alta de docentes abierta | Cualquiera puede registrarse como `teacher` | Invitación por código o aprobación |
+| `narrative_states.group_id` no puede ser FK | Los grupos viven en `db.json`, así que ese apuntador no está protegido por integridad referencial | Migrar `groups`/`group_members` a PostgreSQL |
+
+**Adecuado para:** pilotos institucionales pequeños, demos y desarrollo local.
+
+---
+
+## Scripts de datos
+
+Todos viven en `scripts/` y comparten `scripts/lib/env.js` para leer `.env`.
+No forman parte del build de Next.js.
+
+| Script | Propósito |
+|--------|-----------|
+| `frontend/scripts/seed.ts` | Migración puntual `db.json` → PostgreSQL (ver [Base de datos](#base-de-datos)) |
+| `test_openrouter_connection.js` | Smoke test de la API key de OpenRouter |
+
+---
+
+## Comandos
 
 ```bash
-railway login && railway init && railway up
+cd frontend
+npm run dev      # desarrollo
+npm run build    # build de producción
+npm run start    # servir el build
+npm run lint     # ESLint
+npx tsc --noEmit # type-check
 ```
 
 ---
 
-## Misiones incluidas (15)
+## Despliegue
 
-A1: Pedir direcciones · Pedir ayuda en tienda · Saludar y presentarse  
-A2: Reservar vuelo · Llamar al médico · Ordenar en restaurante · Pedir información de curso  
-B1: Problema técnico · Check-in hotel · Presentarse en trabajo nuevo · Reportar vecindad  
-B2: Negociar precio · Reclamar paquete · Cancelar suscripción · Describir accidente
+```bash
+cd frontend
+npx vercel --prod
+```
+
+Variables en el dashboard de Vercel: las de la tabla anterior.
+
+Ten en cuenta:
+
+- **`DATABASE_URL` debe apuntar a un PostgreSQL accesible desde Vercel**
+  (Neon, Supabase-Postgres, RDS...). `drizzle-kit push` se ejecuta una vez
+  desde local, no en cada despliegue.
+- El filesystem de Vercel es efímero: `db.json` no sirve como almacenamiento
+  persistente en producción. Ver [limitaciones](#limitaciones-conocidas).
