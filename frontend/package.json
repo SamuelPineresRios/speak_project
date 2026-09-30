@@ -2,38 +2,32 @@
   "name": "@vox/frontend",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "bcryptjs": "^2.4.3",
+    "@vox/shared": "*",
     "clsx": "^2.1.1",
-    "drizzle-orm": "^0.45.3",
-    "jose": "^5.6.3",
     "lucide-react": "^0.400.0",
-    "next": "14.2.5",
-    "postgres": "^3.4.9",
     "react": "^18",
     "react-dom": "^18",
+    "react-router-dom": "^7.18.4",
     "recharts": "^2.12.7",
     "tailwind-merge": "^2.4.0",
-    "tailwindcss-animate": "^1.0.7",
-    "uuid": "^13.0.0"
+    "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
-    "@types/bcryptjs": "^2.4.6",
-    "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@vitejs/plugin-react": "^6.1.1",
     "autoprefixer": "^10.0.1",
-    "drizzle-kit": "^0.31.11",
-    "eslint": "^8",
-    "eslint-config-next": "14.2.5",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vite": "^8.3.1"
   }
 }
