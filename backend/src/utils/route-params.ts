@@ -1,7 +1,7 @@
 import type { Request } from 'express'
 import { HttpError } from './http-error.ts'
 
-/* Obligaotirio, si no esta, la peticion es incorrecta */
+/* Obligatorio, si no esta, la peticion es incorrecta */
 export function routeParam(req: Request, name: string): string {
   const value = req.params[name]
   if (typeof value !== 'string' || value === '') {

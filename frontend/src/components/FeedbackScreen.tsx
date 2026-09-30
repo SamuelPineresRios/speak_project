@@ -14,7 +14,8 @@ interface EvaluationPayload {
 interface FeedbackScreenProps {
   evaluation: EvaluationPayload
   missionTitle: string
-  studentResponse: string
+  /** Lo dice la conversación, no el evaluador: completar el objetivo es lo que cuenta. */
+  missionCompleted: boolean
   onTryAgain?: () => void
   onNextMission?: () => void
 }
@@ -22,13 +23,13 @@ interface FeedbackScreenProps {
 export function FeedbackScreen({
   evaluation,
   missionTitle,
-  studentResponse,
+  missionCompleted,
   onTryAgain,
   onNextMission,
 }: FeedbackScreenProps) {
   const [visible, setVisible] = useState(false)
   const navigate = useNavigate()
-  const isAdvance = evaluation.judgment === 'ADVANCE'
+  const isAdvance = missionCompleted
 
   useEffect(() => {
     setTimeout(() => setVisible(true), 100)
@@ -155,16 +156,6 @@ export function FeedbackScreen({
                 </div>
             )})}
         </div>
-
-        {/* Transcript Log */}
-        {studentResponse && (
-             <div className="mt-2 bg-black/40 border border-slate-800 rounded-lg p-3 font-mono text-xs text-slate-400 overflow-hidden relative">
-                 <div className="absolute top-2 right-2 text-[8px] uppercase border border-slate-700 px-1 rounded text-slate-600">Encrypted Log</div>
-                      <p className="line-clamp-3 italic opacity-60">
-                          &quot;{studentResponse}&quot;
-                      </p>
-             </div>
-        )}
 
         {/* Action Buttons */}
         <div className="flex flex-col gap-3 mt-4 pb-8">

@@ -12,20 +12,18 @@ function FeedbackContent() {
   useEffect(() => {
     const evalId = params.get('evaluation_id')
     const missionId = params.get('mission_id')
-    const responseId = params.get('response_id')
+    // Lo que decide el badge es el resultado de la conversación, no la nota.
+    const missionCompleted = params.get('completed') === '1'
     if (!evalId || !missionId) { navigate('/missions'); return }
 
-    // Fetch data directly from JSON db via API
     Promise.all([
       fetch(`/api/missions/${missionId}`).then(readJson),
       fetch(`/api/evaluations/${evalId}`).then(readJson),
-      fetch(`/api/responses/${responseId}`).then(readJson),
-    ]).then(([missionData, evalData, respData]) => {
-      const resp = respData?.response
-      setData({ 
-        evaluation: evalData?.evaluation, 
-        missionTitle: missionData?.mission?.title ?? '', 
-        studentResponse: resp?.text_content ?? '',
+    ]).then(([missionData, evalData]) => {
+      setData({
+        evaluation: evalData?.evaluation,
+        missionTitle: missionData?.mission?.title ?? '',
+        missionCompleted,
       })
       setLoading(false)
     }).catch(() => { navigate('/missions') })
@@ -33,10 +31,10 @@ function FeedbackContent() {
 
   if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 border-2 border-amber/30 border-t-amber rounded-full animate-spin"/></div>
   if (!data) return null
-  return <FeedbackScreen 
-    evaluation={data.evaluation} 
-    missionTitle={data.missionTitle} 
-    studentResponse={data.studentResponse}
+  return <FeedbackScreen
+    evaluation={data.evaluation}
+    missionTitle={data.missionTitle}
+    missionCompleted={data.missionCompleted}
     onTryAgain={() => navigate(-1)} 
     onNextMission={() => navigate('/missions')}
   />

@@ -63,10 +63,10 @@ CRITICAL SCORING RULES:
 2. Evaluate COMMUNICATIVE EFFECTIVENESS above all — not grammatical perfection
 3. Feedback must sound like a native Spanish-speaking English teacher
 4. Return ONLY valid JSON — no markdown, no explanation, no preamble
-5. feedback_text MUST follow this exact 3-part structure (separated by \n\n):
-   PART 1 (2 sentences max): Narrative result — did the character understand/achieve the objective?
-   PART 2 (2 sentences max): One thing the student did correctly
-   PART 3 (2-3 sentences max): ONE specific improvement with corrected example
+5. feedback_text MUST follow this exact 3-part structure (separated by \\n\\n):
+   PART 1 (2 sentences max): Narrative result — did the character understand the student? State clearly whether the objective was achieved.
+   PART 2 (2 sentences max): One thing the student did correctly.
+   PART 3 (3-4 sentences max): WHAT THEY MUST FIX — quote 1-2 SPECIFIC phrases the student actually wrote that were wrong or weak, explain exactly what was wrong in each, and give the corrected version for each. If everything was correct, say so and give one concrete way to level up.
 
 SCORING GUIDELINES:
 - Minimum score for ANY valid attempt: 50 (must answer the question meaningfully)

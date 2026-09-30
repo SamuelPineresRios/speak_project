@@ -74,6 +74,8 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
   const TOTAL_HEARTS = 3
   const [hearts, setHearts] = useState(TOTAL_HEARTS)
   const [showFailedNotification, setShowFailedNotification] = useState(false)
+  /** Lo dice la conversación (mission_completed), no el evaluador del reporte. */
+  const [missionCompleted, setMissionCompleted] = useState(false)
 
   const scrollRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -86,6 +88,7 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
     setIsThinking(true)
     setHearts(TOTAL_HEARTS)
     setShowFailedNotification(false)
+    setMissionCompleted(false)
     
     // Initial system prompt + optional fake first message or trigger API
     // Let's trigger the API to get the first greeting based on context
@@ -238,6 +241,7 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
             const isComplete = data.mission_completed || (data.progress && data.progress >= 100);
             if (isComplete) {
                 setMissionProgress(100)
+                setMissionCompleted(true)
                 
                 // Show completion modal ONLY if we haven't already notified the user
                 if (!hasNotifiedCompletion) {
@@ -282,8 +286,15 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
     const timeTaken = startTime ? Math.floor((Date.now() - startTime) / 1000) : null
     setState('submitting'); setIsThinking(true)
     
-    // Compile transcript
-    const transcript = messages.map(m => `${m.role.toUpperCase()}: ${m.content}`).join('\n\n')
+    // Sólo las frases del alumno: si se envía el diálogo entero, el evaluador
+    // cree que el estudiante escribió también lo del agente y hunde la nota.
+    const studentTurns = messages.filter(m => m.role === 'user').map(m => m.content)
+    if (studentTurns.length === 0) {
+        alert('Envía al menos una frase antes de enviar el reporte.')
+        setState('active'); setIsThinking(false)
+        return
+    }
+    const transcript = studentTurns.join('\n\n')
 
         try {
             const res = await fetch(`/api/missions/${mission.id}/submit`, {
@@ -316,7 +327,12 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
                         }
 
                         // Build query and navigate. Use full navigation fallback to ensure server data is loaded.
-                        const p = new URLSearchParams({ mission_id: mission.id, response_id: data.response_id, evaluation_id: data.evaluation_id })
+                        const p = new URLSearchParams({
+            mission_id: mission.id,
+            response_id: data.response_id,
+            evaluation_id: data.evaluation_id,
+            completed: missionCompleted ? '1' : '0',
+        })
                         try {
                                 await navigate(`/feedback?${p}`)
                         } catch {
