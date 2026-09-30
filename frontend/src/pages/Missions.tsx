@@ -1,4 +1,3 @@
-/* eslint-disable react/jsx-no-comment-textnodes */
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/lib/hooks/useAuth'
@@ -17,7 +16,7 @@ export default function MissionsPage() {
   const [missions, setMissions] = useState<Mission[]>([])
   const [cefrLevel, setCefrLevel] = useState<string|null>(null)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string|null>(null)
+  const [, setError] = useState<string|null>(null)
   const [filter, setFilter] = useState('all')
   const [currentPage, setCurrentPage] = useState(0)
   

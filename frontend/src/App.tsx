@@ -1,4 +1,4 @@
-import { Navigate, Outlet, Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes } from 'react-router-dom'
 import { ModuleTransitionLayer } from '@/components/ModuleTransitionLayer'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
 import { RouteTracker } from '@/components/RouteTracker'

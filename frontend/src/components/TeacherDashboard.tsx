@@ -21,7 +21,7 @@ interface TeacherDashboardProps {
   onViewStudent: (studentId: string) => void
 }
 
-export function TeacherDashboard({ groupId, groupName, totalMissions, onViewStudent }: TeacherDashboardProps) {
+export function TeacherDashboard({ groupId, onViewStudent }: TeacherDashboardProps) {
   const [students, setStudents] = useState<StudentProgress[]>([])
   const [loading, setLoading] = useState(true)
   const [sortBy, setSortBy] = useState<'name' | 'missions' | 'time'>('missions')

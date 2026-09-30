@@ -1,9 +1,7 @@
-/* eslint-disable react/jsx-no-comment-textnodes */
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/lib/hooks/useAuth'
-import { Radar, RadarChart, PolarGrid, PolarAngleAxis, Legend, ResponsiveContainer } from 'recharts'
+import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer } from 'recharts'
 import { Camera, Edit2, Shield, Award, Brain, Target, CheckCircle2, TrendingUp } from 'lucide-react'
-import { cn } from '@/lib/utils'
 import { ResponsiveBackgroundSprites } from '@/components/ResponsiveBackgroundSprites'
 import { Canvas3DBackground } from '@/components/Canvas3DBackground'
 
@@ -20,9 +18,9 @@ const SKILLS_DATA = [
 ]
 
 export default function ProfilePage() {
-  const { user, loading: userLoading, refetch } = useAuth()
+  const { user, refetch } = useAuth()
   const [missions, setMissions] = useState<Mission[]>([])
-  const [loading, setLoading] = useState(true)
+  const [, setLoading] = useState(true)
   const [isEditing, setIsEditing] = useState(false)
   const [editName, setEditName] = useState('')
 
@@ -239,22 +237,6 @@ export default function ProfilePage() {
       </div>
     </div>
   )
-}
-
-function MiniStat({ label, value, tone }: { label: string; value: string | number; tone: 'emerald' | 'cyan' | 'amber' | 'violet' }) {
-   const toneClass: Record<typeof tone, string> = {
-      emerald: 'text-emerald-300 border-emerald-400/30 bg-emerald-500/10',
-      cyan: 'text-cyan-300 border-cyan-400/30 bg-cyan-500/10',
-      amber: 'text-amber-300 border-amber-400/30 bg-amber-500/10',
-      violet: 'text-violet-300 border-violet-400/30 bg-violet-500/10',
-   }
-
-   return (
-      <div className={cn('rounded-lg border p-2.5 text-center', toneClass[tone])}>
-         <p className="text-sm font-bold">{value}</p>
-         <p className="text-[9px] uppercase tracking-wider mt-0.5">{label}</p>
-      </div>
-   )
 }
 
 function UserAvatar({ name }: { name: string }) {

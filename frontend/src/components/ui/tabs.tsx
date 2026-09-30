@@ -49,7 +49,7 @@ interface TabsTriggerProps extends React.ButtonHTMLAttributes<HTMLButtonElement>
 }
 
 const TabsTrigger = React.forwardRef<HTMLButtonElement, TabsTriggerProps>(
-  ({ className, value, ...props }, ref) => {
+  ({ value, ...props }, ref) => {
     const context = useContext(TabsContext)
     if (!context) throw new Error('TabsTrigger must be used within Tabs')
 

@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { cn } from '@/lib/utils'
 
 const PHRASES = [
   "Can I help you today?",
@@ -54,7 +53,7 @@ export function BackgroundSprites() {
     const interval = setInterval(() => {
       setSprites(current => 
         current.map(sprite => {
-          let newX = sprite.x + (sprite.direction === 'right' ? sprite.speed : -sprite.speed)
+          const newX = sprite.x + (sprite.direction === 'right' ? sprite.speed : -sprite.speed)
           let updatedSprite = { ...sprite, x: newX }
 
           if (newX > 115 || newX < -15) {

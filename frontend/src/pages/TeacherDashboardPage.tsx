@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '@/lib/hooks/useAuth'
 import { cn } from '@/lib/utils'
 import { 
-  Terminal, ShieldCheck, Cpu, Plus, 
+  Terminal, Cpu, Plus, 
   Play, Users, Hash, CheckCircle2, ChevronRight, LogOut 
 } from "lucide-react";
 

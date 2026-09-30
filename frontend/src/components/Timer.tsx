@@ -9,7 +9,7 @@ interface TimerProps {
 
 export function Timer({ durationSeconds, onTimeout, className }: TimerProps) {
   const [timeLeft, setTimeLeft] = useState(durationSeconds)
-  const [hasStarted, setHasStarted] = useState(false)
+  const [, setHasStarted] = useState(false)
   const intervalRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const onTimeoutRef = useRef(onTimeout)
   onTimeoutRef.current = onTimeout

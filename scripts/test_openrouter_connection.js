@@ -57,7 +57,9 @@ async function testOpenRouterConnection() {
       try {
         const errorData = JSON.parse(errorText);
         console.error("\nParsed error:", JSON.stringify(errorData, null, 2));
-      } catch {}
+      } catch {
+        // La respuesta no era JSON; el texto ya se mostró arriba.
+      }
       
       return false;
     }

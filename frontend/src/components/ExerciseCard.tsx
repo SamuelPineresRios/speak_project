@@ -56,7 +56,6 @@ export function ExerciseCard({
   };
 
   const isCorrect = selectedAnswer === exercise.correct_answer;
-  const showResult = answered && selectedAnswer;
 
   return (
     <Card className="overflow-hidden border-cyan-500/30 hover:border-cyan-500/60 transition-colors">

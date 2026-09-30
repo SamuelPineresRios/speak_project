@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { LineChart, Line, ResponsiveContainer, Tooltip, XAxis } from 'recharts'
 import { formatDuration, cn } from '@/lib/utils'
-import { Star, Award, Clock, Check } from 'lucide-react'
+import { Star, Award, Clock } from 'lucide-react'
 
 interface StudentProfile {
   full_name: string | null; email: string; cefr_level: string | null

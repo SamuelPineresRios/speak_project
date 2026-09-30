@@ -5,7 +5,6 @@
  * dependan de red ni de la clave de OpenRouter.
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import request from 'supertest'
 
 vi.mock('../src/lib/ai.ts', () => {
   class AIProviderError extends Error {

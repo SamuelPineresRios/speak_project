@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Link } from 'react-router-dom'
-import { ShieldAlert, UserPlus, Mail, KeyRound, AlertCircle, ChevronRight, Fingerprint } from 'lucide-react'
+import { UserPlus, Mail, KeyRound, AlertCircle, ChevronRight, Fingerprint } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export default function SignupPage() {
@@ -32,7 +32,7 @@ export default function SignupPage() {
           // No valid session, show signup form
           setIsChecking(false)
         }
-      } catch (err) {
+      } catch {
         // Error checking session, show signup form
         setIsChecking(false)
       }

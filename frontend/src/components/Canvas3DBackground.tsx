@@ -15,7 +15,7 @@ export function Canvas3DBackground({ className }: { className?: string }) {
     // Simulate 3D particles in a rotating sphere or space
     const particles: any[] = []
     const particleCount = 120
-    let fov = 250 // Field of view
+    const fov = 250 // Field of view
 
     for (let i = 0; i < particleCount; i++) {
         particles.push({
@@ -47,17 +47,17 @@ export function Canvas3DBackground({ className }: { className?: string }) {
 
         particles.forEach((p) => {
             // Rotate around x-axis
-            let y1 = p.y * cosX - p.z * sinX
-            let z1 = p.y * sinX + p.z * cosX
+            const y1 = p.y * cosX - p.z * sinX
+            const z1 = p.y * sinX + p.z * cosX
 
             // Rotate around y-axis
-            let x2 = p.x * cosY + z1 * sinY
-            let z2 = -p.x * sinY + z1 * cosY
+            const x2 = p.x * cosY + z1 * sinY
+            const z2 = -p.x * sinY + z1 * cosY
 
             // Calculate 2D projection
-            let scale = fov / (fov + z2 + 1000)
-            let x3d = x2 * scale + width / 2
-            let y3d = y1 * scale + height / 2
+            const scale = fov / (fov + z2 + 1000)
+            const x3d = x2 * scale + width / 2
+            const y3d = y1 * scale + height / 2
 
             points2d.push({ x: x3d, y: y3d, z: z2 })
 

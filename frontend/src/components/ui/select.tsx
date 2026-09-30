@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState } from 'react'
 import { cn } from '@/lib/utils'
 
 interface SelectContextType {
@@ -109,7 +109,7 @@ interface SelectItemProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const SelectItem = React.forwardRef<HTMLDivElement, SelectItemProps>(
-  ({ className, value, onClick, ...props }, ref) => {
+  ({ value, onClick, ...props }, ref) => {
     const context = React.useContext(SelectContext)
     if (!context) throw new Error('SelectItem must be used within Select')
 

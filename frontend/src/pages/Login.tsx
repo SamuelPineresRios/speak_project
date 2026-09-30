@@ -31,7 +31,7 @@ export default function LoginPage() {
           // No valid session, show login form
           setIsChecking(false)
         }
-      } catch (err) {
+      } catch {
         // Error checking session, show login form
         setIsChecking(false)
       }

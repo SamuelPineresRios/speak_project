@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Hash, ShieldCheck, AlertCircle, ChevronLeft } from 'lucide-react'
-import { cn } from '@/lib/utils'
 
 export default function JoinGroupPage() {
   const [code, setCode] = useState('')

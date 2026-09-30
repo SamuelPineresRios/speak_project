@@ -25,7 +25,7 @@ export function ChatPanel({ guideId, guideTopic = "esta lección", guideCefr = "
   const [inputValue, setInputValue] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingHistory, setLoadingHistory] = useState(true);
-  const [lastAssistantMessageId, setLastAssistantMessageId] = useState<string | null>(null);
+  const [, setLastAssistantMessageId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const fetchChatHistory = useCallback(async () => {

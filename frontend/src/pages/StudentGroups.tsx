@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Users, Clock, AlertCircle, PlayCircle, Trophy, Target, Award, ShieldAlert, Cpu } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { useAuth } from '@/lib/hooks/useAuth'
 import { ResponsiveBackgroundSprites } from '@/components/ResponsiveBackgroundSprites'
 import { Canvas3DBackground } from '@/components/Canvas3DBackground'
 
@@ -10,8 +9,7 @@ export default function StudentGroupsPage() {
   const [groups, setGroups] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const { user } = useAuth()
-  const navigate = useNavigate()
+    const navigate = useNavigate()
 
   useEffect(() => {
     fetchGroups()

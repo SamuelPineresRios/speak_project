@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Timer } from './Timer'
-import { NarrativeCharacter } from './NarrativeCharacter'
 import { TypewriterMessage } from './TypewriterMessage'
 import { ResponsiveBackgroundSprites } from './ResponsiveBackgroundSprites'
 import { GrammarCorrectionModal } from './GrammarCorrectionModal'
@@ -73,7 +72,7 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
     corrected: string
     feedback: string
   } | null>(null)
-  const [lastUserMessageIndexForRetry, setLastUserMessageIndexForRetry] = useState<number | null>(null)
+  const [, setLastUserMessageIndexForRetry] = useState<number | null>(null)
 
   const scrollRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -251,7 +250,7 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
     setMessages(current => {
       const updated = [...current]
       // Find and remove the last user message and its assistant response
-      let lastUserIdx = updated.findLastIndex(m => m.role === 'user')
+      const lastUserIdx = updated.findLastIndex(m => m.role === 'user')
       if (lastUserIdx !== -1) {
         updated.splice(lastUserIdx, 1)
         // Also remove the following assistant message if it exists
@@ -326,7 +325,7 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
                         const p = new URLSearchParams({ mission_id: mission.id, response_id: data.response_id, evaluation_id: data.evaluation_id })
                         try {
                                 await navigate(`/feedback?${p}`)
-                        } catch (e) {
+                        } catch {
                                 // Fallback to full navigation
                                 window.location.href = `/feedback?${p}`
                         }

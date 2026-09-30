@@ -88,7 +88,7 @@ function generateExampleFromTemplate(template: string): string | null {
   if (!hasPlaceholder) return null
 
   // Reemplazar placeholders comunes con ejemplos
-  let example = template
+  const example = template
     .replace(/\[Your name\]/gi, 'John')
     .replace(/\[your name\]/gi, 'John')
     .replace(/\[name\]/gi, 'John')

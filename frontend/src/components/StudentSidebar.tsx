@@ -1,13 +1,13 @@
 import { Link } from 'react-router-dom'
 import { useLocation } from 'react-router-dom'
 import { cn } from '@/lib/utils'
-import { Radio, User, LogOut, Disc, Lightbulb, Users, Menu, X } from 'lucide-react' // Importing icons
+import { Radio, User, LogOut, Lightbulb, Users, Menu, X } from 'lucide-react'
 import { useAuth } from '@/lib/hooks/useAuth'
 import { useState } from 'react'
 
 export function StudentSidebar() {
   const { pathname } = useLocation()
-  const { user, logout } = useAuth() // Extract user from hook
+  const { logout } = useAuth()
   const [isOpen, setIsOpen] = useState(false)
 
   const links = [
