@@ -4,8 +4,10 @@ import { Link } from 'react-router-dom'
 import { ShieldCheck, UserCircle, KeyRound, AlertCircle, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { readJson } from '@/lib/api'
+import { useAuth } from '@/lib/hooks/useAuth'
 
 export default function LoginPage() {
+  const { refetch } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [role, setRole] = useState<'student' | 'teacher'>('student')
@@ -55,6 +57,9 @@ export default function LoginPage() {
         throw new Error(data?.error || 'ACCESO DENEGADO')
       }
       const data = await readJson(res)
+      // El contexto de sesión se cargó sin sesión al abrir /login: sin este
+      // refresco, ProtectedRoute sigue viendo user=null y rebota a /login.
+      await refetch()
       if (data?.user?.role === 'teacher') navigate('/dashboard')
       else navigate('/missions')
     } catch (err: any) {

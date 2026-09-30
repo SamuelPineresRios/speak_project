@@ -4,8 +4,10 @@ import { Link } from 'react-router-dom'
 import { UserPlus, Mail, KeyRound, AlertCircle, ChevronRight, Fingerprint } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { readJson } from '@/lib/api'
+import { useAuth } from '@/lib/hooks/useAuth'
 
 export default function SignupPage() {
+  const { refetch } = useAuth()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -62,6 +64,9 @@ export default function SignupPage() {
         throw new Error(data?.error || 'ERROR DE SISTEMA')
       }
       const data = await readJson(res)
+      // Igual que en el login: el contexto debe conocer la sesión nueva antes
+      // de navegar a una ruta protegida.
+      await refetch()
       if (data?.user?.role === 'teacher') navigate('/dashboard')
       else navigate('/join-group')
     } catch (err: any) {
