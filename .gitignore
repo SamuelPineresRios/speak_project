@@ -1,8 +1,5 @@
-# ----- Node / Next.js -----
+# ----- Node -----
 node_modules/
-.next/
-.next/cache/
-out/
 dist/
 build/
 /.vercel/
@@ -66,8 +63,6 @@ report/
 .cache/
 .parcel-cache/
 .turbo/
-.next-turbo/
-/.next/cache/
 node-repl-history
 
 # ----- Databases / local stores -----
@@ -81,10 +76,6 @@ local.db
 *.lock.json
 *.log
 *.tsbuildinfo
-
-# Ignore frontend/test/build artifacts specifically
-frontend/.next/
-frontend/node_modules/
 
 # Optional: lockfiles are usually committed (comment out if you want them ignored)
 # package-lock.json
