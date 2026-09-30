@@ -1,5 +1,12 @@
 # 📚 Guías Mejoradas - Manual de Usuario
 
+> **Nota de vigencia (2026-09):** este documento se escribió cuando la app
+> usaba Next.js y `data/db.json`. Tras la reestructuración (monorepo Vite +
+> Express + PostgreSQL, ver `README.md`), las rutas de código que menciona ya
+> no existen; el diseño funcional (modelo de datos, endpoints y flujo de UI)
+> sigue siendo válido. La implementación actual vive en `backend/src/modules/`
+> y `frontend/src/`.
+
 ## ✨ Lo que se ha implementado
 
 ### 1. **Guías Ricas y Detalladas**

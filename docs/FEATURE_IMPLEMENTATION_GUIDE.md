@@ -1,5 +1,12 @@
 # Implementation Summary: Session Persistence & Mobile Optimization
 
+> **Nota de vigencia (2026-09):** este documento se escribió cuando la app
+> usaba Next.js y `data/db.json`. Tras la reestructuración (monorepo Vite +
+> Express + PostgreSQL, ver `README.md`), las rutas de código que menciona ya
+> no existen; el diseño funcional (modelo de datos, endpoints y flujo de UI)
+> sigue siendo válido. La implementación actual vive en `backend/src/modules/`
+> y `frontend/src/`.
+
 ## Overview
 This document details the implementation of two critical features for the VOX platform:
 1. **Persistent Session Management** - Users remain logged in across browser sessions

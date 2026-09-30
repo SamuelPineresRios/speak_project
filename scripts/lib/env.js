@@ -9,7 +9,7 @@ const fs = require('fs')
 const path = require('path')
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..')
-const ENV_FILES = ['.env.local', '.env', 'frontend/.env.local', 'frontend/.env']
+const ENV_FILES = ['.env.local', '.env', 'backend/.env.local', 'backend/.env']
 
 function loadEnv({ quiet = false } = {}) {
   const loaded = {}

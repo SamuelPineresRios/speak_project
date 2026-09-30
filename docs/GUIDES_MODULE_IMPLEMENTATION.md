@@ -1,5 +1,12 @@
 # 📚 VOX - Guides Module Implementation Complete
 
+> **Nota de vigencia (2026-09):** este documento se escribió cuando la app
+> usaba Next.js y `data/db.json`. Tras la reestructuración (monorepo Vite +
+> Express + PostgreSQL, ver `README.md`), las rutas de código que menciona ya
+> no existen; el diseño funcional (modelo de datos, endpoints y flujo de UI)
+> sigue siendo válido. La implementación actual vive en `backend/src/modules/`
+> y `frontend/src/`.
+
 ## Summary
 
 Se ha implementado **completamente** el módulo **Learning Guides** en VOX, un sistema de recursos pedagógicos estructurados que permite a los estudiantes profundizar en conceptos gramaticales y de vocabulario.

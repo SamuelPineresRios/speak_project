@@ -1,6 +1,13 @@
 
 # 📚 ANÁLISIS: GUÍAS DE APRENDIZAJE (Learning Guides Module)
 
+> **Nota de vigencia (2026-09):** este documento se escribió cuando la app
+> usaba Next.js y `data/db.json`. Tras la reestructuración (monorepo Vite +
+> Express + PostgreSQL, ver `README.md`), las rutas de código que menciona ya
+> no existen; el diseño funcional (modelo de datos, endpoints y flujo de UI)
+> sigue siendo válido. La implementación actual vive en `backend/src/modules/`
+> y `frontend/src/`.
+
 ## 📋 RESUMEN EJECUTIVO
 
 PostgreSQL contiene **9 guías de aprendizaje** (Learning Guides) diseñadas para enseñar gramática, vocabulario y habilidades de conversación en inglés. Estas guías están organizadas por niveles CEFR (A1, A2, B1, B2) y están vinculadas a las misiones de conversación.

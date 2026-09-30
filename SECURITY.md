@@ -1,180 +1,174 @@
 # Seguridad de VOX
 
-Documento único de referencia. Sustituye a los anteriores `SECURITY_*`, `README_SECURITY`
-y `START_HERE_SEGURIDAD`.
+Documento único de referencia.
 
 ---
 
 ## 1. Autenticación
 
-**Implementación:** `frontend/lib/auth.ts`
+**Implementación:** `backend/src/lib/auth.ts`
 
 - Registro y login con email/contraseña.
 - Hash de contraseña con `bcryptjs` (cost 12).
 - JWT firmado con `JWT_SECRET` (`jose`, HS256), expiración 7 días.
 - La sesión se entrega en una **cookie HttpOnly + SameSite=Lax** con `Secure`
-  cuando `NODE_ENV=production`. La clave no se expone nunca al JavaScript
-  del cliente.
+  cuando `NODE_ENV=production`. La clave nunca se expone al JavaScript del cliente.
 - Logout limpia la cookie (`clearCookieOptions`).
 
 ```typescript
-// lib/auth.ts
-createSessionToken(user)   -> firma
-getSessionFromRequest(req) -> payload | null
-sessionCookieOptions()     // HttpOnly, SameSite, Secure en producción
+// backend/src/lib/auth.ts
+createToken(payload)        -> firma el JWT
+verifyToken(token)          -> SessionPayload | null
+sessionCookieOptions()      -> HttpOnly, SameSite, Secure en producción
+clearCookieOptions()
+SESSION_COOKIE_NAME         -> 'speak_session'
 ```
+
+`JWT_SECRET` y `DATABASE_URL` se validan **al arrancar** (`config/env.ts`): si
+faltan, el proceso muere con un mensaje concreto en lugar de fallar a mitad de
+una petición.
 
 ---
 
-## 2. Autorización en páginas y rutas
+## 2. Autorización: guard global + guard por ruta
 
-**Implementación:** `frontend/middleware.ts`
+**Implementación:** `backend/src/middleware/`
 
-- Valida el JWT de la cookie en cada request.
-- Sin token válido → redirect a `/login` (páginas) o `401` (`/api/*`).
-- **No inyecta headers `x-user-*`**: el frontend nunca es la fuente de identidad.
+- `authenticate` resuelve la sesión de la cookie en **todas** las peticiones y la
+  deja en `req.session`. Nunca rechaza.
+- `apiAccessGuard` es la garantía global (espejo del antiguo `middleware.ts`):
+  - toda `/api/*` exige sesión salvo las rutas públicas de `@vox/shared`;
+  - `/api/teachers/*` exige rol `teacher`;
+  - sin sesión → `401 { "error": "Unauthorized" }`; sin rol → `403 { "error": "Forbidden" }`.
+- **Defensa en profundidad**: cada router vuelve a exigir lo que necesita con
+  `requireAuth` / `requireTeacher`. Una ruta nueva sin guard propio sigue cerrada
+  por el guard global, y un fallo del guard global no abre la ruta.
+- Las páginas ya no se protegen en servidor (es una SPA): `<ProtectedRoute>`
+  espera a resolver la sesión y redirige. La API **siempre** vuelve a validar, así
+  que la protección de UI no es una frontera de seguridad.
 
----
-
-## 3. Autorización en cada endpoint (fuente de verdad)
-
-**Implementación:** `frontend/lib/session.ts`
-
-Toda ruta de la API de datos debe empezar con uno de los guards. Ninguna lee
-`x-user-id` / `x-user-role` de las headers.
-
-```typescript
-type SessionResult = SessionPayload | NextResponse
-
-requireUser(req): SessionResult            // cualquier sesión válida
-requireTeacher(req): SessionResult         // sólo rol teacher
-ownsResource(dbId, payload, ['teacher'])   // propiedad/rol del recurso
-isAuthFailure(result)                      // 401/403 -> devolver directo
-```
-
-Patrón obligatorio en cada ruta:
-
-```typescript
-export async function GET(req: NextRequest) {
-  const session = await requireUser(req)
-  if (isAuthFailure(session)) return session
-
-  // session es SessionPayload -> session.id, session.email, session.role
-}
-```
-
-Todas las rutas de `frontend/app/api/` (28) cumplen este patrón.
+La lógica de rutas y roles es única y compartida (`@vox/shared/routes.ts`): el
+backend y el frontend no pueden divergir en qué ruta es de profesor.
 
 ---
 
-## 4. Control de acceso a recursos (IDOR)
+## 3. Control de acceso a recursos (IDOR)
 
-Toda consulta por ID **filtra por el propietario** en servidor; el `id` del
-path no basta.
-
-Ejemplos implementados:
+Toda consulta por ID filtra por el propietario en servidor; el `id` del path no
+basta.
 
 | Ruta | Comprobación |
 |------|--------------|
-| `GET/PUT /api/evaluations/[id]` | `ownsResource(eval.userId, session, ['teacher'])` |
-| `GET/POST /api/responses/[id]` | `ownsResource(resp.userId, session, ['teacher'])` |
-| `GET /api/guides/[id]` | guía pública, pero el progreso se lee por `session.id` |
-| `POST /api/missions/[id]/submit` | la respuesta se escribe con `userId = session.id` |
-| `GET /api/admin/metrics` | `session.email ∈ ADMIN_EMAILS` (allowlist) |
-| `/api/teachers/*` | `requireTeacher` |
-| `/api/students/*` | `requireUser` + `session.id` como identidad |
+| `GET /api/evaluations/:id` | `ownsResource(session, student_id, ['teacher'])` |
+| `GET /api/responses/:id` | `ownsResource(session, student_id, ['teacher'])` |
+| `GET /api/students/:id/weekly-stats` | `ownsResource(session, id, ['teacher'])` |
+| `GET /api/students/:id/session-summary` | `ownsResource(session, id, ['teacher'])` |
+| `POST /api/missions/:id/submit` | la respuesta se escribe con `student_id = session.userId` |
+| `GET /api/teachers/groups/:id` | grupo propio o `404` |
+| `GET/POST /api/teachers/groups/:id/*` | grupo propio o `403` |
+| `GET /api/teachers/students/:id/profile` | el alumno debe pertenecer a un grupo del profesor o `403` |
+| `GET /api/admin/metrics` | `session.email ∈ ADMIN_EMAILS` |
 
-No se confía en ningún parámetro `userId` enviado por el cliente.
+Todas están cubiertas por la matriz de tests de `backend/tests/access-control.test.ts`.
+
+**`group_id` enviado por el cliente**: al enviar una misión, el `group_id` llega
+por query string. El backend comprueba que el alumno sea miembro; si no lo es, la
+respuesta se guarda **sin grupo** en lugar de atribuirse a un grupo ajeno.
 
 ---
 
-## 5. Modelo de amenazas / controles
+## 4. Modelo de amenazas / controles
 
 | Amenaza | Control |
 |---------|---------|
-| Sesión falsificada | JWT firmado + verificación en middleware y en cada ruta |
-| Suplantación de identidad (`x-user-*`) | Headers eliminadas; identidad sale de la cookie |
-| IDOR / escalada de privilegios | Filtro por propietario + `requireTeacher` en servidor |
-| SQL injection | Drizzle/Postgres: consultas parametrizadas siempre; JSON: sin SQL |
-| XSS | React (escape por defecto) + CSP y headers de `next.config.js` |
-| CSRF | SameSite=Lax + validación de origen en mutation |
-| Fuga de secretos | Todo en `.env.local` (gitignored); ninguna clave versionada |
-| Contraseñas débiles | `bcryptjs` cost 12; validación de email y longitud |
+| Sesión falsificada | JWT firmado + verificación en cada petición |
+| Suplantación por headers | No se lee ningún header de identidad; sólo la cookie |
+| IDOR / escalada de privilegios | Filtro por propietario + `requireTeacher`, con tests |
+| SQL injection | Drizzle/Postgres: consultas parametrizadas siempre |
+| XSS | React (escape por defecto). Sin CSP todavía (ver §7) |
+| CSRF | SameSite=Lax + API en el mismo origen que la SPA |
+| Fuga de secretos | Todo en `backend/.env.local` (gitignored) |
+| Contraseñas débiles | `bcryptjs` cost 12, mínimo 8 caracteres |
+| Abuso de recursos | Límite de 1 MB en el body JSON; sin rate limiting todavía |
 
-**Headers de seguridad** — `frontend/next.config.js`, aplicados a `/api/*`:
+**Cabeceras de seguridad** — `backend/src/middleware/security.ts`, aplicadas a
+`/api/*`:
 
 ```
 X-Content-Type-Options: nosniff
 X-Frame-Options: DENY
 ```
 
-No hay todavía CSP, `Strict-Transport-Security` ni `Referrer-Policy`
-(ver §8).
-
 ---
 
-## 6. Configuración
+## 5. Configuración
 
 ### Variables
 
-Plantilla: `frontend/.env.example`. Ver `README.md → Variables de entorno`.
+Plantilla: `backend/.env.example`. Ver `README.md → Variables de entorno`.
 
-- `.env`, `.env.local` están en `.gitignore`.
+- `.env`, `.env.local` están en `.gitignore` (patrón global, aplica a todos los
+  workspaces).
 - **Ninguna credencial está en el repositorio.** Verificación:
+
   ```bash
   git grep -nE "(sk-or-v1|sk-ant|eyJhbGciOi.*\.|service_role)"
   ```
 
+- El frontend no maneja secretos ni variables de entorno: sólo habla con `/api`.
+
 ### Rotación de credenciales
 
-Antes de publicar, rota manualmente las claves que pudieron haberse filtrado
-en documentación histórica:
-
 1. **OpenRouter**: `https://openrouter.ai/settings/keys`
-2. `JWT_SECRET`: generar uno nuevo con `openssl rand -hex 32` (invalida todas
-   las sesiones activas — esperado)
-3. **PostgreSQL**: si `DATABASE_URL` llegó a versionarse, cambiar la contraseña
-   del rol y actualizar el `DATABASE_URL`
+2. **`JWT_SECRET`**: `openssl rand -hex 32` (invalida todas las sesiones activas
+   — esperado)
+3. **PostgreSQL**: si `DATABASE_URL` llegó a versionarse, cambia la contraseña del
+   rol y actualiza la variable
 
 ---
 
-## 7. Verificación
+## 6. Verificación
 
 ```bash
-cd frontend
-npx tsc --noEmit
-npx next lint
+npm run typecheck    # tsc en shared, backend y frontend
+npm run lint         # ESLint (0 errores)
+npm test             # 96 tests de integración contra PostgreSQL
+npm run build        # build de producción del frontend
 ```
 
-Comprobaciones manuales:
+La suite está en `backend/tests/`:
+
+| Fichero | Cubre |
+|---------|-------|
+| `auth.test.ts` | contrato de sesión, cookie, validaciones, duplicados |
+| `missions.test.ts` | umbrales por nivel, agregados, promoción |
+| `guides.test.ts` | filtros, progreso, ejercicios |
+| `groups.test.ts` | grupos, unión, asignaciones, paneles |
+| `access-control.test.ts` | **matriz de IDOR y roles** |
+| `ai-flows.test.ts` | flujos de IA con el proveedor mockeado |
+
+Comprobaciones manuales equivalentes:
 
 | Caso | Esperado |
 |------|----------|
 | `GET /api/missions` sin cookie | `401` |
 | `GET /api/missions` con JWT inválido | `401` |
 | `GET /api/evaluations/<id-otro-usuario>` | `403` |
+| `GET /api/teachers/groups` con alumno | `403` |
 | `GET /api/admin/metrics` con alumno | `403` |
 | `GET /api/admin/metrics` con `ADMIN_EMAILS` | `200` |
-| Página `/missions` sin cookie | redirect a `/login` |
-
-> Verificado el 29/09/2026 contra el dev server: las 14 comprobaciones de
-> autenticación, IDOR y control de roles pasan. Las incidencias observadas
-> eran de datos, no de autorización — ver §8.
->
-> **Re-verificado el 29/09/2026 tras migrar a PostgreSQL/Drizzle**: suite de
-> 51 comprobaciones E2E (registro/login/logout, misiones, guías, filtros,
-> asignación de misiones, unión a grupos, propiedad de recursos, control de
-> roles, claves foráneas) — 51/51 en verde.
+| Abrir `/missions` sin sesión | la SPA redirige a `/login` |
 
 ---
 
-## 8. Deuda técnica conocida
+## 7. Deuda técnica conocida
 
 | Elemento | Estado |
 |----------|--------|
-| Sin rate limiting | Los endpoints de auth y de IA (`/api/chat`, `guides/[id]/chat`) pueden ser abusados. Añadir en el borde (Vercel WAF / `@upstash/ratelimit`) antes de producción. |
-| Alta de `teacher` abierta | Cualquiera puede registrarse como docente en `/signup`. Requiere código de invitación o aprobación. |
-| Headers incompletos | Falta CSP, `Strict-Transport-Security` y `Referrer-Policy` (ver §5). |
-| Sin rotación automática de claves | Ver §6. |
-| **Autorización sólo a nivel de API** | El backend se conecta a PostgreSQL con un único rol compartido: la base de datos no puede distinguir estudiantes, así que ninguna política a nivel de BD puede impedir que un proceso comprometido lea filas ajenas. El aislamiento real lo garantiza hoy `lib/session.ts` (guards + propiedad del recurso) en cada ruta. Solución a medio plazo: rol/`SET ROLE` por usuario o row-level security. |
-| **Mitad del modelo sigue en JSON** | `groups`, `group_members`, `mission_assignments`, `responses` y `evaluations` viven en `db.json`, escrito completo y sin transacciones. Rotar la API key no basta aquí: en Vercel el filesystem es efímero (ver README). |
+| Sin rate limiting | Auth y rutas de IA (`/api/chat`, `guides/:id/chat`) pueden ser abusadas. Añadir en el borde antes de producción. |
+| Alta de `teacher` abierta | Cualquiera puede registrarse como docente. Requiere invitación o aprobación. |
+| Headers incompletos | Falta CSP, `Strict-Transport-Security` y `Referrer-Policy`. |
+| Sin rotación automática de claves | Ver §5. |
+| Autorización sólo a nivel de API | PostgreSQL se usa con un único rol compartido: la base de datos no distingue usuarios, así que el aislamiento depende de los guards de Express. A medio plazo: rol por usuario o row-level security. |
+| `/api/chat` confía en el cliente | El contexto de misión y el historial llegan en el body. Sólo afecta al propio alumno. Lo correcto es cargar la misión por `id` en el servidor. |
+| DTOs sin tipar | El frontend consume la API con tipos sueltos (`any` en varios sitios); ESLint lo deja como aviso. Compartir los DTO en `@vox/shared` es la solución natural. |

@@ -10,99 +10,141 @@ desbloquean guías de gramática; los docentes crean grupos, asignan misiones y 
 
 | Capa | Tecnología |
 |------|-----------|
-| Frontend + API | Next.js 14 (App Router) + TypeScript + Tailwind CSS |
+| Frontend | React 18 + TypeScript + **Vite** + React Router 7 + Tailwind CSS |
+| Backend | Node.js + **Express 5** (TypeScript ejecutado nativamente por Node) |
+| Base de datos | **PostgreSQL + Drizzle ORM** — única fuente de verdad |
 | Autenticación | JWT (`jose`) en cookie HttpOnly + `bcryptjs` |
-| Base de datos 1 | **PostgreSQL local + Drizzle ORM** — usuarios, misiones, guías, estado narrativo |
-| Base de datos 2 | **Archivo JSON local** (`frontend/data/db.json`) — respuestas, evaluaciones, grupos, progreso |
-| Evaluación / chat LLM | OpenRouter (modelos Gemini) vía `frontend/lib/ai.ts` |
-| Despliegue | Vercel |
+| Evaluación / chat LLM | OpenRouter (Gemini) vía `backend/src/lib/ai.ts` |
+| Tests | Vitest + Supertest (integración de API) · ESLint |
 
-> ⚠️ **La persistencia está dividida en dos almacenes.** Ver
-> [Limitaciones conocidas](#limitaciones-conocidas).
+El repositorio es un **monorepo con npm workspaces**: `shared/`, `backend/` y `frontend/`.
+Un solo `npm install` en la raíz instala todo.
 
 ---
 
-## Estructura del repositorio
+## Estructura
 
 ```
 .
-├── frontend/                 # Aplicación Next.js (aquí vive todo lo ejecutable)
-│   ├── app/
-│   │   ├── (auth)/           # /login, /signup
-│   │   ├── (student)/        # /missions, /guides, /groups, /profile, /feedback...
-│   │   ├── (teacher)/        # /dashboard, /group/...
-│   │   └── api/              # Rutas de la API
-│   ├── components/           # Componentes React
-│   │   └── ui/               # Primitivas (button, card, tabs...)
-│   ├── lib/
-│   │   ├── ai.ts             # Cliente OpenRouter (único punto de llamada al LLM)
-│   │   ├── auth.ts           # Firmado/verificación de JWT
-│   │   ├── session.ts        # Guards de autorización para rutas de la API
-│   │   ├── postgres.ts       # Cliente PostgreSQL (lazy, singleton)
-│   │   ├── schema.ts         # Esquema Drizzle de las 4 tablas relacionales
-│   │   ├── db.ts             # Acceso al archivo JSON
-│   │   └── utils.ts          # Helpers compartidos (cn, CEFR, códigos...)
-│   ├── data/
-│   │   └── db.json           # Almacén JSON (se crea/usar en runtime)
-│   ├── drizzle.config.ts     # Configuración de drizzle-kit
-│   └── scripts/
-│       └── seed.ts           # Migración puntual db.json -> PostgreSQL
-├── scripts/                  # Utilidades de datos (no forman parte del build)
-│   ├── lib/env.js            # Cargador de .env compartido
-│   └── test_openrouter_connection.js
-└── README.md
+├── package.json              # workspaces y scripts raíz
+├── tsconfig.base.json        # opciones de TypeScript compartidas
+├── eslint.config.mjs
+├── shared/                   # @vox/shared — contrato común
+│   └── src/
+│       ├── session.ts        # SessionPayload, UserRole
+│       ├── routes.ts         # rutas públicas / de profesor / de alumno
+│       └── cefr.ts           # niveles MCER, umbrales y etiquetas
+├── backend/                  # @vox/backend — API Express
+│   ├── drizzle.config.ts
+│   ├── vitest.config.ts
+│   ├── src/
+│   │   ├── app.ts            # factoría de la app (exportada para Supertest)
+│   │   ├── index.ts          # listen()
+│   │   ├── config/env.ts     # validación de entorno al arrancar
+│   │   ├── db/
+│   │   │   ├── client.ts     # pool de postgres.js + Drizzle
+│   │   │   ├── schema.ts     # las 13 tablas
+│   │   │   └── errors.ts     # lectura de SQLSTATE
+│   │   ├── middleware/       # seguridad, sesión, autorización, errores
+│   │   ├── modules/          # auth, missions, guides, teachers, students,
+│   │   │                     # evaluations, responses, chat, admin
+│   │   │                     #   routes.ts (HTTP) + service.ts (dominio)
+│   │   ├── lib/              # ai.ts (OpenRouter), guides-integration.ts
+│   │   └── utils/
+│   └── tests/                # tests de integración (6 ficheros, 96 casos)
+└── frontend/                 # @vox/frontend — SPA React
+    ├── vite.config.ts        # alias @, proxy /api -> :4000
+    ├── index.html
+    └── src/
+        ├── main.tsx          # BrowserRouter + AuthProvider
+        ├── App.tsx           # tabla de rutas + guards
+        ├── pages/            # 16 páginas
+        ├── components/       # 30 componentes (+ ui/)
+        ├── lib/              # utils y hooks (useAuth, useMediaQuery, ...)
+        └── styles/globals.css
 ```
 
 ---
 
 ## Puesta en marcha
 
-### 1. Instalar
-
 ```bash
-cd frontend
+# 1. Dependencias (raíz: instala los tres workspaces)
 npm install
-```
 
-### 2. Variables de entorno
+# 2. Base de datos
+createdb vox
+createdb vox_test                                    # para los tests
 
-```bash
-cp .env.example .env.local
-```
+# 3. Entorno del backend
+cp backend/.env.example backend/.env.local           # rellena JWT_SECRET
+openssl rand -hex 32                                 # valor para JWT_SECRET
 
-Ver [Variables de entorno](#variables-de-entorno).
+# 4. Esquema
+npm run db:push -w @vox/backend                      # crea las 13 tablas en vox
+npm run db:push:test -w @vox/backend                 # y en vox_test
 
-### 3. Arrancar
-
-```bash
+# 5. Arrancar API + web
 npm run dev
-# http://localhost:3000
+# API  -> http://localhost:4000
+# Web  -> http://localhost:5173  (el proxy de Vite reenvía /api al backend)
 ```
+
+No hace falta ningún servicio externo salvo PostgreSQL. El contenido (misiones y
+guías) ya está en la base de datos local.
 
 ---
 
 ## Variables de entorno
 
-Plantilla: `frontend/.env.example`. **Ninguna** de estas variables está versionada.
+Plantilla: `backend/.env.example`. **Ninguna** está versionada.
 
 | Variable | Obligatoria | Uso |
 |----------|-------------|-----|
-| `JWT_SECRET` | Sí | Firma de la cookie de sesión. `openssl rand -hex 32` |
-| `DATABASE_URL` | Sí | PostgreSQL con las 4 tablas relacionales |
-| `OPENROUTER_API_KEY` | Sí | Evaluación y chat con el tutor (`lib/ai.ts`) |
-| `ADMIN_EMAILS` | No | Emails (separados por coma) permitidos en `/api/admin/metrics` |
+| `DATABASE_URL` | Sí | PostgreSQL |
+| `JWT_SECRET` | Sí | Firma de la cookie de sesión (`openssl rand -hex 32`) |
+| `PORT` | No | Puerto de la API (por defecto `4000`) |
 | `NODE_ENV` | No | `development` \| `production` |
+| `OPENROUTER_API_KEY` | No | Evaluación y tutor. Sin ella la app funciona: las rutas de IA responden `503` y el envío de misiones usa una evaluación de respaldo |
+| `ADMIN_EMAILS` | No | Emails (separados por coma) con acceso a `/api/admin/metrics` |
+
+El frontend **no usa variables de entorno**: habla siempre con `/api` en su mismo origen.
 
 ---
 
-## Autenticación
+## Cómo encaja todo
+
+1. El navegador carga la SPA servida por **Vite** (`:5173` en desarrollo).
+2. Toda llamada a `/api/*` la reenvía el **proxy de Vite** al backend (`:4000`). Al
+   ser el mismo origen para el navegador, la cookie de sesión viaja sin CORS.
+3. **Express** resuelve la sesión, aplica el guard global de la API, ejecuta el
+   handler del módulo y responde JSON.
+4. **Drizzle** es la única vía de acceso a PostgreSQL. No hay archivos JSON ni
+   ningún otro almacén.
+
+### TypeScript sin transpilador
+
+Node 26 ejecuta directamente los `.ts` del backend (type stripping). Eso impone tres
+reglas que el propio `tsc` verifica (`erasableSyntaxOnly`, `verbatimModuleSyntax`):
+
+- las importaciones de tipos siempre con `import type`;
+- extensiones explícitas en imports relativos (`./schema.ts`);
+- nada de `enum`, `namespace` con código ni parameter properties.
+
+---
+
+## Autenticación y autorización
 
 - Registro y login con email/contraseña (`bcryptjs`, cost 12).
-- Sesión en **cookie HttpOnly** con JWT firmado (7 días).
-- `frontend/middleware.ts` valida el JWT y protege páginas + rutas `/api/*`.
-- Además, **cada ruta de la API vuelve a validar la sesión** con
-  `requireUser()` / `requireTeacher()` de `lib/session.ts`, y comprueba la
-  propiedad del recurso antes de devolver datos. Ver `SECURITY.md`.
+- Sesión en **cookie HttpOnly + SameSite=Lax** con JWT firmado (7 días). `Secure`
+  en producción.
+- **API**: `apiAccessGuard` (espejo del antiguo `middleware.ts`) cierra toda
+  `/api/*` salvo las rutas públicas, y exige rol `teacher` en `/api/teachers/*`.
+  Además, cada router repite la comprobación con `requireAuth` / `requireTeacher`
+  (defensa en profundidad).
+- **Páginas**: al ser una SPA, la protección es de cliente: `<ProtectedRoute>`
+  espera a resolver la sesión y redirige a `/login` (o a `/missions` si un alumno
+  abre una ruta de profesor).
 
 ### Roles
 
@@ -110,119 +152,129 @@ Plantilla: `frontend/.env.example`. **Ninguna** de estas variables está version
 |-----|--------|
 | `student` | Misiones, guías, feedback, resumen, grupos |
 | `teacher` | Dashboard, crear grupos, asignar misiones, ver progreso |
+| — | `ADMIN_EMAILS` habilita `/api/admin/metrics`, sea cual sea el rol |
+
+---
+
+## API
+
+30 operaciones agrupadas por módulo (`backend/src/modules/*/routes.ts`).
+
+| Módulo | Operaciones |
+|--------|-------------|
+| auth | `POST /signup` · `POST /login` · `POST /logout` · `GET /me` · `PATCH /update-profile` |
+| missions | `GET /api/missions` · `GET /api/missions/:id` · `POST /:id/submit` · `POST /:id/mark-completed` |
+| guides | `GET /api/guides` · `GET /:id` · `GET /:id/chat` · `POST /:id/chat` · `POST /:id/mark-completed` · `POST /:id/exercise-submission` |
+| students | `GET /api/students/groups` · `POST /join-group` · `GET /:id/weekly-stats` · `GET /:id/session-summary` |
+| teachers | `GET /api/teachers/groups` · `POST /groups/create` · `GET /groups/:id` · `GET /groups/:id/students` · `GET/POST /groups/:id/assign-mission` · `GET /students/:id/profile` |
+| evaluations | `GET /api/evaluations/:id` |
+| responses | `GET /api/responses/:id` |
+| chat | `POST /api/chat` (roleplay y pistas) |
+| admin | `GET /api/admin/metrics` |
+| — | `GET /health` (fuera de `/api`, sin sesión) |
+
+**Contrato de error**: `{ "error": "<mensaje>" }` con el status correspondiente.
+`401` sin sesión, `403` sin permiso, `404` no encontrado, `409` conflicto,
+`502/503` fallos del proveedor de IA.
 
 ---
 
 ## Base de datos
 
-### PostgreSQL (`DATABASE_URL`)
+**13 tablas** en `backend/src/db/schema.ts`:
 
-Tablas: `users`, `missions`, `guides`, `narrative_states`.
+`users` · `missions` · `guides` · `narrative_states` · `groups` · `group_members` ·
+`mission_assignments` · `responses` · `evaluations` · `weekly_aggregates` ·
+`guide_progress` · `chat_messages` · `exercise_submissions`
 
-Esquema: `frontend/lib/schema.ts` (Drizzle). Cliente: `frontend/lib/postgres.ts`.
-Las claves JS se nombran **iguales que las columnas** (`cefr_level`,
-`scene_context`, `cover_emoji`), así que la fila de la BD y el JSON de la API
-son el mismo objeto y no hace falta capa de traducción.
+- Claves foráneas con `ON DELETE CASCADE`, y `SET NULL` donde la fila sobrevive al
+  grupo (por ejemplo, una respuesta pertenece al alumno, no al grupo).
+- Restricciones únicas en `email`, `access_code`, `(grupo, alumno)`,
+  `(alumno, semana)`, `(alumno, guía)`, `evaluations.response_id`.
+- Índices por patrón de consulta: `responses(student_id, submitted_at)`,
+  `chat_messages(student_id, guide_id, sent_at)`, etc.
+- Los campos se llaman **igual que las columnas** (`cefr_level`, `scene_context`),
+  así que la fila de la BD y el JSON de la API son el mismo objeto.
 
-**Puesta en marcha de la base:**
+Las escrituras que tocan varias tablas van en **transacción** (envío de misión,
+chat de la guía) y los contadores semanales se actualizan con `ON CONFLICT` y
+aritmética en SQL, para que dos envíos concurrentes no se pisen.
+
+**Cambiar el esquema**:
 
 ```bash
-createdb vox                     # o desde pgAdmin
-cd frontend
-npx drizzle-kit push             # crea/actualiza las 4 tablas
-node --env-file-if-exists=.env.local scripts/seed.ts   # db.json -> PostgreSQL
+# 1. edita backend/src/db/schema.ts
+# 2. aplica
+npm run db:push -w @vox/backend
+npm run db:push:test -w @vox/backend
 ```
-
-Se accede **siempre** desde `lib/postgres.ts`:
-
-```typescript
-import { getDb } from '@/lib/postgres'
-import { missions } from '@/lib/schema'
-import { eq } from 'drizzle-orm'
-
-const rows = await getDb().select().from(missions).where(eq(missions.id, id))
-```
-
-`lib/supabase.ts` y el paquete `@supabase/supabase-js` ya no existen.
-
-> `scripts/seed.ts` es una **migración puntual**, no un seed diario. Una vez
-> ejecutada, PostgreSQL es la fuente de verdad de esas 4 tablas y `db.json` ya
-> no las contiene. Para reconstruirlas desde cero, recupera el `db.json`
-> anterior desde el historial de git.
-
-### Archivo JSON (`frontend/data/db.json`)
-
-Colecciones: `responses`, `evaluations`, `groups`, `group_members`,
-`mission_assignments`, `weekly_aggregates`, `guide_progress`,
-`chat_messages`, `exercise_submissions`.
-
-Se accede desde `lib/db.ts`:
-
-```typescript
-const db = readDB()
-db.responses.push(newResponse)
-writeDB(db)
-```
-
-Para resetear: `rm frontend/data/db.json` y reiniciar.
-
-> No re-introduzcas `users`, `missions`, `guides` ni `narrative_states` en
-> este archivo: ya viven en PostgreSQL.
 
 ---
 
-## Limitaciones conocidas
+## Tests
 
-| Limitación | Impacto | Solución |
-|------------|---------|----------|
-| **Dos almacenes a la vez**: auth/misiones/guías en PostgreSQL, pero grupos/evaluaciones en `db.json` | Un usuario creado en PostgreSQL no tiene fila en `db.json` si se resetea el archivo; algunos cruces leen de un almacén y escriben en otro | Unificar en PostgreSQL y eliminar `lib/db.ts` |
-| `db.json` se lee y escribe completo | En Vercel el filesystem es efímero y las escrituras concurrentes pueden perderse | Migrar el resto de colecciones a PostgreSQL |
-| Sin realtime | El dashboard docente refresca con polling | SSE o polling con caché |
-| Alta de docentes abierta | Cualquiera puede registrarse como `teacher` | Invitación por código o aprobación |
-| `narrative_states.group_id` no puede ser FK | Los grupos viven en `db.json`, así que ese apuntador no está protegido por integridad referencial | Migrar `groups`/`group_members` a PostgreSQL |
+```bash
+npm test              # raíz -> suite del backend (96 casos)
+npm run test:watch -w @vox/backend
+```
 
-**Adecuado para:** pilotos institucionales pequeños, demos y desarrollo local.
+Los tests son de **integración**: montan la app con Supertest y hablan con una
+PostgreSQL real (`vox_test`), que se vacía entre casos. Cubren:
 
----
+- contrato de auth (cookie, `Max-Age` de 7 días, validaciones, 409 de duplicado);
+- misiones: submit con evaluación de respaldo, umbral por nivel, agregado semanal,
+  promoción de nivel;
+- guías: filtros jsonb, chat, upsert de progreso, ejercicios;
+- grupos: creación, unión idempotente, asignaciones, paneles;
+- **matriz de IDOR y roles**: cada ruta con `401/403` esperado, aislamiento entre
+  profesores y propiedad de respuestas/evaluaciones;
+- flujos de IA con `completeChat` mockeado (ADVANCE, formato inválido, fallo del
+  proveedor).
 
-## Scripts de datos
-
-Todos viven en `scripts/` y comparten `scripts/lib/env.js` para leer `.env`.
-No forman parte del build de Next.js.
-
-| Script | Propósito |
-|--------|-----------|
-| `frontend/scripts/seed.ts` | Migración puntual `db.json` → PostgreSQL (ver [Base de datos](#base-de-datos)) |
-| `test_openrouter_connection.js` | Smoke test de la API key de OpenRouter |
+La BD de test se prepara una vez con `npm run db:push:test -w @vox/backend`.
 
 ---
 
 ## Comandos
 
 ```bash
-cd frontend
-npm run dev      # desarrollo
-npm run build    # build de producción
-npm run start    # servir el build
-npm run lint     # ESLint
-npx tsc --noEmit # type-check
+npm run dev          # API (:4000) + web (:5173) en paralelo
+npm run dev:api      # sólo backend
+npm run dev:web      # sólo frontend
+npm run build        # build de producción del frontend (Vite)
+npm run typecheck    # tsc en shared + backend + frontend
+npm run lint         # ESLint en todo el monorepo
+npm test             # tests del backend
+npm run db:push -w @vox/backend       # aplicar el esquema a vox
+npm run db:push:test -w @vox/backend  # aplicar el esquema a vox_test
 ```
+
+---
+
+## Limitaciones conocidas y deuda técnica
+
+| Elemento | Detalle |
+|----------|---------|
+| Panel del profesor y umbral | `GET /api/teachers/groups/:id/students` marca una misión como completada sólo si la evaluación es `ADVANCE`; el resto del sistema también acepta el umbral numérico del nivel. Con el respaldo técnico (65, `PAUSE`) los dos criterios discrepan. Es comportamiento heredado. |
+| `xp_awarded` nunca se escribe | `evaluations.xp_awarded` está siempre a `null`, así que `total_points` en `/api/students/groups` es siempre 0. Falta decidir la fórmula de XP. |
+| `/api/chat` confía en el cliente | El contexto de la misión (`objective`, `scene_context`, `character_name`) y el historial llegan en el body. Sólo afecta al propio alumno, pero lo correcto es cargar la misión por `id` en el servidor. |
+| Bundle sin code splitting | El build de Vite genera ~1 MB (286 KB gzip) en un único chunk. Trocear por ruta es una mejora pendiente. |
+| Sin realtime | El dashboard docente usa polling. |
+| Alta de docentes abierta | Cualquiera puede registrarse como `teacher`. Requiere invitación o aprobación. |
+| Autorización a nivel de API | PostgreSQL se usa con un único rol compartido: el aislamiento lo garantizan los guards de Express, no row-level security. |
+| Sin despliegue definido | Esta fase prioriza local. Ver abajo. |
 
 ---
 
 ## Despliegue
 
-```bash
-cd frontend
-npx vercel --prod
-```
+Pendiente de definir (fase posterior). Puntos a resolver:
 
-Variables en el dashboard de Vercel: las de la tabla anterior.
-
-Ten en cuenta:
-
-- **`DATABASE_URL` debe apuntar a un PostgreSQL accesible desde Vercel**
-  (Neon, Supabase-Postgres, RDS...). `drizzle-kit push` se ejecuta una vez
-  desde local, no en cada despliegue.
-- El filesystem de Vercel es efímero: `db.json` no sirve como almacenamiento
-  persistente en producción. Ver [limitaciones](#limitaciones-conocidas).
+- `DATABASE_URL` debe apuntar a un PostgreSQL accesible; el esquema se aplica con
+  `drizzle-kit push` desde local, no en cada despliegue.
+- El frontend es estático (`frontend/dist/`): se puede servir desde un CDN/host
+  estático con fallback SPA a `index.html`.
+- Si frontend y API quedan en dominios distintos, harán falta CORS con
+  credenciales y `SameSite=None; Secure` en la cookie, además de
+  `Strict-Transport-Security`.
+- Añadir rate limiting en auth y en las rutas de IA (ver `SECURITY.md`).
