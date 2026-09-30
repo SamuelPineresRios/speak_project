@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Timer } from './Timer'
 import { TypewriterMessage } from './TypewriterMessage'
 import { ResponsiveBackgroundSprites } from './ResponsiveBackgroundSprites'
-import { GrammarCorrectionModal } from './GrammarCorrectionModal'
+import { GrammarToastStack, HeartMeter, type GrammarNotice } from './GrammarToast'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/lib/hooks/useAuth'
 import { readJson } from '@/lib/api'
@@ -67,14 +67,13 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
   const [timerDuration, setTimerDuration] = useState(mission.base_duration_seconds)
   const [timerKey, setTimerKey] = useState(0)
   
-  // Grammar Correction Modal states
-  const [showGrammarModal, setShowGrammarModal] = useState(false)
-  const [grammarModalData, setGrammarModalData] = useState<{
-    original: string
-    corrected: string
-    feedback: string
-  } | null>(null)
-  const [, setLastUserMessageIndexForRetry] = useState<number | null>(null)
+  // Correcciones en curso: cada una es una notificación en la esquina.
+  const [grammarNotices, setGrammarNotices] = useState<GrammarNotice[]>([])
+
+  // Desafío: 3 corazones. Cada frase fuera de tema o mal gramaticalmente cuesta uno.
+  const TOTAL_HEARTS = 3
+  const [hearts, setHearts] = useState(TOTAL_HEARTS)
+  const [showFailedNotification, setShowFailedNotification] = useState(false)
 
   const scrollRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -85,6 +84,8 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
     setMissionMode(mode)
     setState('active'); setStartTime(Date.now())
     setIsThinking(true)
+    setHearts(TOTAL_HEARTS)
+    setShowFailedNotification(false)
     
     // Initial system prompt + optional fake first message or trigger API
     // Let's trigger the API to get the first greeting based on context
@@ -192,30 +193,32 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
                 return [...updated, newAssistantMsg]
              })
             
-            // Check if we need to show modal
-            // Show modal for ratings 1-3 (off-topic or grammar errors)
+            // Frase con errores (rating 1-3): notificación en la esquina.
+            // El chat sigue abierto: no hay nada que cerrar para reintentar.
             if (data.message.rating && data.message.rating >= 1 && data.message.rating <= 3) {
-              // Off-topic or Grammar errors
-              setLastUserMessageIndexForRetry(newMessages.length - 1)
-              
               // Si el modelo no devolvió corrección, no se le muestra al alumno
               // su propia respuesta errónea como si fuera la correcta.
               const correctedVersion = data.correctedText || '[Respuesta rechazada]'
-              
-              console.log('[Grammar Modal]', {
-                rating: data.message.rating,
-                apiCorrectedText: data.correctedText,
-                userOriginal: userMsg.content,
-                finalCorrected: correctedVersion,
-                feedback: data.feedback
-              })
-              
-              setGrammarModalData({
-                original: userMsg.content,
-                corrected: correctedVersion,
-                feedback: data.feedback || 'Tu respuesta no es correcta para esta pregunta.'
-              })
-              setShowGrammarModal(true)
+
+              setGrammarNotices(current => [
+                ...current,
+                {
+                  id: `notice-${crypto.randomUUID()}`,
+                  original: userMsg.content,
+                  corrected: correctedVersion,
+                  feedback: data.feedback || 'Tu respuesta no es correcta para esta pregunta.',
+                },
+              ])
+
+              // En el Desafío cada frase mal cuesta un corazón; sin corazones,
+              // el desafío se acaba.
+              if (missionMode === 'evaluation') {
+                setHearts(current => {
+                  const remaining = Math.max(current - 1, 0)
+                  if (remaining === 0) setShowFailedNotification(true)
+                  return remaining
+                })
+              }
             }
             
             // Enable typewriter effect for the new assistant message
@@ -266,39 +269,8 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
     }
   }
 
-  const handleRetryGrammar = () => {
-    // Remove the last user message and the assistant response
-    // This allows the user to try again
-    setMessages(current => {
-      const updated = [...current]
-      // Find and remove the last user message and its assistant response
-      const lastUserIdx = updated.findLastIndex(m => m.role === 'user')
-      if (lastUserIdx !== -1) {
-        updated.splice(lastUserIdx, 1)
-        // Also remove the following assistant message if it exists
-        if (lastUserIdx < updated.length && updated[lastUserIdx]?.role === 'assistant') {
-          updated.splice(lastUserIdx, 1)
-        }
-      }
-      return updated
-    })
-    
-    // Close modal and focus input
-    setShowGrammarModal(false)
-    setGrammarModalData(null)
-    setTimeout(() => textareaRef.current?.focus(), 100)
-  }
-
-  const handleUnderstandGrammar = () => {
-    // Just close the modal and continue
-    // Optionally, copy the corrected text to clipboard for user reference
-    if (grammarModalData?.corrected) {
-      navigator.clipboard.writeText(grammarModalData.corrected).catch(() => {
-        console.log('Could not copy to clipboard')
-      })
-    }
-    setShowGrammarModal(false)
-    setGrammarModalData(null)
+  const dismissGrammarNotice = (id: string) => {
+    setGrammarNotices(current => current.filter(notice => notice.id !== id))
   }
 
   const handleCompleteMission = async () => {
@@ -513,6 +485,7 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
                      >
                        <div className="absolute inset-0 bg-gradient-to-br from-amber/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                        <span className="text-[20px] text-amber font-bold uppercase tracking-widest mb-1 group-hover:text-amber-400">Desafio</span>
+                       <span className="text-xs text-slate-400 group-hover:text-slate-300">Tres corazones: falla tres veces y termina</span>
                        <span className="text-xs text-amber/60 group-hover:text-amber/80">Tiempo ajustado por respuesta..</span>
                      </button>
                 </div>
@@ -581,6 +554,7 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
                     )}
                 ></div>
             </div>
+            {missionMode === 'evaluation' && <HeartMeter hearts={hearts} total={TOTAL_HEARTS} />}
         </div>
       </div>
 
@@ -728,6 +702,49 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
         </div>
       )}
 
+      {/* Desafío fallido: sin corazones */}
+      {showFailedNotification && (
+        <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-red-950/90 backdrop-blur-md animate-in fade-in duration-500">
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200%] h-[200%] bg-[conic-gradient(from_0deg,transparent_0deg,red_20deg,transparent_40deg)] opacity-10 animate-[spin_8s_linear_infinite]" />
+          </div>
+
+          <div className="relative z-10 text-center space-y-6 p-8 max-w-md w-full">
+            <div className="mx-auto w-24 h-24 bg-red-400/15 rounded-full flex items-center justify-center border-2 border-red-400 shadow-[0_0_30px_rgba(248,113,113,0.4)]">
+              <span className="text-5xl">💔</span>
+            </div>
+
+            <div className="space-y-2">
+              <h2 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-red-200 uppercase tracking-tighter drop-shadow-lg">
+                Desafío<br/>Fallido
+              </h2>
+              <p className="text-red-200 font-body text-sm tracking-[0.2em] animate-pulse">
+                TE QUEDASTE SIN CORAZONES
+              </p>
+            </div>
+
+            <p className="text-red-100/80 text-base font-light leading-relaxed max-w-xs mx-auto">
+              Repasa las correcciones de la lista de la derecha y vuelve a intentarlo: en el Desafío cada frase fuera de tema o mal escrita cuesta un corazón.
+            </p>
+
+            <div className="flex flex-col gap-3 w-full pt-2">
+              <button
+                onClick={() => { setState('briefing'); setShowFailedNotification(false); setMissionProgress(0); setHearts(TOTAL_HEARTS) }}
+                className="w-full py-4 rounded-xl bg-white text-red-900 font-black text-lg uppercase tracking-wider shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:scale-105 transition-all active:scale-95"
+              >
+                Reintentar
+              </button>
+              <button
+                onClick={() => setShowFailedNotification(false)}
+                className="w-full py-3 text-red-200/60 font-body text-xs uppercase tracking-widest hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+              >
+                [ Volver al desafío ]
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Help Modal - Grammar & Vocabulary Hints */}
       {showHelp && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-in fade-in duration-200">
@@ -833,17 +850,8 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
         </div>
       )}
 
-      {/* Grammar Correction Modal */}
-      {grammarModalData && (
-        <GrammarCorrectionModal
-          isOpen={showGrammarModal}
-          originalText={grammarModalData.original}
-          correctedText={grammarModalData.corrected}
-          feedback={grammarModalData.feedback}
-          onRetry={handleRetryGrammar}
-          onContinue={handleUnderstandGrammar}
-        />
-      )}
+      {/* Notificación de corrección (esquina superior derecha) */}
+      <GrammarToastStack notices={grammarNotices} onDismiss={dismissGrammarNotice} />
     </div>
   )
 }
