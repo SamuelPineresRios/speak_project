@@ -34,10 +34,12 @@ export const env = {
   databaseUrl: required('DATABASE_URL'),
   jwtSecret: required('JWT_SECRET'),
   /**
-   * Opcional: mientras esté vacía, las rutas que llaman a OpenRouter
+   * Opcional: mientras esté vacía, las rutas que llaman al proveedor de IA
    * responden 503 (`Servicio de IA no configurado`) en lugar de reventar.
    */
-  openRouterApiKey: process.env.OPENROUTER_API_KEY?.trim() || null,
+  anthropicApiKey: process.env.ANTHROPIC_API_KEY?.trim() || null,
+  /** Modelo de Claude; por defecto Haiku 4.5 con snapshot fijado. */
+  anthropicModel: process.env.ANTHROPIC_MODEL?.trim() || null,
   /** Emails con acceso a las métricas de administración (minúsculas). */
   adminEmails: (process.env.ADMIN_EMAILS ?? '')
     .split(',')

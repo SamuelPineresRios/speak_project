@@ -2,7 +2,7 @@
  * Ruta HTTP del modo conversación (montada en `/api/chat`).
  *
  * No toca la base de datos: sólo compone el prompt a partir del contexto que
- * envía el cliente y lo pasa a OpenRouter.
+ * envía el cliente y lo pasa al proveedor de IA.
  */
 import { Router } from 'express'
 import { AIProviderError } from '../../lib/ai.ts'
@@ -40,7 +40,7 @@ chatRouter.post('/', requireAuth, async (req, res) => {
   } catch (err) {
     if (err instanceof AIProviderError) {
       // El status del proveedor (401 por clave inválida, 429 por límite...) no
-      // se propaga tal cual: un 401 de OpenRouter no significa que la sesión
+      // se propaga tal cual: un 401 de Anthropic no significa que la sesión
       // del alumno haya caducado. Se registra y se responde 502.
       console.error('[chat] Error del proveedor de IA:', err.status, err.detail)
       res.status(502).json({ error: 'Error del proveedor de IA' })

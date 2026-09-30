@@ -1,7 +1,7 @@
 /**
  * Tests de integración de misiones.
  *
- * Sin `OPENROUTER_API_KEY` (entorno de test) la evaluación cae al respaldo
+ * Sin `ANTHROPIC_API_KEY` (entorno de test) la evaluación cae al respaldo
  * técnico: puntuación 65 con judgment PAUSE. Eso permite comprobar el umbral
  * por nivel de forma determinista: 65 completa A1 (umbral 60) pero no B1 (80).
  */

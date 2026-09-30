@@ -60,7 +60,7 @@ export async function listChatMessages(
 /** Respuesta del tutor; nunca lanza: ante un fallo devuelve un aviso. */
 async function generateTutorReply(message: string, guide: GuideRow): Promise<string> {
   try {
-    console.log('[CHAT] 🚀 Llamando OpenRouter/Gemini...')
+    console.log('[CHAT] 🚀 Llamando al proveedor de IA...')
     const response = await completeChat({
       messages: [
         { role: 'system', content: buildTutorSystemPrompt(guide) },

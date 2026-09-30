@@ -170,7 +170,7 @@ Registra un ejercicio completado
 ## 🐛 Troubleshooting
 
 ### "El tutor no responde"
-- Comprueba la env var `OPENROUTER_API_KEY` en `frontend/.env.local`
+- Comprueba la env var `ANTHROPIC_API_KEY` en `backend/.env.local`
 
 ### "Ejercicios no se guardan"
 - Revisa que la cookie de sesión sea válida: cada ruta re-valida el JWT en el servidor

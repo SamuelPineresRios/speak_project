@@ -38,7 +38,6 @@ export async function requestHints(params: {
 }): Promise<HintsResult> {
   const content = await completeChat({
     messages: [{ role: 'user', content: buildHintsPrompt(params) }],
-    model: 'google/gemini-2.5-flash-001',
     jsonMode: true,
   })
 

@@ -13,7 +13,7 @@ const app = createApp()
 
 app.listen(env.port, () => {
   console.log(`[api] VOX backend escuchando en http://localhost:${env.port}`)
-  if (!env.openRouterApiKey) {
-    console.warn('[api] OPENROUTER_API_KEY vacía: las rutas de IA responderán 503')
+  if (!env.anthropicApiKey) {
+    console.warn('[api] ANTHROPIC_API_KEY vacía: las rutas de IA responderán 503')
   }
 })

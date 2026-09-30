@@ -14,7 +14,7 @@ desbloquean guías de gramática; los docentes crean grupos, asignan misiones y 
 | Backend | Node.js + **Express 5** (TypeScript ejecutado nativamente por Node) |
 | Base de datos | **PostgreSQL + Drizzle ORM** — única fuente de verdad |
 | Autenticación | JWT (`jose`) en cookie HttpOnly + `bcryptjs` |
-| Evaluación / chat LLM | OpenRouter (Gemini) vía `backend/src/lib/ai.ts` |
+| Evaluación / chat LLM | **Anthropic Claude** (Haiku 4.5) vía `backend/src/lib/ai.ts` |
 | Tests | Vitest + Supertest (integración de API) · ESLint |
 
 El repositorio es un **monorepo con npm workspaces**: `shared/`, `backend/` y `frontend/`.
@@ -49,7 +49,7 @@ Un solo `npm install` en la raíz instala todo.
 │   │   ├── modules/          # auth, missions, guides, teachers, students,
 │   │   │                     # evaluations, responses, chat, admin
 │   │   │                     #   routes.ts (HTTP) + service.ts (dominio)
-│   │   ├── lib/              # ai.ts (OpenRouter), guides-integration.ts
+│   │   ├── lib/              # ai.ts (cliente de Anthropic), guides-integration.ts
 │   │   └── utils/
 │   └── tests/                # tests de integración (6 ficheros, 96 casos)
 └── frontend/                 # @vox/frontend — SPA React
@@ -105,7 +105,8 @@ Plantilla: `backend/.env.example`. **Ninguna** está versionada.
 | `JWT_SECRET` | Sí | Firma de la cookie de sesión (`openssl rand -hex 32`) |
 | `PORT` | No | Puerto de la API (por defecto `4000`) |
 | `NODE_ENV` | No | `development` \| `production` |
-| `OPENROUTER_API_KEY` | No | Evaluación y tutor. Sin ella la app funciona: las rutas de IA responden `503` y el envío de misiones usa una evaluación de respaldo |
+| `ANTHROPIC_API_KEY` | No | Evaluación y tutor ([console.anthropic.com](https://console.anthropic.com/settings/keys)). Sin ella la app funciona: las rutas de IA responden `503` y el envío de misiones usa una evaluación de respaldo |
+| `ANTHROPIC_MODEL` | No | Modelo de Claude. Por defecto `claude-haiku-4-5-20251001` (snapshot fijado de Haiku 4.5) |
 | `ADMIN_EMAILS` | No | Emails (separados por coma) con acceso a `/api/admin/metrics` |
 
 El frontend **no usa variables de entorno**: habla siempre con `/api` en su mismo origen.

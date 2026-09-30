@@ -119,7 +119,7 @@ Plantilla: `backend/.env.example`. Ver `README.md → Variables de entorno`.
 
 ### Rotación de credenciales
 
-1. **OpenRouter**: `https://openrouter.ai/settings/keys`
+1. **Anthropic**: `https://console.anthropic.com/settings/keys`
 2. **`JWT_SECRET`**: `openssl rand -hex 32` (invalida todas las sesiones activas
    — esperado)
 3. **PostgreSQL**: si `DATABASE_URL` llegó a versionarse, cambia la contraseña del

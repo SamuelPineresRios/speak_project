@@ -23,7 +23,7 @@ export default defineConfig({
       NODE_ENV: 'test',
       DATABASE_URL: TEST_DATABASE_URL,
       JWT_SECRET: 'test-jwt-secret-de-al-menos-32-caracteres',
-      OPENROUTER_API_KEY: '',
+      ANTHROPIC_API_KEY: '',
       ADMIN_EMAILS: 'admin@vox.test',
     },
   },

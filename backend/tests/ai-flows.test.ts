@@ -1,8 +1,8 @@
 /**
- * Tests de los flujos que hablan con OpenRouter.
+ * Tests de los flujos que hablan con el proveedor de IA.
  *
  * El módulo de IA se mockea para que estos tests sean deterministas y no
- * dependan de red ni de la clave de OpenRouter.
+ * dependan de red ni de la clave de Anthropic.
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -22,7 +22,7 @@ vi.mock('../src/lib/ai.ts', () => {
   return {
     DEFAULT_AI_MODEL: 'test-model',
     AIProviderError,
-    requireOpenRouterKey: vi.fn(() => 'test-key'),
+    requireAnthropicKey: vi.fn(() => 'test-key'),
     completeChat: vi.fn(),
   }
 })
