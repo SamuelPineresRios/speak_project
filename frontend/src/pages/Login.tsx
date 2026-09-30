@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Link } from 'react-router-dom'
 import { ShieldCheck, UserCircle, KeyRound, AlertCircle, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { readJson } from '@/lib/api'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -50,11 +51,11 @@ export default function LoginPage() {
         body: JSON.stringify({ email, password, role })
       })
       if (!res.ok) {
-        const data = await res.json()
-        throw new Error(data.error || 'ACCESO DENEGADO')
+        const data = await readJson(res)
+        throw new Error(data?.error || 'ACCESO DENEGADO')
       }
-      const data = await res.json()
-      if (data.user.role === 'teacher') navigate('/dashboard')
+      const data = await readJson(res)
+      if (data?.user?.role === 'teacher') navigate('/dashboard')
       else navigate('/missions')
     } catch (err: any) {
       setError(err.message)

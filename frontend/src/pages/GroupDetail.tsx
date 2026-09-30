@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { TeacherDashboard } from '@/components/TeacherDashboard'
 import { StudentProfileModal } from '@/components/StudentProfileModal'
 import { cn } from '@/lib/utils'
+import { readJson } from '@/lib/api'
 import { 
   ChevronLeft, Plus, Hash, CheckCircle2, 
   Share2, Shield, Building2, Terminal
@@ -25,11 +26,11 @@ export default function GroupDetailPage() {
 
   useEffect(() => {
     Promise.all([
-      fetch(`/api/teachers/groups/${groupId}`).then(r => r.json()),
-      fetch(`/api/teachers/groups/${groupId}/students`).then(r => r.json()),
+      fetch(`/api/teachers/groups/${groupId}`).then(readJson),
+      fetch(`/api/teachers/groups/${groupId}/students`).then(readJson),
     ]).then(([g, s]) => {
       setGroup(g)
-      setTotalMissions(s.total_missions ?? 0)
+      setTotalMissions(s?.total_missions ?? 0)
       setLoading(false)
     })
   }, [groupId])

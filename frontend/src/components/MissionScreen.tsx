@@ -6,6 +6,7 @@ import { ResponsiveBackgroundSprites } from './ResponsiveBackgroundSprites'
 import { GrammarCorrectionModal } from './GrammarCorrectionModal'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/lib/hooks/useAuth'
+import { readJson } from '@/lib/api'
 
 
 interface Mission {
@@ -99,8 +100,8 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
                 userLevel: user?.cefr_level || mission.cefr_level 
             })
         })
-        const data = await res.json()
-        if (data.message) {
+        const data = await readJson(res)
+        if (data?.message) {
             setMessages([data.message])
             setIsLastMessageTyping(true)
             if (mode === 'evaluation' && data.estimated_time) {
@@ -161,8 +162,8 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
                 userLevel: user?.cefr_level || mission.cefr_level 
             })
         })
-        const data = await res.json()
-        if (data.message) {
+        const data = await readJson(res)
+        if (data?.message) {
             // Store the rating on the *User's* message (the one we just sent)
             // But the API returns the rating for the *User's* message in the *Assistant's* payload usually.
             // Wait, the API returns { message: { role: 'assistant', ... }, feedback: ..., rating: ... }
@@ -317,7 +318,7 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ response_text: transcript, student_id: studentId, group_id: groupId, time_taken_seconds: timeTaken }),
             })
-            const data = await res.json().catch(() => ({}))
+            const data = await readJson(res)
 
             if (!res.ok) {
                 console.error('Submission error', data)
@@ -399,8 +400,8 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
           userLevel: user?.cefr_level || mission.cefr_level 
         })
       })
-      const data = await res.json()
-      if (data.key_verbs || data.useful_phrases || data.grammar_tips) {
+      const data = await readJson(res)
+      if (data?.key_verbs || data?.useful_phrases || data?.grammar_tips) {
         setDynamicHints(data)
       }
     } catch (err) {

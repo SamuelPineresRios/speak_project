@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Hash, ShieldCheck, AlertCircle, ChevronLeft } from 'lucide-react'
+import { readJson } from '@/lib/api'
 
 export default function JoinGroupPage() {
   const [code, setCode] = useState('')
@@ -13,9 +14,9 @@ export default function JoinGroupPage() {
     if (!code.trim()) return
     setLoading(true); setError('')
     const res = await fetch('/api/students/join-group', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ access_code: code.trim().toUpperCase() }) })
-    const data = await res.json()
-    if (!res.ok) { setError(data.error ?? 'ENLACE RECHAZADO'); setLoading(false); return }
-    setSuccess(`¡VINCULACIÓN A "${data.name}" EXITOSA!`)
+    const data = await readJson(res)
+    if (!res.ok) { setError(data?.error ?? 'ENLACE RECHAZADO'); setLoading(false); return }
+    setSuccess(`¡VINCULACIÓN A "${data?.name ?? "EL GRUPO"}" EXITOSA!`)
     // Redirect to missions after 1 second
     setTimeout(() => {
       localStorage.setItem('speak:last-route', '/missions')

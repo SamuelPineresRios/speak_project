@@ -17,6 +17,18 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:4000',
         changeOrigin: false,
+        // Si el backend está caído o reiniciándose, el proxy devolvía un 502
+        // SIN cuerpo y el frontend reventaba al parsearlo. Se responde JSON
+        // para que el error llegue como un mensaje normal de la API.
+        configure: proxy => {
+          proxy.on('error', (error, _req, res) => {
+            console.error('[proxy] El backend no respondió:', error.message)
+            if ('writeHead' in res && !res.headersSent) {
+              res.writeHead(502, { 'Content-Type': 'application/json' })
+              res.end(JSON.stringify({ error: 'El servidor no está disponible' }))
+            }
+          })
+        },
       },
     },
   },

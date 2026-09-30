@@ -8,6 +8,7 @@ import { TypewriterMessage } from "./TypewriterMessage";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AlertCircle, BookOpen, Lightbulb, Target, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { readJson } from '@/lib/api'
 
 interface Guide {
   id: string;
@@ -80,8 +81,8 @@ export function GuideDetail({ guideId }: GuideDetailProps) {
         const response = await fetch(`/api/guides/${guideId}`);
         if (!response.ok) throw new Error("Failed to fetch guide");
 
-        const data = await response.json();
-        setGuide(data.guide);
+        const data = await readJson(response);
+        if (data?.guide) setGuide(data.guide);
         setError(null);
       } catch (err) {
         setError(
@@ -114,10 +115,10 @@ export function GuideDetail({ guideId }: GuideDetailProps) {
       );
 
       if (response.ok) {
-        const data = await response.json();
+        const data = await readJson(response);
         setGuide({
           ...guide,
-          progress: data.progress,
+          progress: data?.progress,
         });
       }
     } catch (err) {

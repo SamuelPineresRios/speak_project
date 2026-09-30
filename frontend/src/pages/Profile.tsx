@@ -4,6 +4,7 @@ import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer } fro
 import { Camera, Edit2, Shield, Award, Brain, Target, CheckCircle2, TrendingUp } from 'lucide-react'
 import { ResponsiveBackgroundSprites } from '@/components/ResponsiveBackgroundSprites'
 import { Canvas3DBackground } from '@/components/Canvas3DBackground'
+import { readJson } from '@/lib/api'
 
 interface Mission { id:string; title:string; description:string|null; cefr_level:string; status:string }
 
@@ -53,9 +54,9 @@ export default function ProfilePage() {
 
     // Only fetch missions
     fetch('/api/missions')
-      .then(res => res.json())
+      .then(readJson)
       .then((missionsData) => {
-        setMissions(missionsData.missions ?? [])
+        setMissions(missionsData?.missions ?? [])
         setLoading(false)
       })
       .catch((err) => {

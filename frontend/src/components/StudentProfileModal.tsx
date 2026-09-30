@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { LineChart, Line, ResponsiveContainer, Tooltip, XAxis } from 'recharts'
 import { formatDuration, cn } from '@/lib/utils'
+import { readJson } from '@/lib/api'
 import { Star, Award, Clock } from 'lucide-react'
 
 interface StudentProfile {
@@ -43,7 +44,7 @@ export function StudentProfileModal({ studentId, groupId, onClose }: StudentProf
 
   useEffect(() => {
     fetch(`/api/teachers/students/${studentId}/profile?group_id=${encodeURIComponent(groupId)}`)
-      .then(r => r.json()).then(d => { setProfile(d); setLoading(false) })
+      .then(readJson).then(d => { setProfile(d); setLoading(false) })
   }, [studentId, groupId])
 
   return (

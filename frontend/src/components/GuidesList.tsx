@@ -9,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { readJson } from '@/lib/api'
 
 interface Guide {
   id: string;
@@ -36,8 +37,8 @@ export function GuidesList() {
       const response = await fetch("/api/guides");
       if (!response.ok) throw new Error("Failed to fetch guides");
 
-      const data = await response.json();
-      setGuides(data.guides);
+      const data = await readJson(response);
+      setGuides(data?.guides ?? []);
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error loading guides");

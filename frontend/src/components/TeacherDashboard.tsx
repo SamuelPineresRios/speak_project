@@ -3,6 +3,7 @@ import { cn, formatDuration } from '@/lib/utils'
 import { 
   Users, Activity, Target, ChevronDown, ChevronUp, AlertTriangle, Clock, ShieldCheck
 } from "lucide-react";
+import { readJson } from '@/lib/api'
 
 interface StudentProgress {
   student_id: string
@@ -31,8 +32,8 @@ export function TeacherDashboard({ groupId, onViewStudent }: TeacherDashboardPro
   const fetchStudents = useCallback(async () => {
     const res = await fetch(`/api/teachers/groups/${groupId}/students`)
     if (res.ok) {
-      const data = await res.json()
-      setStudents(data.students ?? [])
+      const data = await readJson(res)
+      setStudents(data?.students ?? [])
       if (loading) setLoading(false)
     }
   }, [groupId, loading])

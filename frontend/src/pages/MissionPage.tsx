@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useAuth } from '@/lib/hooks/useAuth'
 import { MissionScreen } from '@/components/MissionScreen'
+import { readJson } from '@/lib/api'
 
 export default function MissionPage() {
   const { user } = useAuth()
@@ -18,14 +19,14 @@ export default function MissionPage() {
     fetch(`/api/missions/${missionId}`)
       .then((r) => {
         console.log('[Mission Page] Response status:', r.status)
-        return r.json()
+        return readJson(r)
       })
       .then((d) => {
         console.log('[Mission Page] Response data:', d)
-        if (d.error) {
-          setError(d.error)
+        if (d?.error) {
+          setError(d?.error ?? 'No se pudo cargar la misión')
         } else {
-          setMission(d.mission)
+          setMission(d?.mission ?? null)
         }
         setLoading(false)
       })

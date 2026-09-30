@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/lib/hooks/useAuth'
+import { readJson } from '@/lib/api'
 import { cn } from '@/lib/utils'
 import { 
   Terminal, Cpu, Plus, 
@@ -17,8 +18,8 @@ export default function TeacherDashboardPage() {
 
   useEffect(() => { 
     fetch('/api/teachers/groups')
-      .then(r=>r.json())
-      .then(d => { setGroups(d.groups??[]); setLoading(false) }) 
+      .then(readJson)
+      .then(d => { setGroups(d?.groups??[]); setLoading(false) }) 
   }, [])
 
   const copyCode = (code:string) => { 

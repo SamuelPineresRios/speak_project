@@ -1,6 +1,7 @@
 import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { FeedbackScreen } from '@/components/FeedbackScreen'
+import { readJson } from '@/lib/api'
 
 function FeedbackContent() {
   const [params] = useSearchParams()
@@ -16,14 +17,14 @@ function FeedbackContent() {
 
     // Fetch data directly from JSON db via API
     Promise.all([
-      fetch(`/api/missions/${missionId}`).then(r => r.json()),
-      fetch(`/api/evaluations/${evalId}`).then(r => r.json()),
-      fetch(`/api/responses/${responseId}`).then(r => r.json()),
+      fetch(`/api/missions/${missionId}`).then(readJson),
+      fetch(`/api/evaluations/${evalId}`).then(readJson),
+      fetch(`/api/responses/${responseId}`).then(readJson),
     ]).then(([missionData, evalData, respData]) => {
-      const resp = respData.response
+      const resp = respData?.response
       setData({ 
-        evaluation: evalData.evaluation, 
-        missionTitle: missionData.mission?.title ?? '', 
+        evaluation: evalData?.evaluation, 
+        missionTitle: missionData?.mission?.title ?? '', 
         studentResponse: resp?.text_content ?? '',
       })
       setLoading(false)

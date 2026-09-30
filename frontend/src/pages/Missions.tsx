@@ -5,6 +5,7 @@ import { getCefrLabel } from '@vox/shared'
 import { cn } from '@/lib/utils'
 import { MissionSimulationAside } from '@/components/MissionSimulationAside'
 import { ResponsiveBackgroundSprites } from '@/components/ResponsiveBackgroundSprites'
+import { readJson } from '@/lib/api'
 
 interface Mission { id:string; title:string; description:string|null; cefr_level:string; base_duration_seconds:number; status:string }
 const LEVEL_COLORS: Record<string,string> = { A1:'text-emerald border-emerald/40', A2:'text-cyan border-cyan/40', B1:'text-amber border-amber/40', B2:'text-violet border-violet/40' }
@@ -36,13 +37,13 @@ export default function MissionsPage() {
     fetch('/api/missions')
       .then(r => {
         if (!r.ok) throw new Error(`${r.status}`)
-        return r.json()
+        return readJson(r)
       })
       .then(d=>{ 
-        console.log('[Missions] Loaded:', d.missions?.length || 0, 'missions for level:', d.cefr_level)
-        setMissions(d.missions??[]); 
-        setCefrLevel(d.cefr_level); 
-        setFilter(d.cefr_level ?? 'A1'); // Set filter to current level by default
+        console.log('[Missions] Loaded:', d?.missions?.length || 0, 'missions for level:', d?.cefr_level)
+        setMissions(d?.missions??[]); 
+        setCefrLevel(d?.cefr_level); 
+        setFilter(d?.cefr_level ?? 'A1'); // Set filter to current level by default
         setLoading(false);
         setError(null)
       })

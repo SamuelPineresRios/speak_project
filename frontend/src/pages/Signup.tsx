@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Link } from 'react-router-dom'
 import { UserPlus, Mail, KeyRound, AlertCircle, ChevronRight, Fingerprint } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { readJson } from '@/lib/api'
 
 export default function SignupPage() {
   const [name, setName] = useState('')
@@ -57,11 +58,11 @@ export default function SignupPage() {
         })
       })
       if (!res.ok) {
-        const data = await res.json()
-        throw new Error(data.error || 'ERROR DE SISTEMA')
+        const data = await readJson(res)
+        throw new Error(data?.error || 'ERROR DE SISTEMA')
       }
-      const data = await res.json()
-      if (data.user.role === 'teacher') navigate('/dashboard')
+      const data = await readJson(res)
+      if (data?.user?.role === 'teacher') navigate('/dashboard')
       else navigate('/join-group')
     } catch (err: any) {
       setError(err.message)

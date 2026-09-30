@@ -4,6 +4,7 @@ import { Users, Clock, AlertCircle, PlayCircle, Trophy, Target, Award, ShieldAle
 import { cn } from '@/lib/utils'
 import { ResponsiveBackgroundSprites } from '@/components/ResponsiveBackgroundSprites'
 import { Canvas3DBackground } from '@/components/Canvas3DBackground'
+import { readJson } from '@/lib/api'
 
 export default function StudentGroupsPage() {
   const [groups, setGroups] = useState<any[]>([])
@@ -19,8 +20,8 @@ export default function StudentGroupsPage() {
     try {
       const res = await fetch('/api/students/groups')
       if (!res.ok) throw new Error('ERROR AL SINCRONIZAR ESCUADRONES')
-      const data = await res.json()
-      setGroups(data.groups)
+      const data = await readJson(res)
+      setGroups(data?.groups ?? [])
     } catch (err: any) {
       setError(err.message)
     } finally {

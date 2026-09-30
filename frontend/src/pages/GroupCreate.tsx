@@ -10,6 +10,7 @@ import {
   AlertCircle,
   Check
 } from "lucide-react";
+import { readJson } from '@/lib/api'
 
 export default function CreateGroupPage() {
   const [name, setName] = useState('')
@@ -29,9 +30,9 @@ export default function CreateGroupPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name: name.trim(), institution_name: institution.trim() || null, parental_consent_confirmed: true }),
     })
-    const data = await res.json()
-    if (!res.ok) { setError(data.error ?? 'Fallo en la creación del escuadrón'); setLoading(false); return }
-    navigate(`/group/${data.id}`)
+    const data = await readJson(res)
+    if (!res.ok) { setError(data?.error ?? 'Fallo en la creación del escuadrón'); setLoading(false); return }
+    navigate(`/group/${data?.id}`)
   }
 
   return (

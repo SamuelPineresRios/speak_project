@@ -5,6 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
 import { TypewriterMessage } from "./TypewriterMessage";
 import { Send, Loader2 } from "lucide-react";
+import { readJson } from '@/lib/api'
 
 interface Message {
   id: string;
@@ -33,8 +34,8 @@ export function ChatPanel({ guideId, guideTopic = "esta lección", guideCefr = "
       setLoadingHistory(true);
       const response = await fetch(`/api/guides/${guideId}/chat`);
       if (response.ok) {
-        const data = await response.json();
-        setMessages(data.messages || []);
+        const data = await readJson(response);
+        setMessages(data?.messages || []);
       }
     } catch (error) {
       console.error("Error loading chat history:", error);
@@ -154,8 +155,8 @@ export function ChatPanel({ guideId, guideTopic = "esta lección", guideCefr = "
       });
 
       if (response.ok) {
-        const data = await response.json();
-        if (data.assistantMessage) {
+        const data = await readJson(response);
+        if (data?.assistantMessage) {
           setMessages((prev) => [...prev, data.assistantMessage]);
         }
       } else {

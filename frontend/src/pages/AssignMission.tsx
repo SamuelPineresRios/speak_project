@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { cn } from '@/lib/utils'
+import { readJson } from '@/lib/api'
 
 interface Mission { id: string; title: string; cefr_level: string; base_duration_seconds: number }
 const LEVEL_COLORS: Record<string, string> = { A1:'text-emerald', A2:'text-sky-400', B1:'text-amber', B2:'text-coral' }
@@ -15,7 +16,7 @@ export default function AssignMissionPage() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    fetch('/api/missions').then(r => r.json()).then(d => { setMissions(d.missions ?? []); setLoading(false) })
+    fetch('/api/missions').then(readJson).then(d => { setMissions(d?.missions ?? []); setLoading(false) })
   }, [])
 
   const toggle = (id: string) => setSelected(p => p.includes(id) ? p.filter(x => x !== id) : [...p, id])

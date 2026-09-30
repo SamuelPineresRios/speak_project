@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { readJson } from '@/lib/api'
 
 export interface AuthUser {
   id: string
@@ -32,8 +33,8 @@ const AuthContext = createContext<AuthState | null>(null)
 async function fetchCurrentUser(): Promise<AuthUser | null> {
   const res = await fetch('/api/auth/me')
   if (!res.ok) return null
-  const data = await res.json()
-  return data.user ?? null
+  const data = await readJson(res)
+  return data?.user ?? null
 }
 
 /**

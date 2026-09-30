@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { LineChart, Line, ResponsiveContainer, Tooltip, XAxis } from 'recharts'
 import { formatTime, formatDuration, cn } from '@/lib/utils'
+import { readJson } from '@/lib/api'
 
 interface WeeklyStat { week_start_date: string; missions_completed: number; writing_time_seconds: number; avg_comprehensibility: number | null }
 interface SessionData {
@@ -19,9 +20,9 @@ export function SessionSummaryScreen({ studentId }: { studentId: string }) {
 
   useEffect(() => {
     Promise.all([
-      fetch(`/api/students/${studentId}/session-summary`).then(r => r.json()),
-      fetch(`/api/students/${studentId}/weekly-stats`).then(r => r.json()),
-    ]).then(([s, w]) => { setSession(s); setWeeklyStats(w.weekly_stats ?? []); setLoading(false) })
+      fetch(`/api/students/${studentId}/session-summary`).then(readJson),
+      fetch(`/api/students/${studentId}/weekly-stats`).then(readJson),
+    ]).then(([s, w]) => { setSession(s); setWeeklyStats(w?.weekly_stats ?? []); setLoading(false) })
   }, [studentId])
 
   if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 border-2 border-amber/30 border-t-amber rounded-full animate-spin"/></div>
