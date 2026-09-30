@@ -7,6 +7,7 @@ import { GrammarCorrectionModal } from './GrammarCorrectionModal'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/lib/hooks/useAuth'
 import { readJson } from '@/lib/api'
+import { ConversationLog } from '@/components/ConversationLog'
 
 
 interface Mission {
@@ -520,8 +521,13 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
     </div>
   )
 
+  const usedPhrases = messages.filter(message => message.role === 'user')
+
   return (
-    <div className="h-screen flex flex-col max-w-lg mx-auto pt-4 pb-4">
+    <div className="h-screen flex flex-col max-w-6xl mx-auto pt-4 pb-4">
+      <div className="grid flex-1 min-h-0 lg:grid-cols-[minmax(0,1fr)_320px] gap-4 lg:gap-6">
+        {/* Columna izquierda: chat de la misión */}
+        <div className="flex flex-col min-h-0">
       <div className="px-4 shrink-0 space-y-2">
         <div className="flex items-center gap-3 py-2">
           <button onClick={() => navigate(-1)} className="text-slate-light hover:text-foreground transition-colors">←</button>
@@ -663,7 +669,15 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
           </button>
         </div>
         <p className="text-center text-[10px] text-slate/30 mt-2 font-body pb-safe">Enter to send • Shift+Enter for new line</p>
+        </div>
       </div>
+
+      {/* Columna derecha: registro de frases y correcciones */}
+      <aside className="h-72 lg:h-auto lg:min-h-0 min-h-0">
+        <ConversationLog entries={usedPhrases} />
+      </aside>
+      </div>
+
       {/* Full Screen Completion Overlay */}
       {showCompletionNotification && (
         <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-cyan-950/90 backdrop-blur-md animate-in fade-in duration-500">
