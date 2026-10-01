@@ -20,7 +20,7 @@ import {
   timestamp,
   uniqueIndex,
 } from 'drizzle-orm/pg-core'
-import type { CefrLevel, UserRole } from '@vox/shared'
+import type { CefrLevel, IntroductionCharacter, IntroductionLine, UserRole } from '@vox/shared'
 
 /** Estados por los que pasa una respuesta de misión. */
 export type ResponseStatus = 'submitted' | 'in_progress' | 'completed' | 'paused'
@@ -185,6 +185,31 @@ export const weekly_aggregates = pgTable(
     uniqueIndex('weekly_aggregates_student_week_key').on(t.student_id, t.week_start_date),
     index('weekly_aggregates_group_idx').on(t.group_id),
   ],
+)
+
+export const mission_introductions = pgTable(
+  'mission_introductions',
+  {
+    id: text('id').primaryKey(),
+    mission_id: text('mission_id')
+      .notNull()
+      .references(() => missions.id, { onDelete: 'cascade' }),
+    scene_title: text('scene_title').notNull(),
+    scene_description: text('scene_description').notNull(),
+    characters: jsonb('characters').$type<IntroductionCharacter[]>().notNull(),
+    lines: jsonb('lines').$type<IntroductionLine[]>().notNull(),
+    useful_expressions: jsonb('useful_expressions').$type<string[]>().notNull(),
+    /** Modelo que la generó: sirve para saber qué hay que regenerar. */
+    generated_by: text('generated_by').notNull(),
+    /** Cada regeneración suma 1; no se guardan versiones antiguas. */
+    version: integer('version').notNull().default(1),
+    is_published: boolean('is_published').notNull().default(true),
+    created_at: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updated_at: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  // Una introducción por misión: la generación es cara y se comparte entre
+  // todos los alumnos.
+  (t) => [uniqueIndex('mission_introductions_mission_key').on(t.mission_id)],
 )
 
 export const narrative_states = pgTable(

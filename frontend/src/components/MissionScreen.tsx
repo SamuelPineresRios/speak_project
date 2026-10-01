@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
+import type { MissionIntroduction } from '@vox/shared'
 import { useNavigate } from 'react-router-dom'
 import { Timer } from './Timer'
 import { TypewriterMessage } from './TypewriterMessage'
@@ -7,6 +8,7 @@ import { GrammarToastStack, HeartMeter, type GrammarNotice } from './GrammarToas
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/lib/hooks/useAuth'
 import { readJson } from '@/lib/api'
+import { IntroductionPlayer } from '@/components/IntroductionPlayer'
 import { ConversationLog } from '@/components/ConversationLog'
 
 
@@ -22,7 +24,7 @@ interface Mission {
 interface MissionScreenProps {
   mission: Mission; studentId: string; groupId?: string
 }
-    type MissionState = 'briefing' | 'active' | 'submitting'
+    type MissionState = 'briefing' | 'introduction' | 'preparation' | 'active' | 'submitting'
 
 interface BriefingData {
   key_verbs: string[]
@@ -76,6 +78,12 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
   const [showFailedNotification, setShowFailedNotification] = useState(false)
   /** Lo dice la conversación (mission_completed), no el evaluador del reporte. */
   const [missionCompleted, setMissionCompleted] = useState(false)
+
+  // Escena narrativa: se pide a la API (genera la primera vez) y se recuerda
+  // mientras el alumno está en la pantalla, para no repetir la espera.
+  const [introduction, setIntroduction] = useState<MissionIntroduction | null>(null)
+  const [introductionError, setIntroductionError] = useState<string | null>(null)
+  const [loadingIntroduction, setLoadingIntroduction] = useState(false)
 
   const scrollRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -360,6 +368,32 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
     el.style.height = `${Math.min(el.scrollHeight, 120)}px`
   }, [currentInput])
 
+  // Carga (y generación la primera vez) de la escena narrativa.
+  const ensureIntroduction = useCallback(async () => {
+    if (introduction || loadingIntroduction) return
+    setLoadingIntroduction(true)
+    setIntroductionError(null)
+    try {
+      const res = await fetch(`/api/missions/${mission.id}/introduction`)
+      if (!res.ok) throw new Error(res.status === 503 ? 'Servicio de IA no configurado' : `Error ${res.status}`)
+      const data = await readJson<{ introduction: MissionIntroduction }>(res)
+      if (!data?.introduction) throw new Error('La escena llegó vacía')
+      setIntroduction(data.introduction)
+    } catch (err) {
+      setIntroductionError((err as Error).message)
+    } finally {
+      setLoadingIntroduction(false)
+    }
+  }, [introduction, loadingIntroduction, mission.id])
+
+  // Al entrar en la escena se pide (y la primera vez se genera) la introducción.
+  useEffect(() => {
+    if (state === 'introduction' && !introduction && !loadingIntroduction && !introductionError) {
+      void ensureIntroduction()
+    }
+  }, [state, introduction, loadingIntroduction, introductionError, ensureIntroduction])
+
+
   const handleKeyDown = (e: React.KeyboardEvent) => { 
       if (e.key === 'Enter' && !e.shiftKey) { 
           e.preventDefault(); 
@@ -473,42 +507,180 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
 
             {/* Actions */}
             <div className="space-y-4 pt-4 border-t border-white/5">
-                <div className="grid grid-cols-2 gap-3">
-                     <button 
-                        onClick={() => startMission('free')} 
-                        disabled={isThinking}
-                        className={cn(
-                            "group relative flex flex-col items-start p-4 rounded-xl border text-left transition-all duration-300 overflow-hidden",
-                            !isThinking
-                                ? "bg-slate-900/95 border-slate-700 hover:border-cyan hover:shadow-[0_0_20px_-5px_rgba(6,182,212,0.3)]" 
-                                : "bg-white/10 border-transparent opacity-50 cursor-not-allowed"
-                        )}
-                     >
-                       <div className="absolute inset-0 bg-gradient-to-br from-cyan/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                       <span className="text-[20px] text-cyan font-bold uppercase tracking-widest mb-1 group-hover:text-cyan-400">Realizar mision</span>
-                       <span className="text-xs text-slate-400 group-hover:text-slate-300">Tiempo ilimitado</span>
-                     </button>
-
-                     <button 
-                        onClick={() => startMission('evaluation')} 
-                        disabled={isThinking}
-                        className={cn(
-                            "group relative flex flex-col items-start p-4 rounded-xl border text-left transition-all duration-300 overflow-hidden",
-                            !isThinking
-                                ? "bg-slate-900/95 border-amber/30 hover:bg-amber/10 hover:border-amber hover:shadow-[0_0_20px_-5px_rgba(251,191,36,0.2)]" 
-                                : "bg-white/10 border-transparent opacity-50 cursor-not-allowed"
-                        )}
-                     >
-                       <div className="absolute inset-0 bg-gradient-to-br from-amber/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                       <span className="text-[20px] text-amber font-bold uppercase tracking-widest mb-1 group-hover:text-amber-400">Desafio</span>
-                       <span className="text-xs text-slate-400 group-hover:text-slate-300">Tres corazones: falla tres veces y termina</span>
-                       <span className="text-xs text-amber/60 group-hover:text-amber/80">Tiempo ajustado por respuesta..</span>
-                     </button>
-                </div>
+                <button
+                  onClick={() => setState('introduction')}
+                  className="w-full py-4 rounded-xl bg-white text-cyan-900 font-black text-lg uppercase tracking-wider hover:scale-[1.02] active:scale-95 transition-all"
+                >
+                  ▶ Ver la conversación de ejemplo
+                </button>
+                <button
+                  onClick={() => setState('preparation')}
+                  className="w-full text-center text-xs font-mono uppercase tracking-widest text-slate-500 hover:text-foreground"
+                >
+                  Saltar la introducción
+                </button>
             </div>
       </div>
     </div>
   )
+
+  // ── Fase 2: escena narrativa ──────────────────────────────────────────
+  if (state === 'introduction') {
+    if (loadingIntroduction) {
+      return (
+        <div className="min-h-screen flex flex-col items-center justify-center gap-5 bg-slate-950 p-6">
+          <div className="relative w-14 h-14">
+            <div className="absolute inset-0 border-2 border-cyan/20 rounded-full animate-ping" />
+            <div className="absolute inset-0 border-2 border-t-cyan border-r-transparent border-b-cyan/50 border-l-transparent rounded-full animate-spin" />
+          </div>
+          <p className="text-cyan font-body text-sm font-bold uppercase tracking-[0.25em] animate-pulse">
+            Preparando la escena
+          </p>
+          <p className="text-[11px] text-slate-400 font-body text-center max-w-xs">
+            Es la primera vez que se abre esta misión, así que el coach está escribiendo la conversación de ejemplo.
+          </p>
+        </div>
+      )
+    }
+
+    if (introductionError || !introduction) {
+      return (
+        <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-slate-950 p-6 text-center">
+          <p className="text-coral font-bold">No se pudo cargar la escena</p>
+          <p className="text-xs text-slate-400 max-w-xs">{introductionError ?? 'Respuesta vacía'}</p>
+          <div className="flex gap-2">
+            <button
+              onClick={() => { setIntroductionError(null); void ensureIntroduction() }}
+              className="px-4 py-2 rounded-lg bg-cyan text-black text-xs font-bold uppercase tracking-widest"
+            >
+              Reintentar
+            </button>
+            <button
+              onClick={() => setState('preparation')}
+              className="px-4 py-2 rounded-lg border border-white/15 text-slate-300 text-xs uppercase tracking-widest"
+            >
+              Continuar sin escena
+            </button>
+          </div>
+        </div>
+      )
+    }
+
+    return (
+      <IntroductionPlayer
+        introduction={introduction}
+        onFinish={() => setState('preparation')}
+        onSkip={() => setState('preparation')}
+      />
+    )
+  }
+
+  // ── Fase 3: preparación ──────────────────────────────────────────────
+  if (state === 'preparation') {
+    const aiCharacter = introduction?.characters.find(character => character.played_by === 'ai')
+    const studentCharacter = introduction?.characters.find(character => character.played_by === 'student')
+    const expressions = introduction?.useful_expressions ?? []
+
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden bg-slate-950 font-body">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(8,51,68,0.5)_0%,rgba(2,6,23,0.95)_100%)]" />
+
+        <div className="relative z-10 w-full max-w-3xl space-y-5">
+          <div className="text-center space-y-1">
+            <span className="text-[10px] text-cyan uppercase tracking-[0.25em]">Preparación</span>
+            <h1 className="font-body text-3xl font-bold text-white uppercase tracking-tight">{mission.title}</h1>
+            <p className="text-[11px] text-slate-500 font-mono uppercase tracking-widest">
+              Nivel {mission.cefr_level} · {Math.round((mission.base_duration_seconds ?? 120) / 60)} min
+            </p>
+          </div>
+
+          {/* Situación */}
+          <div className="bg-slate-900/85 border border-white/10 rounded-xl p-4 border-l-2 border-cyan/40">
+            <p className="text-[11px] text-cyan uppercase tracking-widest mb-1">La situación</p>
+            <p className="text-[14px] text-slate-300 leading-relaxed">
+              {introduction?.scene_description ?? mission.scene_context}
+            </p>
+          </div>
+
+          {/* Con quién hablas y tu papel */}
+          <div className="grid sm:grid-cols-2 gap-3">
+            <div className="bg-slate-900/85 border border-cyan/25 rounded-xl p-4 flex items-center gap-3">
+              <span className="text-3xl">{aiCharacter?.emoji ?? '🤖'}</span>
+              <div>
+                <p className="text-[10px] text-cyan uppercase tracking-widest">Vas a hablar con</p>
+                <p className="text-sm font-bold text-white">{aiCharacter?.name ?? mission.character_name}</p>
+                <p className="text-[11px] text-slate-400">{aiCharacter?.role ?? 'Lo interpreta la IA'}</p>
+              </div>
+            </div>
+            <div className="bg-slate-900/85 border border-emerald/25 rounded-xl p-4 flex items-center gap-3">
+              <span className="text-3xl">{studentCharacter?.emoji ?? '🧑'}</span>
+              <div>
+                <p className="text-[10px] text-emerald uppercase tracking-widest">Tu papel</p>
+                <p className="text-sm font-bold text-white">{studentCharacter?.name ?? 'Tú'}</p>
+                <p className="text-[11px] text-slate-400">{studentCharacter?.role ?? 'Responde con tus propias palabras'}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Objetivo */}
+          <div className="bg-cyan/10 border border-cyan/30 rounded-xl p-4">
+            <p className="text-[11px] text-cyan uppercase tracking-widest mb-1">🎯 Tu objetivo</p>
+            <p className="text-[14px] text-cyan-50 leading-relaxed">{mission.objective}</p>
+          </div>
+
+          {/* Expresiones útiles */}
+          {expressions.length > 0 && (
+            <div className="bg-slate-900/85 border border-slate-800 rounded-xl p-4">
+              <p className="text-[11px] text-emerald uppercase tracking-widest mb-2">Expresiones que te servirán</p>
+              <ul className="grid sm:grid-cols-2 gap-2">
+                {expressions.map((expression, index) => (
+                  <li key={index} className="text-[14px] text-emerald-50/85 border-l border-emerald/25 pl-2">
+                    {expression}
+                  </li>
+                ))}
+              </ul>
+              <p className="text-[11px] text-slate-500 mt-3">
+                Son una orientación, no un guion: responde con tu propio inglés.
+              </p>
+            </div>
+          )}
+
+          {/* Acciones */}
+          <div className="space-y-3 pt-2">
+            <div className="grid sm:grid-cols-2 gap-3">
+              <button
+                onClick={() => startMission('free')}
+                disabled={isThinking}
+                className="py-4 rounded-xl bg-slate-900/95 border border-slate-700 hover:border-cyan text-cyan font-bold uppercase tracking-widest transition-all disabled:opacity-50"
+              >
+                Realizar misión
+                <span className="block text-[10px] text-slate-400 font-normal mt-1">Tiempo ilimitado</span>
+              </button>
+              <button
+                onClick={() => startMission('evaluation')}
+                disabled={isThinking}
+                className="py-4 rounded-xl bg-slate-900/95 border border-amber/40 hover:border-amber hover:bg-amber/10 text-amber font-bold uppercase tracking-widest transition-all disabled:opacity-50"
+              >
+                Desafío
+                <span className="block text-[10px] text-slate-400 font-normal mt-1">Tres corazones · tiempo ajustado</span>
+              </button>
+            </div>
+
+            <div className="flex justify-center gap-4 text-[11px] font-mono uppercase tracking-widest">
+              {introduction && (
+                <button onClick={() => setState('introduction')} className="text-slate-400 hover:text-cyan">
+                  ↻ Repetir escena
+                </button>
+              )}
+              <button onClick={() => setState('briefing')} className="text-slate-500 hover:text-foreground">
+                ← Volver
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   const usedPhrases = messages.filter(message => message.role === 'user')
 

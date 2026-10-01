@@ -15,6 +15,7 @@ import { adminRouter } from './modules/admin/routes.ts'
 import { authRouter } from './modules/auth/routes.ts'
 import { chatRouter } from './modules/chat/routes.ts'
 import { evaluationsRouter } from './modules/evaluations/routes.ts'
+import { introductionsRouter } from './modules/introductions/routes.ts'
 import { missionsRouter } from './modules/missions/routes.ts'
 import { responsesRouter } from './modules/responses/routes.ts'
 import { studentsRouter } from './modules/students/routes.ts'
@@ -42,6 +43,7 @@ export function createApp() {
 
   app.use('/api/auth', authRouter)
   app.use('/api/missions', missionsRouter)
+  app.use('/api/missions', introductionsRouter)
   app.use('/api/students', studentsRouter)
   app.use('/api/teachers', teachersRouter)
   app.use('/api/evaluations', evaluationsRouter)

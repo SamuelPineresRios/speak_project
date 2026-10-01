@@ -145,6 +145,7 @@ La suite está en `backend/tests/`:
 | `groups.test.ts` | grupos, unión, asignaciones, paneles |
 | `access-control.test.ts` | **matriz de IDOR y roles** |
 | `ai-flows.test.ts` | flujos de IA con el proveedor mockeado |
+| `introductions.test.ts` | generación única por misión, validación y permisos |
 
 Comprobaciones manuales equivalentes:
 
