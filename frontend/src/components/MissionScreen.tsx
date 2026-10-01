@@ -410,7 +410,7 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
             <ResponsiveBackgroundSprites />
         </div>
 
-        <div className="w-full max-w-lg space-y-6 relative z-10 animate-fade-in-up">
+        <div className="w-full max-w-4xl mx-auto space-y-6 relative z-10 animate-fade-in-up">
             
             {/* Header */}
             <div className="flex items-center justify-between border-b border-cyan/20 pb-4">
@@ -513,7 +513,7 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
   const usedPhrases = messages.filter(message => message.role === 'user')
 
   return (
-    <div className="h-screen flex flex-col max-w-6xl mx-auto pt-4 pb-4">
+    <div className="h-screen flex flex-col w-full px-4 pt-4 pb-4">
       <div className="grid flex-1 min-h-0 lg:grid-cols-[minmax(0,1fr)_320px] gap-4 lg:gap-6">
         {/* Columna izquierda: chat de la misión */}
         <div className="flex flex-col min-h-0">
@@ -667,6 +667,24 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
         <ConversationLog entries={usedPhrases} />
       </aside>
       </div>
+
+      {/* Generando el reporte: la evaluación tarda unos segundos */}
+      {state === 'submitting' && (
+        <div className="fixed inset-0 z-[300] flex flex-col items-center justify-center gap-6 bg-slate-950/95 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="relative w-16 h-16">
+            <div className="absolute inset-0 border-2 border-cyan/20 rounded-full animate-ping" />
+            <div className="absolute inset-0 border-2 border-t-cyan border-r-transparent border-b-cyan/50 border-l-transparent rounded-full animate-spin" />
+          </div>
+          <div className="text-center space-y-2">
+            <p className="text-cyan font-body text-sm font-bold uppercase tracking-[0.25em] animate-pulse">
+              Generando tu reporte
+            </p>
+            <p className="text-[11px] text-slate-400 font-body">
+              Evaluando tus frases con el coach… esto tarda unos segundos
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Full Screen Completion Overlay */}
       {showCompletionNotification && (
