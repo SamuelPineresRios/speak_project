@@ -77,7 +77,6 @@ missionsRouter.post('/:id/submit', requireAuth, async (req, res) => {
     evaluation_id: outcome.evaluationId,
     judgment: outcome.evaluation.judgment,
     evaluation: outcome.evaluation,
-    recommended_guides: outcome.recommendedGuides,
   })
 })
 

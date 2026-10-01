@@ -4,7 +4,7 @@
  * Única fuente de verdad de la persistencia: ya no hay colecciones en JSON.
  * Las propiedades usan snake_case a propósito: es el nombre de columna real y
  * también el contrato JSON que consumen las rutas y el frontend
- * (`user.cefr_level`, `mission.scene_context`, `guide.cover_emoji`). Así las
+ * (`user.cefr_level`, `mission.scene_context`, `mission.base_duration_seconds`). Así las
  * filas devueltas por Drizzle se devuelven tal cual, sin capa de traducción,
  * que es donde suelen aparecer los campos olvidados.
  */
@@ -54,37 +54,6 @@ export const missions = pgTable('missions', {
   cefr_level: text('cefr_level').notNull().$type<CefrLevel>(),
   base_duration_seconds: integer('base_duration_seconds'),
 })
-
-export const guides = pgTable(
-  'guides',
-  {
-    id: text('id').primaryKey(),
-    title: text('title').notNull(),
-    description: text('description'),
-    cover_emoji: text('cover_emoji'),
-    cefr_level: text('cefr_level').$type<CefrLevel | null>(),
-    /** Etiquetas cortas ("present-perfect"): filtrado y detalle de guía. */
-    concept_tags: jsonb('concept_tags').$type<string[]>(),
-    /** Etiquetas largas de las guías g-005..g-009; alternativa a concept_tags. */
-    concepts: jsonb('concepts').$type<string[]>(),
-    /** Contenido pedagógico: introduction, definition, exercises, ... */
-    content: jsonb('content').$type<GuideContent>(),
-    difficulty: text('difficulty'),
-    theme: text('theme'),
-    unlock_level: integer('unlock_level'),
-    interactive_elements: jsonb('interactive_elements').$type<string[]>(),
-    mission_connection: text('mission_connection'),
-    story_connection: text('story_connection'),
-    scene_concepts: jsonb('scene_concepts').$type<string[]>(),
-    progress: jsonb('progress').$type<GuideProgress>(),
-    xp_reward: integer('xp_reward'),
-    estimated_minutes: integer('estimated_minutes'),
-    enable_chat_assistant: boolean('enable_chat_assistant'),
-    is_published: boolean('is_published'),
-    created_at: timestamp('created_at', { withTimezone: true }),
-  },
-  (t) => [index('guides_cefr_level_idx').on(t.cefr_level)],
-)
 
 export const groups = pgTable(
   'groups',
@@ -218,62 +187,6 @@ export const weekly_aggregates = pgTable(
   ],
 )
 
-export const guide_progress = pgTable(
-  'guide_progress',
-  {
-    id: text('id').primaryKey(),
-    student_id: text('student_id')
-      .notNull()
-      .references(() => users.id, { onDelete: 'cascade' }),
-    guide_id: text('guide_id')
-      .notNull()
-      .references(() => guides.id, { onDelete: 'cascade' }),
-    status: text('status').notNull(),
-    exercises_completed: integer('exercises_completed'),
-    exercises_total: integer('exercises_total'),
-    started_at: timestamp('started_at', { withTimezone: true }),
-    completed_at: timestamp('completed_at', { withTimezone: true }),
-    score: integer('score'),
-  },
-  // El progreso es único por alumno y guía; el handler hace upsert sobre esta clave.
-  (t) => [uniqueIndex('guide_progress_student_guide_key').on(t.student_id, t.guide_id)],
-)
-
-export const chat_messages = pgTable(
-  'chat_messages',
-  {
-    id: text('id').primaryKey(),
-    guide_id: text('guide_id')
-      .notNull()
-      .references(() => guides.id, { onDelete: 'cascade' }),
-    student_id: text('student_id')
-      .notNull()
-      .references(() => users.id, { onDelete: 'cascade' }),
-    role: text('role').notNull().$type<'user' | 'assistant'>(),
-    content: text('content').notNull(),
-    sent_at: timestamp('sent_at', { withTimezone: true }).notNull().defaultNow(),
-  },
-  (t) => [index('chat_messages_student_guide_idx').on(t.student_id, t.guide_id, t.sent_at)],
-)
-
-export const exercise_submissions = pgTable(
-  'exercise_submissions',
-  {
-    id: text('id').primaryKey(),
-    guide_id: text('guide_id')
-      .notNull()
-      .references(() => guides.id, { onDelete: 'cascade' }),
-    exercise_id: text('exercise_id').notNull(),
-    student_id: text('student_id')
-      .notNull()
-      .references(() => users.id, { onDelete: 'cascade' }),
-    selected_answer: text('selected_answer'),
-    is_correct: boolean('is_correct'),
-    submitted_at: timestamp('submitted_at', { withTimezone: true }).notNull().defaultNow(),
-  },
-  (t) => [index('exercise_submissions_student_guide_idx').on(t.student_id, t.guide_id)],
-)
-
 export const narrative_states = pgTable(
   'narrative_states',
   {
@@ -299,33 +212,3 @@ export const narrative_states = pgTable(
     index('narrative_states_student_idx').on(t.student_id, t.state),
   ],
 )
-
-export interface GuideProgress {
-  status?: string
-  score?: number
-  exercises_completed?: number
-  exercises_total?: number
-  current_streak?: number
-  max_streak?: number
-}
-
-export interface GuideExercise {
-  id?: string
-  type?: string
-  question: string
-  correct_answer?: string
-  answer?: string
-  alternatives?: string[]
-}
-
-export interface GuideContent {
-  introduction?: string
-  definition?: string
-  explanation?: string
-  formula?: string
-  key_structures?: unknown[]
-  common_expressions?: unknown[]
-  real_life_examples?: unknown[]
-  exercises?: GuideExercise[]
-  [key: string]: unknown
-}

@@ -11,8 +11,7 @@ import { sql } from '../../src/db/client.ts'
  */
 export async function resetDb(): Promise<void> {
   await sql`TRUNCATE TABLE
-    exercise_submissions, chat_messages, guide_progress, weekly_aggregates,
-    evaluations, responses, mission_assignments, group_members, narrative_states,
-    groups, guides, missions, users
+    weekly_aggregates, evaluations, responses, mission_assignments,
+    group_members, narrative_states, groups, missions, users
     RESTART IDENTITY CASCADE`
 }

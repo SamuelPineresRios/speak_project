@@ -31,7 +31,7 @@ import { AIProviderError, completeChat } from '../src/lib/ai.ts'
 import { createApp } from '../src/app.ts'
 import { sql } from '../src/db/client.ts'
 import { resetDb } from './helpers/db.ts'
-import { createGuide, createMission, signupActor } from './helpers/fixtures.ts'
+import { createMission, signupActor } from './helpers/fixtures.ts'
 
 const app = createApp()
 const mockedCompleteChat = vi.mocked(completeChat)
@@ -42,7 +42,7 @@ beforeEach(async () => {
 })
 
 describe('submit con evaluación ADVANCE', () => {
-  it('marca la misión como completada, actualiza el agregado y recomienda guías', async () => {
+  it('marca la misión como completada y actualiza el agregado', async () => {
     mockedCompleteChat.mockResolvedValue(
       JSON.stringify({
         comprehensibility_score: 90,
@@ -56,7 +56,6 @@ describe('submit con evaluación ADVANCE', () => {
 
     const student = await signupActor(app, 'student', { cefr_level: 'B1' })
     const missionId = await createMission({ cefr_level: 'B1' })
-    await createGuide({ id: 'g-1', cefr_level: 'B1', concept_tags: ['present-simple'] })
 
     const res = await student.agent
       .post(`/api/missions/${missionId}/submit`)
@@ -64,8 +63,6 @@ describe('submit con evaluación ADVANCE', () => {
 
     expect(res.status).toBe(200)
     expect(res.body.judgment).toBe('ADVANCE')
-    expect(res.body.recommended_guides).toHaveLength(1)
-    expect(res.body.recommended_guides[0].id).toBe('g-1')
 
     const [response] = await sql<{ status: string | null }[]>`
       SELECT status FROM responses WHERE id = ${res.body.response_id}
@@ -95,55 +92,6 @@ describe('submit con evaluación ADVANCE', () => {
     expect(res.status).toBe(200)
     expect(res.body.evaluation.comprehensibility_score).toBe(65)
     expect(res.body.judgment).toBe('PAUSE')
-  })
-})
-
-describe('chat de guía', () => {
-  it('persiste el turno del alumno y la respuesta del tutor', async () => {
-    mockedCompleteChat.mockResolvedValue('¡Hola! Repasemos el present simple.')
-
-    const student = await signupActor(app, 'student')
-    const guideId = await createGuide({ id: 'g-1' })
-
-    const sent = await student.agent
-      .post(`/api/guides/${guideId}/chat`)
-      .send({ content: '¿Cómo uso el present simple?' })
-
-    expect(sent.status).toBe(200)
-    expect(sent.body.userMessage.role).toBe('user')
-    expect(sent.body.assistantMessage.role).toBe('assistant')
-
-    const history = await student.agent.get(`/api/guides/${guideId}/chat`)
-
-    expect(history.body.messages).toHaveLength(2)
-    expect(history.body.messages.map((message: { role: string }) => message.role)).toEqual([
-      'user',
-      'assistant',
-    ])
-  })
-
-  it('guarda un mensaje de disculpa si el proveedor falla', async () => {
-    mockedCompleteChat.mockRejectedValue(new Error('sin conexión'))
-
-    const student = await signupActor(app, 'student')
-    const guideId = await createGuide({ id: 'g-1' })
-
-    const res = await student.agent
-      .post(`/api/guides/${guideId}/chat`)
-      .send({ content: 'Hola' })
-
-    expect(res.status).toBe(200)
-    expect(res.body.assistantMessage.content).toContain('Disculpa')
-  })
-
-  it('exige contenido en el mensaje', async () => {
-    const student = await signupActor(app, 'student')
-    const guideId = await createGuide({ id: 'g-1' })
-
-    const res = await student.agent.post(`/api/guides/${guideId}/chat`).send({})
-
-    expect(res.status).toBe(400)
-    expect(res.body).toEqual({ error: 'Message content is required' })
   })
 })
 

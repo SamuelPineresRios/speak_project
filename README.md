@@ -2,7 +2,7 @@
 
 Plataforma de aprendizaje de inglés donde **escribir es el único camino para avanzar**.
 Estudiantes completan misiones de conversación escritas, reciben evaluación de un LLM y
-desbloquean guías de gramática; los docentes crean grupos, asignan misiones y siguen el progreso.
+reciben retroalimentación y los docentes crean grupos, asignan misiones y siguen el progreso.
 
 ---
 
@@ -46,10 +46,10 @@ Un solo `npm install` en la raíz instala todo.
 │   │   │   ├── schema.ts     # las 13 tablas
 │   │   │   └── errors.ts     # lectura de SQLSTATE
 │   │   ├── middleware/       # seguridad, sesión, autorización, errores
-│   │   ├── modules/          # auth, missions, guides, teachers, students,
+│   │   ├── modules/          # auth, missions, teachers, students,
 │   │   │                     # evaluations, responses, chat, admin
 │   │   │                     #   routes.ts (HTTP) + service.ts (dominio)
-│   │   ├── lib/              # ai.ts (cliente de Anthropic), guides-integration.ts
+│   │   ├── lib/              # ai.ts (cliente de Anthropic)
 │   │   └── utils/
 │   └── tests/                # tests de integración (6 ficheros, 96 casos)
 └── frontend/                 # @vox/frontend — SPA React
@@ -90,8 +90,8 @@ npm run dev
 # Web  -> http://localhost:5173  (el proxy de Vite reenvía /api al backend)
 ```
 
-No hace falta ningún servicio externo salvo PostgreSQL. El contenido (misiones y
-guías) ya está en la base de datos local.
+No hace falta ningún servicio externo salvo PostgreSQL. El contenido de las misiones
+ya está en la base de datos local.
 
 ---
 
@@ -134,8 +134,8 @@ reglas que el propio `tsc` verifica (`erasableSyntaxOnly`, `verbatimModuleSyntax
 
 ### Salida estructurada de la IA
 
-Las tres llamadas al modelo que devuelven JSON —evaluación de misión, turno del
-roleplay y pistas de vocabulario— envían un **esquema JSON** en
+Las dos llamadas al modelo que devuelven JSON —evaluación de misión y turno del
+roleplay— envían un **esquema JSON** en
 `output_config.format`. Anthropic lo aplica con decodificación restringida, así
 que la respuesta es siempre JSON válido: no depende de que el prompt se obedezca,
 no llega envuelta en vallas de markdown y no hacen falta reintentos por formato.
@@ -165,7 +165,7 @@ turnos siguientes).
 
 | Rol | Acceso |
 |-----|--------|
-| `student` | Misiones, guías, feedback, resumen, grupos |
+| `student` | Misiones, feedback, resumen, grupos |
 | `teacher` | Dashboard, crear grupos, asignar misiones, ver progreso |
 | — | `ADMIN_EMAILS` habilita `/api/admin/metrics`, sea cual sea el rol |
 
@@ -179,7 +179,6 @@ turnos siguientes).
 |--------|-------------|
 | auth | `POST /signup` · `POST /login` · `POST /logout` · `GET /me` · `PATCH /update-profile` |
 | missions | `GET /api/missions` · `GET /api/missions/:id` · `POST /:id/submit` · `POST /:id/mark-completed` |
-| guides | `GET /api/guides` · `GET /:id` · `GET /:id/chat` · `POST /:id/chat` · `POST /:id/mark-completed` · `POST /:id/exercise-submission` |
 | students | `GET /api/students/groups` · `POST /join-group` · `GET /:id/weekly-stats` · `GET /:id/session-summary` |
 | teachers | `GET /api/teachers/groups` · `POST /groups/create` · `GET /groups/:id` · `GET /groups/:id/students` · `GET/POST /groups/:id/assign-mission` · `GET /students/:id/profile` |
 | evaluations | `GET /api/evaluations/:id` |
@@ -198,21 +197,20 @@ turnos siguientes).
 
 **13 tablas** en `backend/src/db/schema.ts`:
 
-`users` · `missions` · `guides` · `narrative_states` · `groups` · `group_members` ·
-`mission_assignments` · `responses` · `evaluations` · `weekly_aggregates` ·
-`guide_progress` · `chat_messages` · `exercise_submissions`
+`users` · `missions` · `narrative_states` · `groups` · `group_members` ·
+`mission_assignments` · `responses` · `evaluations` · `weekly_aggregates`
 
 - Claves foráneas con `ON DELETE CASCADE`, y `SET NULL` donde la fila sobrevive al
   grupo (por ejemplo, una respuesta pertenece al alumno, no al grupo).
 - Restricciones únicas en `email`, `access_code`, `(grupo, alumno)`,
-  `(alumno, semana)`, `(alumno, guía)`, `evaluations.response_id`.
+  `(alumno, semana)` y `evaluations.response_id`.
 - Índices por patrón de consulta: `responses(student_id, submitted_at)`,
-  `chat_messages(student_id, guide_id, sent_at)`, etc.
+  `responses(student_id, submitted_at)`, etc.
 - Los campos se llaman **igual que las columnas** (`cefr_level`, `scene_context`),
   así que la fila de la BD y el JSON de la API son el mismo objeto.
 
 Las escrituras que tocan varias tablas van en **transacción** (envío de misión,
-chat de la guía) y los contadores semanales se actualizan con `ON CONFLICT` y
+envío de misión) y los contadores semanales se actualizan con `ON CONFLICT` y
 aritmética en SQL, para que dos envíos concurrentes no se pisen.
 
 **Cambiar el esquema**:
@@ -239,7 +237,6 @@ PostgreSQL real (`vox_test`), que se vacía entre casos. Cubren:
 - contrato de auth (cookie, `Max-Age` de 7 días, validaciones, 409 de duplicado);
 - misiones: submit con evaluación de respaldo, umbral por nivel, agregado semanal,
   promoción de nivel;
-- guías: filtros jsonb, chat, upsert de progreso, ejercicios;
 - grupos: creación, unión idempotente, asignaciones, paneles;
 - **matriz de IDOR y roles**: cada ruta con `401/403` esperado, aislamiento entre
   profesores y propiedad de respuestas/evaluaciones;

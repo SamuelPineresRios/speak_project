@@ -142,7 +142,6 @@ La suite está en `backend/tests/`:
 |---------|-------|
 | `auth.test.ts` | contrato de sesión, cookie, validaciones, duplicados |
 | `missions.test.ts` | umbrales por nivel, agregados, promoción |
-| `guides.test.ts` | filtros, progreso, ejercicios |
 | `groups.test.ts` | grupos, unión, asignaciones, paneles |
 | `access-control.test.ts` | **matriz de IDOR y roles** |
 | `ai-flows.test.ts` | flujos de IA con el proveedor mockeado |
@@ -165,7 +164,7 @@ Comprobaciones manuales equivalentes:
 
 | Elemento | Estado |
 |----------|--------|
-| Sin rate limiting | Auth y rutas de IA (`/api/chat`, `guides/:id/chat`) pueden ser abusadas. Añadir en el borde antes de producción. |
+| Sin rate limiting | Auth y rutas de IA (`/api/chat`, `missions/:id/submit`) pueden ser abusadas. Añadir en el borde antes de producción. |
 | Alta de `teacher` abierta | Cualquiera puede registrarse como docente. Requiere invitación o aprobación. |
 | Headers incompletos | Falta CSP, `Strict-Transport-Security` y `Referrer-Policy`. |
 | Sin rotación automática de claves | Ver §5. |

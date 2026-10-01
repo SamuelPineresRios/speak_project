@@ -16,11 +16,6 @@ import {
   users,
   weekly_aggregates,
 } from '../../db/schema.ts'
-import {
-  detectConceptsInResponse,
-  getRecommendedGuides,
-  type RecommendedGuide,
-} from '../../lib/guides-integration.ts'
 import { HttpError } from '../../utils/http-error.ts'
 import { getWeekStart } from '../../utils/week.ts'
 import {
@@ -107,7 +102,6 @@ export interface SubmitOutcome {
   responseId: string
   evaluationId: string
   evaluation: EvaluationResult
-  recommendedGuides: RecommendedGuide[]
 }
 
 const RESPONSE_TEXT = 'text'
@@ -166,7 +160,7 @@ export async function submitResponse(input: SubmitInput): Promise<SubmitOutcome>
       })
     })
 
-    return { kind: 'rejected', responseId, evaluationId, evaluation, recommendedGuides: [] }
+    return { kind: 'rejected', responseId, evaluationId, evaluation }
   }
 
   const evaluation = await evaluateResponse({
@@ -256,15 +250,7 @@ export async function submitResponse(input: SubmitInput): Promise<SubmitOutcome>
     console.error('[Submit] No se pudo actualizar narrative_states:', err)
   }
 
-  let recommendedGuides: RecommendedGuide[] = []
-  try {
-    const concepts = detectConceptsInResponse(evaluation.detected_structures)
-    recommendedGuides = await getRecommendedGuides(concepts, cefrLevel)
-  } catch (err) {
-    console.error('[GuidesIntegration] failed', err)
-  }
-
-  return { kind: 'evaluated', responseId, evaluationId, evaluation, recommendedGuides }
+  return { kind: 'evaluated', responseId, evaluationId, evaluation }
 }
 
 interface NarrativeStateInput {

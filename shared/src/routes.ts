@@ -32,7 +32,6 @@ export const STUDENT_PATHS = [
   '/session-summary',
   '/join-group',
   '/groups',
-  '/guides',
   '/profile',
 ] as const
 

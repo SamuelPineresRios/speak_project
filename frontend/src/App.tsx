@@ -7,8 +7,6 @@ import AssignMission from '@/pages/AssignMission'
 import Feedback from '@/pages/Feedback'
 import GroupCreate from '@/pages/GroupCreate'
 import GroupDetail from '@/pages/GroupDetail'
-import GuideDetailPage from '@/pages/GuideDetailPage'
-import Guides from '@/pages/Guides'
 import JoinGroup from '@/pages/JoinGroup'
 import Login from '@/pages/Login'
 import MissionPage from '@/pages/MissionPage'
@@ -44,8 +42,6 @@ export function App() {
             <Route path="/session-summary" element={<SessionSummary />} />
             <Route path="/join-group" element={<JoinGroup />} />
             <Route path="/groups" element={<StudentGroups />} />
-            <Route path="/guides" element={<Guides />} />
-            <Route path="/guides/:id" element={<GuideDetailPage />} />
             <Route path="/profile" element={<Profile />} />
           </Route>
 
@@ -57,7 +53,12 @@ export function App() {
           </Route>
         </Route>
 
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        {/*
+          Ruta desconocida -> /missions, no /login. Mandarla a /login creaba un
+          bucle: RouteTracker guardaba la ruta muerta como "última ruta", y el
+          login devolvía al usuario allí una y otra vez (pantalla en blanco).
+        */}
+        <Route path="*" element={<Navigate to="/missions" replace />} />
       </Routes>
 
       <ModuleTransitionLayer />

@@ -20,7 +20,6 @@ beforeEach(async () => {
 describe('sin sesión', () => {
   it.each([
     ['get', '/api/missions'],
-    ['get', '/api/guides'],
     ['get', '/api/responses/x'],
     ['get', '/api/evaluations/x'],
     ['get', '/api/students/x/weekly-stats'],
