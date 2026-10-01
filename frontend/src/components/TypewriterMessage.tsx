@@ -1,45 +1,67 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 interface TypewriterMessageProps {
   text: string
   isActive: boolean // Whether this is the current message being typed
-  speed?: number // milliseconds per character (default 30)
+  /** Milisegundos por unidad revelada. */
+  speed?: number
+  /** Revela palabra a palabra en lugar de carácter a carácter (escenas). */
+  byWords?: boolean
 }
 
-export function TypewriterMessage({ text, isActive, speed = 30 }: TypewriterMessageProps) {
-  const [displayedText, setDisplayedText] = useState('')
+/**
+ * Revela un texto progresivamente.
+ *
+ * En modo palabra se conservan los espacios para que el texto no baile, y el
+ * ritmo es más pausado (una palabra por tick) porque leer palabra a palabra es
+ * más natural en una escena narrada que ver aparecer letras sueltas.
+ */
+export function TypewriterMessage({
+  text,
+  isActive,
+  speed,
+  byWords = false,
+}: TypewriterMessageProps) {
+  const [displayed, setDisplayed] = useState('')
   const [isComplete, setIsComplete] = useState(false)
 
+  const step = speed ?? (byWords ? 190 : 30)
+  const tokens = useMemo(
+    () => (byWords ? text.split(/(\s+)/) : text.split('')),
+    [text, byWords],
+  )
+
   useEffect(() => {
-    // If not active or already complete, show full text
     if (!isActive || isComplete) {
-      setDisplayedText(text)
+      setDisplayed(text)
       setIsComplete(true)
       return
     }
 
-    let i = 0
+    let index = 0
     let timeout: ReturnType<typeof setTimeout>
 
-    const typeNextCharacter = () => {
-      if (i <= text.length) {
-        setDisplayedText(text.slice(0, i))
-        i++
-        timeout = setTimeout(typeNextCharacter, speed + Math.random() * 10)
+    const revealNext = () => {
+      if (index <= tokens.length) {
+        setDisplayed(tokens.slice(0, index).join(''))
+        index++
+        timeout = setTimeout(revealNext, step)
       } else {
         setIsComplete(true)
       }
     }
 
-    typeNextCharacter()
+    revealNext()
 
     return () => clearTimeout(timeout)
-  }, [text, isActive, speed, isComplete])
+  }, [text, tokens, isActive, step, isComplete])
 
   return (
     <>
-      {displayedText}
-      {isActive && !isComplete && <span className="inline-block w-1.5 h-4 bg-current ml-0.5 animate-pulse align-middle" />}
+      {displayed}
+      {isActive && !isComplete && (
+        <span className="inline-block w-1.5 h-4 bg-current ml-0.5 animate-pulse align-middle" />
+      )}
     </>
   )
 }

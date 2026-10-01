@@ -569,6 +569,7 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
     return (
       <IntroductionPlayer
         introduction={introduction}
+        cefrLevel={mission.cefr_level}
         onFinish={() => setState('preparation')}
         onSkip={() => setState('preparation')}
       />

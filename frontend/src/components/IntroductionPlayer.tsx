@@ -1,36 +1,94 @@
 /**
- * Reproductor de la escena narrativa (fase 2 del flujo de misión).
+ * Escena narrativa de la misión (fase 2 del flujo).
  *
- * Visual-novel a lo videojuego: dos avatares, burbuja del personaje que
- * habla y controles. El alumno puede avanzar a mano, dejar que se
- * reproduzca sola, repetirla y consultar la traducción de cada frase.
+ * Planteada como una conversación de lado a lado: los dos personajes se
+ * enfrentan en bustos grandes y la burbuja aparece del lado del que habla.
+ * El texto se revela palabra a palabra y cada frase se puede escuchar.
  */
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Pause, Play, RotateCcw, Volume2, X, Languages } from 'lucide-react'
-import type { MissionIntroduction } from '@vox/shared'
+import { Pause, Play, RotateCcw, Volume2, X, Languages, SkipForward } from 'lucide-react'
+import type { IntroductionCharacter, MissionIntroduction } from '@vox/shared'
 import { cn } from '@/lib/utils'
 import { TypewriterMessage } from './TypewriterMessage'
 
 /** Milisegundos que espera el modo automático tras terminar la frase. */
-const AUTOPLAY_NEXT_DELAY_MS = 2200
+const AUTOPLAY_NEXT_DELAY_MS = 2400
 
 function avatarUrl(name: string): string {
   return `https://api.dicebear.com/9.x/pixel-art/svg?seed=${encodeURIComponent(name)}`
 }
 
+/** Color del badge por nivel, para que el nivel se lea de un vistazo. */
+const CEFR_BADGE: Record<string, string> = {
+  A1: 'border-emerald/50 bg-emerald/10 text-emerald',
+  A2: 'border-cyan/50 bg-cyan/10 text-cyan',
+  B1: 'border-amber/50 bg-amber/10 text-amber',
+  B2: 'border-violet/50 bg-violet/10 text-violet',
+  C1: 'border-coral/50 bg-coral/10 text-coral',
+}
+
 interface IntroductionPlayerProps {
   introduction: MissionIntroduction
+  cefrLevel: string
   onFinish: () => void
   onSkip: () => void
 }
 
-export function IntroductionPlayer({ introduction, onFinish, onSkip }: IntroductionPlayerProps) {
+/** Busto grande de un personaje, resaltado cuando le toca hablar. */
+function CharacterStage({
+  character,
+  speaking,
+  finished,
+}: {
+  character: IntroductionCharacter
+  speaking: boolean
+  finished: boolean
+}) {
+  return (
+    <div className={cn('flex flex-col items-center justify-end transition-all duration-500', speaking ? 'scale-100' : 'scale-95')}>
+      <div
+        className={cn(
+          'relative h-40 w-40 sm:h-56 sm:w-56 overflow-hidden rounded-2xl border-2 transition-all duration-500',
+          speaking
+            ? 'border-cyan/70 shadow-[0_0_45px_-8px_rgba(6,182,212,0.75)]'
+            : 'border-white/10 opacity-55 grayscale',
+        )}
+      >
+        {/* El sprite de dicebear ya es un busto (cabeza grande y camiseta):
+            se muestra entero y a buen tamaño, sin recortes. */}
+        <img
+          src={avatarUrl(character.name)}
+          alt={character.name}
+          className="h-full w-full p-2"
+        />
+        {speaking && (
+          <span className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-cyan animate-bounce [animation-delay:0ms]" />
+            <span className="w-1.5 h-1.5 rounded-full bg-cyan animate-bounce [animation-delay:150ms]" />
+            <span className="w-1.5 h-1.5 rounded-full bg-cyan animate-bounce [animation-delay:300ms]" />
+          </span>
+        )}
+      </div>
+
+      <div className="mt-2 text-center">
+        <p className={cn('text-base font-bold transition-colors', speaking ? 'text-white' : 'text-slate-400')}>
+          {character.name}
+        </p>
+        <p className="text-[11px] text-slate-500">{character.role}</p>
+        <p className={cn('text-[9px] font-mono uppercase tracking-widest mt-0.5', speaking ? 'text-cyan' : 'text-slate-600')}>
+          {finished ? '—' : speaking ? '● hablando' : character.played_by === 'ai' ? 'lo interpreta la IA' : 'tu papel'}
+        </p>
+      </div>
+    </div>
+  )
+}
+
+export function IntroductionPlayer({ introduction, cefrLevel, onFinish, onSkip }: IntroductionPlayerProps) {
   const [index, setIndex] = useState(0)
   const [autoPlay, setAutoPlay] = useState(false)
   const [showTranslations, setShowTranslations] = useState(false)
   const [voice, setVoice] = useState(false)
   const [finished, setFinished] = useState(false)
-  const [typeActive, setTypeActive] = useState(true)
   const voiceRef = useRef(voice)
   voiceRef.current = voice
 
@@ -38,41 +96,59 @@ export function IntroductionPlayer({ introduction, onFinish, onSkip }: Introduct
   const line = introduction.lines[Math.min(index, total - 1)]
   const speaker = introduction.characters.find(character => character.id === line?.speaker)
   const isLastLine = index >= total - 1
+  const canSpeak = typeof window !== 'undefined' && 'speechSynthesis' in window
 
-  /** Habla la frase en inglés con la voz del navegador, si está activada. */
-  const speak = useCallback((text: string) => {
-    if (!voiceRef.current || typeof window === 'undefined' || !window.speechSynthesis) return
-    window.speechSynthesis.cancel()
-    const utterance = new SpeechSynthesisUtterance(text)
-    utterance.lang = 'en-US'
-    utterance.rate = 0.95
-    window.speechSynthesis.speak(utterance)
-  }, [])
+  /** Lee una frase en inglés con la voz del navegador. */
+  const speak = useCallback(
+    (text: string) => {
+      if (!canSpeak) return
+      window.speechSynthesis.cancel()
+      const utterance = new SpeechSynthesisUtterance(text)
+      utterance.lang = 'en-US'
+      utterance.rate = 0.95
+      window.speechSynthesis.speak(utterance)
+    },
+    [canSpeak],
+  )
 
+  // Al cambiar de frase: se lee sola si la voz está activada.
   useEffect(() => {
     if (!line) return
-    setTypeActive(true)
-    speak(line.text)
+    if (voiceRef.current) speak(line.text)
     return () => window.speechSynthesis?.cancel()
   }, [line, speak])
 
   const advance = useCallback(() => {
     if (finished) return
     if (isLastLine) {
+      window.speechSynthesis?.cancel()
       setFinished(true)
       return
     }
     setIndex(value => value + 1)
   }, [finished, isLastLine])
 
-  // Modo automático: avanza cuando la frase termina de escribirse.
+  // Modo automático: avanza solo tras un margen de lectura.
   useEffect(() => {
     if (!autoPlay || finished) return
     const timer = setTimeout(advance, AUTOPLAY_NEXT_DELAY_MS)
     return () => clearTimeout(timer)
   }, [autoPlay, finished, index, advance])
 
+  // Espacio o flecha derecha avanzan, como en una novela visual.
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === ' ' || event.key === 'ArrowRight') {
+        event.preventDefault()
+        advance()
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [advance])
+
   const replay = () => {
+    window.speechSynthesis?.cancel()
     setIndex(0)
     setFinished(false)
     setAutoPlay(false)
@@ -81,106 +157,148 @@ export function IntroductionPlayer({ introduction, onFinish, onSkip }: Introduct
   const toggleVoice = () => {
     setVoice(value => {
       const next = !value
-      if (!next) window.speechSynthesis?.cancel()
+      if (next && line) speak(line.text)
+      else window.speechSynthesis?.cancel()
       return next
     })
   }
 
-  return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden bg-slate-950 font-body">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(8,51,68,0.55)_0%,rgba(2,6,23,0.95)_100%)]" />
+  const readAloud = () => {
+    if (!line) return
+    speak(line.text)
+  }
 
-      <div className="relative z-10 w-full max-w-3xl flex flex-col gap-4">
-        {/* Cabecera de la escena */}
-        <div className="flex items-center justify-between">
-          <div>
-            <span className="text-[10px] text-cyan uppercase tracking-[0.2em] block">Escena narrativa</span>
-            <h2 className="font-body text-2xl font-bold text-white">{introduction.scene_title}</h2>
-          </div>
-          <button onClick={onSkip} className="text-slate-400 hover:text-white text-[11px] font-mono uppercase tracking-widest flex items-center gap-1">
+  return (
+    <div className="h-screen w-full flex flex-col bg-slate-950 font-body relative overflow-hidden">
+      {/* Fondo del escenario */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_35%,rgba(8,51,68,0.6)_0%,rgba(2,6,23,0.97)_100%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#0e2a38_1px,transparent_1px),linear-gradient(to_bottom,#0e2a38_1px,transparent_1px)] bg-[size:56px_56px] opacity-20" />
+
+      {/* Cabecera */}
+      <header className="relative z-10 shrink-0 flex items-center justify-between gap-4 px-6 py-4">
+        <div className="min-w-0">
+          <span className="text-[10px] text-cyan uppercase tracking-[0.25em] block">Escena narrativa</span>
+          <h2 className="font-body text-xl sm:text-2xl font-bold text-white truncate">{introduction.scene_title}</h2>
+        </div>
+        <div className="flex items-center gap-3 shrink-0">
+          <span className={cn('text-xs px-2 py-1 rounded border font-bold', CEFR_BADGE[cefrLevel] ?? CEFR_BADGE.B1)}>
+            {cefrLevel}
+          </span>
+          <button
+            onClick={onSkip}
+            className="text-slate-400 hover:text-white text-[11px] font-mono uppercase tracking-widest flex items-center gap-1"
+          >
             <X className="h-4 w-4" /> Saltar
           </button>
         </div>
+      </header>
 
-        {/* Escenario */}
-        <div className="bg-slate-900/70 border border-cyan/25 rounded-xl p-3 text-[13px] text-cyan-50/80 leading-relaxed border-l-2 border-cyan/40">
+      {/* Escenario + personajes */}
+      <div className="relative z-10 shrink-0 px-6">
+        <p className="text-[13px] text-cyan-50/75 leading-relaxed border-l-2 border-cyan/40 pl-3">
           {introduction.scene_description}
-        </div>
+        </p>
+      </div>
 
-        {/* Personajes */}
-        <div className="grid grid-cols-2 gap-3">
-          {introduction.characters.map(character => {
-            const isSpeaking = speaker?.id === character.id && !finished
-            return (
-              <div
-                key={character.id}
-                className={cn(
-                  'flex items-center gap-3 rounded-xl border p-3 transition-all duration-500',
-                  isSpeaking
-                    ? 'border-cyan/60 bg-cyan/10 shadow-[0_0_20px_-5px_rgba(6,182,212,0.45)]'
-                    : 'border-white/10 bg-slate-900/70 opacity-60',
-                )}
-              >
-                <img
-                  src={avatarUrl(character.name)}
-                  alt={character.name}
-                  className={cn('h-14 w-14 rounded-lg border transition-all', isSpeaking ? 'border-cyan/50 scale-105' : 'border-white/10 grayscale')}
-                />
-                <div className="min-w-0">
-                  <p className="text-sm font-bold text-white truncate">{character.name}</p>
-                  <p className="text-[11px] text-slate-400 truncate">{character.role}</p>
-                  <p className="text-[9px] font-mono uppercase tracking-widest mt-0.5" style={{ color: isSpeaking ? '#06b6d4' : '#64748B' }}>
-                    {isSpeaking ? '● hablando' : character.played_by === 'ai' ? 'lo interpreta la IA' : 'tu papel'}
-                  </p>
-                </div>
-              </div>
-            )
-          })}
-        </div>
-
-        {/* Burbuja del diálogo */}
-        <div className="bg-slate-900/95 border border-white/10 rounded-xl p-5 min-h-[130px] flex flex-col justify-center">
-          {line && (
-            <>
-              <p className="text-[10px] font-mono uppercase tracking-widest mb-2" style={{ color: '#06b6d4' }}>
-                {speaker?.emoji} {speaker?.name}:
-              </p>
-              <p className="text-slate-100 text-base leading-relaxed">
-                <TypewriterMessage text={line.text} isActive={typeActive} speed={22} />
-              </p>
-              {showTranslations && (
-                <p className="mt-3 pt-3 border-t border-white/10 text-[14px] italic text-emerald-300/85">
-                  {line.translation}
-                </p>
-              )}
-            </>
-          )}
-          {finished && (
-            <p className="text-center text-emerald font-mono uppercase tracking-widest text-[12px]">
-              ✅ Escena completada
-            </p>
-          )}
-        </div>
-
-        {/* Progreso */}
-        <div className="flex items-center gap-3">
-          <div className="flex-1 h-1.5 rounded-full bg-slate-800 overflow-hidden">
-            <div
-              className="h-full bg-cyan transition-all duration-500"
-              style={{ width: `${((index + 1) / total) * 100}%` }}
+      {/* Conversación de lado a lado */}
+      <div className="relative z-10 flex-1 min-h-0 flex flex-col justify-between px-6 py-4">
+        <div className="grid grid-cols-2 gap-4 sm:gap-16 items-end justify-items-center">
+          {introduction.characters.map(character => (
+            <CharacterStage
+              key={character.id}
+              character={character}
+              speaking={!finished && speaker?.id === character.id}
+              finished={finished}
             />
-          </div>
-          <span className="text-[10px] text-slate-500 font-mono">{index + 1} / {total}</span>
+          ))}
         </div>
 
-        {/* Controles */}
+        {/* Burbuja: aparece del lado del personaje que habla */}
+        <div
+          className={cn(
+            'w-full max-w-2xl mt-4 transition-all duration-300',
+            speaker?.id === 'A' ? 'self-start' : 'self-end',
+          )}
+        >
+          <div
+            className={cn(
+              'relative rounded-2xl border bg-slate-900/95 p-5 min-h-[132px] flex flex-col justify-center',
+              finished ? 'border-emerald/40' : 'border-cyan/30',
+            )}
+          >
+            {line && !finished && (
+              <>
+                <div className="flex items-center justify-between gap-3 mb-2">
+                  <p className="text-[10px] font-mono uppercase tracking-widest text-cyan">
+                    {speaker?.emoji} {speaker?.name}
+                  </p>
+                  {canSpeak && (
+                    <button
+                      onClick={readAloud}
+                      title="Escuchar esta frase"
+                      aria-label="Escuchar esta frase"
+                      className="text-cyan/70 hover:text-cyan transition-colors"
+                    >
+                      <Volume2 className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
+
+                <p className="text-slate-100 text-lg leading-relaxed">
+                  <TypewriterMessage text={line.text} isActive byWords />
+                </p>
+
+                {showTranslations && (
+                  <p className="mt-3 pt-3 border-t border-white/10 text-[14px] italic text-emerald-300/85">
+                    {line.translation}
+                  </p>
+                )}
+              </>
+            )}
+
+            {finished && (
+              <div className="text-center space-y-2">
+                <p className="text-3xl">🏅</p>
+                <p className="text-emerald font-mono uppercase tracking-widest text-sm">Escena completada</p>
+                <p className="text-[12px] text-slate-400">
+                  Desbloqueaste {introduction.useful_expressions.length} expresiones para la misión
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Progreso y controles */}
+      <footer className="relative z-10 shrink-0 px-6 pb-5 space-y-3">
+        {/* Un punto por frase: se encienden al avanzar */}
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] font-mono uppercase tracking-widest text-slate-500">Diálogo</span>
+          <div className="flex-1 flex items-center gap-1.5">
+            {introduction.lines.map((_, lineIndex) => (
+              <span
+                key={lineIndex}
+                className={cn(
+                  'h-1.5 flex-1 rounded-full transition-all duration-500',
+                  lineIndex < index || finished
+                    ? 'bg-cyan shadow-[0_0_8px_rgba(6,182,212,0.6)]'
+                    : lineIndex === index
+                      ? 'bg-cyan/60 animate-pulse'
+                      : 'bg-slate-800',
+                )}
+              />
+            ))}
+          </div>
+          <span className="text-[10px] text-slate-400 font-mono">{finished ? total : index + 1}/{total}</span>
+        </div>
+
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setAutoPlay(value => !value)}
               disabled={finished}
               className={cn(
-                'px-3 py-2 rounded-lg border text-[11px] font-mono uppercase tracking-widest flex items-center gap-1.5 transition-colors',
+                'px-3 py-2 rounded-lg border text-[11px] font-mono uppercase tracking-widest flex items-center gap-1.5 transition-colors disabled:opacity-40',
                 autoPlay ? 'border-amber/50 bg-amber/10 text-amber' : 'border-white/10 text-slate-300 hover:border-white/30',
               )}
             >
@@ -190,9 +308,9 @@ export function IntroductionPlayer({ introduction, onFinish, onSkip }: Introduct
             <button
               onClick={advance}
               disabled={finished}
-              className="px-4 py-2 rounded-lg bg-cyan text-black text-[11px] font-mono font-bold uppercase tracking-widest transition-colors hover:bg-cyan-400 disabled:opacity-40"
+              className="px-5 py-2 rounded-lg bg-cyan text-black text-[11px] font-mono font-bold uppercase tracking-widest transition-colors hover:bg-cyan-400 disabled:opacity-40 flex items-center gap-1.5"
             >
-              Siguiente ▸
+              Siguiente <SkipForward className="h-3.5 w-3.5" />
             </button>
           </div>
 
@@ -206,7 +324,7 @@ export function IntroductionPlayer({ introduction, onFinish, onSkip }: Introduct
             >
               <Languages className="h-3.5 w-3.5" /> Traducción
             </button>
-            {typeof window !== 'undefined' && window.speechSynthesis && (
+            {canSpeak && (
               <button
                 onClick={toggleVoice}
                 className={cn(
@@ -214,10 +332,13 @@ export function IntroductionPlayer({ introduction, onFinish, onSkip }: Introduct
                   voice ? 'border-cyan/50 bg-cyan/10 text-cyan' : 'border-white/10 text-slate-300 hover:border-white/30',
                 )}
               >
-                <Volume2 className="h-3.5 w-3.5" /> Voz
+                <Volume2 className="h-3.5 w-3.5" /> Voz {voice ? 'on' : 'off'}
               </button>
             )}
-            <button onClick={replay} className="px-3 py-2 rounded-lg border border-white/10 text-slate-300 hover:border-white/30 text-[11px] font-mono uppercase tracking-widest flex items-center gap-1.5">
+            <button
+              onClick={replay}
+              className="px-3 py-2 rounded-lg border border-white/10 text-slate-300 hover:border-white/30 text-[11px] font-mono uppercase tracking-widest flex items-center gap-1.5"
+            >
               <RotateCcw className="h-3.5 w-3.5" /> Repetir
             </button>
           </div>
@@ -226,12 +347,12 @@ export function IntroductionPlayer({ introduction, onFinish, onSkip }: Introduct
         {finished && (
           <button
             onClick={onFinish}
-            className="w-full py-4 rounded-xl bg-white text-cyan-900 font-black text-lg uppercase tracking-wider transition-all hover:scale-[1.02] active:scale-95"
+            className="w-full py-4 rounded-xl bg-white text-cyan-900 font-black text-lg uppercase tracking-wider transition-all hover:scale-[1.01] active:scale-95"
           >
             Preparar la misión →
           </button>
         )}
-      </div>
+      </footer>
     </div>
   )
 }
