@@ -3,7 +3,6 @@ import type { MissionIntroduction } from '@vox/shared'
 import { useNavigate } from 'react-router-dom'
 import { Timer } from './Timer'
 import { TypewriterMessage } from './TypewriterMessage'
-import { ResponsiveBackgroundSprites } from './ResponsiveBackgroundSprites'
 import { GrammarToastStack, HeartMeter, type GrammarNotice } from './GrammarToast'
 import { StepHintStack, type StepHint } from './StepHintToast'
 import { cn } from '@/lib/utils'
@@ -25,7 +24,7 @@ interface Mission {
 interface MissionScreenProps {
   mission: Mission; studentId: string; groupId?: string
 }
-    type MissionState = 'briefing' | 'introduction' | 'preparation' | 'active' | 'submitting'
+    type MissionState = 'introduction' | 'preparation' | 'active' | 'submitting'
 
 interface BriefingData {
   key_verbs: string[]
@@ -44,16 +43,8 @@ interface Message {
 
 export function MissionScreen({ mission, studentId, groupId }: MissionScreenProps) {
   const { user } = useAuth()
-  const [state, setState] = useState<MissionState>('briefing')
-  
-  // Generate briefing data immediately from mission
-  const briefing: BriefingData = {
-    key_verbs: mission.key_verbs || ['learn', 'practice', 'communicate'],
-    useful_phrases: mission.useful_phrases || ['Let me practice', 'I understand', 'Can you repeat?'],
-    grammar_tips: mission.grammar_tips || 'Focus on correct grammar and clear pronunciation',
-    estimated_duration_minutes: Math.ceil(mission.base_duration_seconds / 60),
-  }
-  
+  const [state, setState] = useState<MissionState>('introduction')
+
   const [missionMode, setMissionMode] = useState<'free' | 'evaluation'>('free')
   const [messages, setMessages] = useState<Message[]>([])
   const [currentInput, setCurrentInput] = useState('')
@@ -62,6 +53,7 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
   const [isLastMessageTyping, setIsLastMessageTyping] = useState(false)
   const [timedOut, setTimedOut] = useState(false)
   const [showHelp, setShowHelp] = useState(false)
+
   const [dynamicHints, setDynamicHints] = useState<BriefingData | null>(null)
   const [loadingHints, setLoadingHints] = useState(false)
   const [showCompletionNotification, setShowCompletionNotification] = useState(false)
@@ -461,96 +453,6 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
     }
   }
 
-  if (state === 'briefing') return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden bg-slate-950 font-body">
-        {/* Background Grid */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#083344_1px,transparent_1px),linear-gradient(to_bottom,#083344_1px,transparent_1px)] bg-[size:40px_40px] opacity-[0.2]" />
-        
-        {/* 👾 Pixel Sprites Layer - Desktop Only */}
-        <div className="absolute inset-0 z-0 opacity-70">
-            <ResponsiveBackgroundSprites />
-        </div>
-
-        <div className="w-full max-w-4xl mx-auto space-y-6 relative z-10 animate-fade-in-up">
-            
-            {/* Header */}
-            <div className="flex items-center justify-between border-b border-cyan/20 pb-4">
-                <div>
-                    <span className="text-[10px] text-cyan uppercase tracking-[0.2em] block mb-1">Mission Briefing</span>
-                    <h1 className="font-body text-5xl font-bold text-white uppercase tracking-tight">{mission.title}</h1>
-                </div>
-                <div className="flex flex-col items-end">
-                    <span className="text-[40px] bg-cyan/10 border border-cyan/20 text-cyan px-2 py-0.5 rounded font-bold">{mission.cefr_level}</span>
-                </div>
-            </div>
-            
-            <div className="grid gap-4">
-                {/* Context Card */}
-                <div className="relative group bg-slate-900/95 backdrop-blur border border-white/10 rounded-xl p-5 hover:border-cyan/30 transition-colors">
-                    <p className="text-[14px] text-slate-500 uppercase tracking-widest mb-2 flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span> Contexto del escenario
-                    </p>
-                    <p className="text-slate-300 text-md leading-relaxed border-l-2 border-blue-500/30 pl-3">
-                        {mission.scene_context}
-                    </p>
-                </div>
-
-                {/* Objective Card */}
-                <div className="relative group bg-cyan/65 border border-cyan/30 rounded-xl p-5 hover:border-cyan/50 transition-colors">
-                    <p className="text-[14px] text-cyan uppercase tracking-widest mb-2 flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-cyan animate-pulse"></span> Objetivo principal
-                    </p>
-                    <p className="text-cyan-50 font-medium text-md leading-relaxed border-l-2 border-cyan/30 pl-3">
-                        {mission.objective}
-                    </p>
-                </div>
-            </div>
-            
-            {/* Intel / Briefing Data */}
-            <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-slate-900/85 border border-slate-800 rounded-xl p-4">
-                        <p className="text-[12px] text-cyan uppercase tracking-widest mb-3">Verbos clave</p>
-                        <div className="flex flex-wrap gap-2">
-                            {briefing.key_verbs.map((v, i) => (
-                                <span key={i} className="text-[18px] font-body text-cyan bg-cyan/10 border border-cyan/20 px-2 py-1 rounded">{v}</span>
-                            ))}
-                        </div>
-                    </div>
-                    <div className="bg-slate-900/85 border border-slate-800 rounded-xl p-4">
-                        <p className="text-[12px] text-emerald uppercase tracking-widest mb-3">Frases cotidianas</p>
-                        <ul className="space-y-2">
-                            {briefing.useful_phrases.slice(0, 3).map((p, i) => (
-                                <li key={i} className="text-[15px] text-emerald-50/70 border-l border-emerald/20 pl-2 leading-tight">{p}</li>
-                            ))}
-                        </ul>
-                    </div>
-                </div>
-                <div className="bg-slate-900/85 border border-amber-700/40 rounded-xl p-4">
-                    <p className="text-[12px] text-amber-400 uppercase tracking-widest mb-2">💡 Consejo gramatical</p>
-                    <p className="text-[14px] text-amber-50/80 leading-relaxed">{briefing.grammar_tips}</p>
-                </div>
-            </div>
-
-            {/* Actions */}
-            <div className="space-y-4 pt-4 border-t border-white/5">
-                <button
-                  onClick={() => setState('introduction')}
-                  className="w-full py-4 rounded-xl bg-white text-cyan-900 font-black text-lg uppercase tracking-wider hover:scale-[1.02] active:scale-95 transition-all"
-                >
-                  ▶ Ver la conversación de ejemplo
-                </button>
-                <button
-                  onClick={() => setState('preparation')}
-                  className="w-full text-center text-xs font-mono uppercase tracking-widest text-slate-500 hover:text-foreground"
-                >
-                  Saltar la introducción
-                </button>
-            </div>
-      </div>
-    </div>
-  )
-
   // ── Fase 2: escena narrativa ──────────────────────────────────────────
   if (state === 'introduction') {
     if (loadingIntroduction) {
@@ -694,16 +596,13 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
               </button>
             </div>
 
-            <div className="flex justify-center gap-4 text-[11px] font-mono uppercase tracking-widest">
-              {introduction && (
+            {introduction && (
+              <div className="flex justify-center text-[11px] font-mono uppercase tracking-widest">
                 <button onClick={() => setState('introduction')} className="text-slate-400 hover:text-cyan">
                   ↻ Repetir escena
                 </button>
-              )}
-              <button onClick={() => setState('briefing')} className="text-slate-500 hover:text-foreground">
-                ← Volver
-              </button>
-            </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -963,7 +862,7 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
 
             <div className="flex flex-col gap-3 w-full pt-2">
               <button
-                onClick={() => { setState('briefing'); setShowFailedNotification(false); setMissionProgress(0); setHearts(TOTAL_HEARTS) }}
+                onClick={() => { setState('preparation'); setShowFailedNotification(false); setMissionProgress(0); setHearts(TOTAL_HEARTS) }}
                 className="w-full py-4 rounded-xl bg-white text-red-900 font-black text-lg uppercase tracking-wider shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:scale-105 transition-all active:scale-95"
               >
                 Reintentar
@@ -1004,7 +903,7 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
                     <p className="text-sm text-slate-300">Loading contextual hints...</p>
                   </div>
                 ) : (() => {
-                  const hints = dynamicHints || briefing
+                  const hints = dynamicHints ?? { key_verbs: [], useful_phrases: introduction?.useful_expressions ?? [], grammar_tips: '' }
                   return hints ? (
                     <>
                       {/* Show what the AI asked for context */}
@@ -1024,7 +923,7 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
                               <span>📝</span> Key Verbs to Use
                           </h4>
                           <div className="flex flex-wrap gap-2">
-                              {hints.key_verbs && hints.key_verbs.map((verb, i) => (
+                              {hints.key_verbs && hints.key_verbs.length > 0 && hints.key_verbs.map((verb, i) => (
                                   <span 
                                       key={i} 
                                       className="text-xs px-3 py-1.5 rounded-lg bg-blue-500/10 border border-blue-500/30 text-blue-300 font-body font-medium hover:bg-blue-500/20 transition-colors cursor-default"
