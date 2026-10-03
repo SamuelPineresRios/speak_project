@@ -1,66 +1,65 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 interface TypewriterMessageProps {
   text: string
-  isActive: boolean // Whether this is the current message being typed
-  /** Milisegundos por unidad revelada. */
+  isActive: boolean
+  /** Milisegundos base por letra; se añade un pequeño jitter para que no suene mecánico. */
   speed?: number
-  /** Revela palabra a palabra en lugar de carácter a carácter (escenas). */
-  byWords?: boolean
+  /** Se llama cuando la última letra se ha escrito. */
+  onComplete?: () => void
 }
 
 /**
- * Revela un texto progresivamente.
+ * Escribe un texto letra a letra.
  *
- * En modo palabra se conservan los espacios para que el texto no baile, y el
- * ritmo es más pausado (una palabra por tick) porque leer palabra a palabra es
- * más natural en una escena narrada que ver aparecer letras sueltas.
+ * El ritmo es ligeramente irregular (como si alguien tecleara) y el cursor
+ * hereda el color del texto, así que cada personaje puede tener el suyo.
  */
 export function TypewriterMessage({
   text,
   isActive,
-  speed,
-  byWords = false,
+  speed = 28,
+  onComplete,
 }: TypewriterMessageProps) {
   const [displayed, setDisplayed] = useState('')
-  const [isComplete, setIsComplete] = useState(false)
-
-  const step = speed ?? (byWords ? 190 : 30)
-  const tokens = useMemo(
-    () => (byWords ? text.split(/(\s+)/) : text.split('')),
-    [text, byWords],
-  )
+  const [done, setDone] = useState(false)
+  const onCompleteRef = useRef(onComplete)
+  onCompleteRef.current = onComplete
 
   useEffect(() => {
-    if (!isActive || isComplete) {
+    setDone(false)
+
+    if (!isActive) {
       setDisplayed(text)
-      setIsComplete(true)
+      setDone(true)
       return
     }
 
+    setDisplayed('')
     let index = 0
     let timeout: ReturnType<typeof setTimeout>
 
-    const revealNext = () => {
-      if (index <= tokens.length) {
-        setDisplayed(tokens.slice(0, index).join(''))
-        index++
-        timeout = setTimeout(revealNext, step)
-      } else {
-        setIsComplete(true)
+    const typeNext = () => {
+      if (index >= text.length) {
+        setDone(true)
+        onCompleteRef.current?.()
+        return
       }
+      index++
+      setDisplayed(text.slice(0, index))
+      timeout = setTimeout(typeNext, speed + Math.random() * 14)
     }
 
-    revealNext()
+    typeNext()
 
     return () => clearTimeout(timeout)
-  }, [text, tokens, isActive, step, isComplete])
+  }, [text, isActive, speed])
 
   return (
     <>
       {displayed}
-      {isActive && !isComplete && (
-        <span className="inline-block w-1.5 h-4 bg-current ml-0.5 animate-pulse align-middle" />
+      {isActive && !done && (
+        <span className="inline-block w-[3px] h-[1.05em] align-[-0.15em] ml-0.5 bg-current animate-pulse rounded-sm" />
       )}
     </>
   )

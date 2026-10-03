@@ -18,6 +18,27 @@ function avatarUrl(name: string): string {
   return `https://api.dicebear.com/9.x/pixel-art/svg?seed=${encodeURIComponent(name)}`
 }
 
+/**
+ * Identidad visual de cada rol: color del nombre, del texto y de la burbuja.
+ * Son clases completas porque Tailwind no genera nombres construidos.
+ */
+const ROLE_THEME: Record<'A' | 'B', { label: string; text: string; bubble: string; ring: string; dot: string }> = {
+  A: {
+    label: 'text-cyan',
+    text: 'text-cyan-50',
+    bubble: 'border-cyan/40',
+    ring: 'border-cyan/70 shadow-[0_0_45px_-8px_rgba(6,182,212,0.75)]',
+    dot: 'bg-cyan',
+  },
+  B: {
+    label: 'text-violet',
+    text: 'text-violet-50',
+    bubble: 'border-violet/40',
+    ring: 'border-violet/70 shadow-[0_0_45px_-8px_rgba(139,92,246,0.75)]',
+    dot: 'bg-violet',
+  },
+}
+
 /** Color del badge por nivel, para que el nivel se lea de un vistazo. */
 const CEFR_BADGE: Record<string, string> = {
   A1: 'border-emerald/50 bg-emerald/10 text-emerald',
@@ -44,14 +65,13 @@ function CharacterStage({
   speaking: boolean
   finished: boolean
 }) {
+  const theme = ROLE_THEME[character.id]
   return (
     <div className={cn('flex flex-col items-center justify-end transition-all duration-500', speaking ? 'scale-100' : 'scale-95')}>
       <div
         className={cn(
           'relative h-40 w-40 sm:h-56 sm:w-56 overflow-hidden rounded-2xl border-2 transition-all duration-500',
-          speaking
-            ? 'border-cyan/70 shadow-[0_0_45px_-8px_rgba(6,182,212,0.75)]'
-            : 'border-white/10 opacity-55 grayscale',
+          speaking ? theme.ring : 'border-white/10 opacity-55 grayscale',
         )}
       >
         {/* El sprite de dicebear ya es un busto (cabeza grande y camiseta):
@@ -63,9 +83,9 @@ function CharacterStage({
         />
         {speaking && (
           <span className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-cyan animate-bounce [animation-delay:0ms]" />
-            <span className="w-1.5 h-1.5 rounded-full bg-cyan animate-bounce [animation-delay:150ms]" />
-            <span className="w-1.5 h-1.5 rounded-full bg-cyan animate-bounce [animation-delay:300ms]" />
+            <span className={cn('w-1.5 h-1.5 rounded-full animate-bounce [animation-delay:0ms]', theme.dot)} />
+            <span className={cn('w-1.5 h-1.5 rounded-full animate-bounce [animation-delay:150ms]', theme.dot)} />
+            <span className={cn('w-1.5 h-1.5 rounded-full animate-bounce [animation-delay:300ms]', theme.dot)} />
           </span>
         )}
       </div>
@@ -75,7 +95,7 @@ function CharacterStage({
           {character.name}
         </p>
         <p className="text-[11px] text-slate-500">{character.role}</p>
-        <p className={cn('text-[9px] font-mono uppercase tracking-widest mt-0.5', speaking ? 'text-cyan' : 'text-slate-600')}>
+        <p className={cn('text-[9px] font-mono uppercase tracking-widest mt-0.5', speaking ? theme.label : 'text-slate-600')}>
           {finished ? '—' : speaking ? '● hablando' : character.played_by === 'ai' ? 'lo interpreta la IA' : 'tu papel'}
         </p>
       </div>
@@ -89,6 +109,8 @@ export function IntroductionPlayer({ introduction, cefrLevel, onFinish, onSkip }
   const [showTranslations, setShowTranslations] = useState(false)
   const [voice, setVoice] = useState(false)
   const [finished, setFinished] = useState(false)
+  /** Se pone a true cuando la frase actual termina de escribirse. */
+  const [lineComplete, setLineComplete] = useState(false)
   const voiceRef = useRef(voice)
   voiceRef.current = voice
 
@@ -111,9 +133,10 @@ export function IntroductionPlayer({ introduction, cefrLevel, onFinish, onSkip }
     [canSpeak],
   )
 
-  // Al cambiar de frase: se lee sola si la voz está activada.
+  // Al cambiar de frase: se marca como no escrita y se lee si la voz está activa.
   useEffect(() => {
     if (!line) return
+    setLineComplete(false)
     if (voiceRef.current) speak(line.text)
     return () => window.speechSynthesis?.cancel()
   }, [line, speak])
@@ -128,12 +151,13 @@ export function IntroductionPlayer({ introduction, cefrLevel, onFinish, onSkip }
     setIndex(value => value + 1)
   }, [finished, isLastLine])
 
-  // Modo automático: avanza solo tras un margen de lectura.
+  // Modo automático: espera a que la frase termine de escribirse y deja un
+  // margen de lectura antes de pasar a la siguiente.
   useEffect(() => {
-    if (!autoPlay || finished) return
+    if (!autoPlay || finished || !lineComplete) return
     const timer = setTimeout(advance, AUTOPLAY_NEXT_DELAY_MS)
     return () => clearTimeout(timer)
-  }, [autoPlay, finished, index, advance])
+  }, [autoPlay, finished, lineComplete, index, advance])
 
   // Espacio o flecha derecha avanzan, como en una novela visual.
   useEffect(() => {
@@ -222,34 +246,48 @@ export function IntroductionPlayer({ introduction, cefrLevel, onFinish, onSkip }
         >
           <div
             className={cn(
-              'relative rounded-2xl border bg-slate-900/95 p-5 min-h-[132px] flex flex-col justify-center',
-              finished ? 'border-emerald/40' : 'border-cyan/30',
+              'relative rounded-2xl border bg-slate-900/95 p-5 min-h-[132px] flex flex-col justify-center transition-colors duration-500',
+              finished
+                ? 'border-emerald/40'
+                : speaker
+                  ? ROLE_THEME[speaker.id].bubble
+                  : 'border-cyan/30',
             )}
           >
             {line && !finished && (
               <>
                 <div className="flex items-center justify-between gap-3 mb-2">
-                  <p className="text-[10px] font-mono uppercase tracking-widest text-cyan">
+                  <p className={cn('text-[10px] font-mono uppercase tracking-widest', speaker ? ROLE_THEME[speaker.id].label : 'text-cyan')}>
                     {speaker?.emoji} {speaker?.name}
                   </p>
-                  {canSpeak && (
-                    <button
-                      onClick={readAloud}
-                      title="Escuchar esta frase"
-                      aria-label="Escuchar esta frase"
-                      className="text-cyan/70 hover:text-cyan transition-colors"
-                    >
-                      <Volume2 className="h-4 w-4" />
-                    </button>
-                  )}
+                  <div className="flex items-center gap-3">
+                    {!lineComplete && (
+                      <span className="text-[9px] font-mono uppercase tracking-widest text-slate-500 animate-pulse">
+                        escribiendo…
+                      </span>
+                    )}
+                    {canSpeak && (
+                      <button
+                        onClick={readAloud}
+                        title="Escuchar esta frase"
+                        aria-label="Escuchar esta frase"
+                        className={cn(
+                          'transition-colors hover:text-white',
+                          speaker ? ROLE_THEME[speaker.id].label : 'text-cyan',
+                        )}
+                      >
+                        <Volume2 className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
                 </div>
 
-                <p className="text-slate-100 text-lg leading-relaxed">
-                  <TypewriterMessage text={line.text} isActive byWords />
+                <p className={cn('text-lg leading-relaxed', speaker ? ROLE_THEME[speaker.id].text : 'text-slate-100')}>
+                  <TypewriterMessage text={line.text} isActive speed={26} onComplete={() => setLineComplete(true)} />
                 </p>
 
-                {showTranslations && (
-                  <p className="mt-3 pt-3 border-t border-white/10 text-[14px] italic text-emerald-300/85">
+                {showTranslations && lineComplete && (
+                  <p className="mt-3 pt-3 border-t border-white/10 text-[14px] italic text-emerald-300/85 animate-in fade-in duration-500">
                     {line.translation}
                   </p>
                 )}

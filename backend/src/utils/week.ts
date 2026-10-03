@@ -1,13 +1,3 @@
-/**
- * Semana ISO del motor de agregados.
- *
- * Devuelve el lunes de la semana de `date` en formato `YYYY-MM-DD`, que es el
- * valor que guarda `weekly_aggregates.week_start_date`.
- *
- * Nota: se calcula sobre la fecha local y se serializa en UTC (mismo
- * comportamiento que el `getWeekStart` original); cambiarlo alteraría las
- * claves de las semanas ya almacenadas.
- */
 export function getWeekStart(date: Date = new Date()): string {
   const d = new Date(date)
   const day = d.getDay()

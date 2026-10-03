@@ -3,22 +3,22 @@ import { cn } from '@/lib/utils'
 
 const SCENARIOS = [
   {
-    title: 'SIM_01 : COFFEE_RUN',
+    title: 'SIM_01 : CAFÉ_PARA_LLEVAR',
     steps: [
-      { role: 'system', text: 'INITIALIZING SIMULATION...' },
+      { role: 'system', text: 'INICIANDO SIMULACIÓN...' },
       { role: 'bot', text: 'Barista: Welcome! What can I get started for you?' },
       { role: 'user', text: 'Hi, I\'ll have a medium cappuccino, please.' },
       { role: 'bot', text: 'Sure thing. Regular milk or oat milk?' },
       { role: 'user', text: 'Oat milk, and extra hot if possible.' },
       { role: 'bot', text: 'You got it. Anything to eat?' },
       { role: 'user', text: 'No thanks, just the coffee.' },
-      { role: 'system', text: 'MISSION COMPLETE. ACCURACY: 98%' }
+      { role: 'system', text: 'MISIÓN COMPLETADA. PRECISIÓN: 98%' }
     ]
   },
   {
-    title: 'SIM_02 : AIRPORT_SECURITY',
+    title: 'SIM_02 : CONTROL_DE_AEROPUERTO',
     steps: [
-      { role: 'system', text: 'LOADING PROTOCOL: SECURITY...' },
+      { role: 'system', text: 'CARGANDO PROTOCOLO: SEGURIDAD...' },
       { role: 'bot', text: 'Officer: Boarding pass and ID, please.' },
       { role: 'user', text: 'Here you go.' },
       { role: 'bot', text: 'Are you carrying any liquids?' },
@@ -26,19 +26,19 @@ const SCENARIOS = [
       { role: 'bot', text: 'That\'s fine. Please place your bag on the belt.' },
       { role: 'user', text: 'Do I need to take my laptop out?' },
       { role: 'bot', text: 'Yes, laptop in a separate bin, please.' },
-      { role: 'system', text: 'SEQUENCE TERMINATED.' }
+      { role: 'system', text: 'SECUENCIA FINALIZADA.' }
     ]
   },
   {
-    title: 'SIM_03 : TECH_SUPPORT',
+    title: 'SIM_03 : SOPORTE_TÉCNICO',
     steps: [
-      { role: 'system', text: 'CONNECTING TO SUPPORT NODE...' },
+      { role: 'system', text: 'CONECTANDO AL NODO DE SOPORTE...' },
       { role: 'bot', text: 'Support: Thank you for calling. How can I help?' },
       { role: 'user', text: 'My internet is not working.' },
       { role: 'bot', text: 'I see. Have you tried restarting the router?' },
       { role: 'user', text: 'Yes, I unplugged it for 10 seconds.' },
       { role: 'bot', text: 'Okay, let me check the signal from here.' },
-      { role: 'system', text: 'DIAGNOSTIC COMPLETE.' }
+      { role: 'system', text: 'DIAGNÓSTICO COMPLETADO.' }
     ]
   }
 ]
@@ -94,7 +94,7 @@ export function MissionSimulationAside() {
       <div className="bg-black/40 border border-cyan/20 p-3 rounded backdrop-blur-sm relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-cyan/50 to-transparent animate-scan" style={{ animationDuration: '3s' }} />
          <div className="flex justify-between items-center mb-1">
-            <span className="text-[10px] text-cyan font-mono uppercase tracking-widest">Live_Feed // {currentScenario.title}</span>
+            <span className="text-[10px] text-cyan font-mono uppercase tracking-widest">Señal_en_vivo // {currentScenario.title}</span>
             <div className="flex gap-1">
                 <div className="w-1.5 h-1.5 bg-cyan rounded-full animate-pulse" />
                 <div className="w-1.5 h-1.5 bg-cyan/30 rounded-full" />
@@ -127,7 +127,7 @@ export function MissionSimulationAside() {
                 return (
                     <div key={idx} className={cn("flex flex-col gap-1 max-w-[90%]", isBot ? "self-start items-start" : "self-end items-end")}>
                          <div className={cn("text-[8px] uppercase tracking-wider mb-0.5 px-1", isBot ? "text-cyan" : "text-emerald")}>
-                            {isBot ? 'TARGET_AI' : 'OPERATOR'}
+                            {isBot ? 'IA_SIMULADA' : 'OPERADOR'}
                          </div>
                          <div className={cn(
                              "py-2 px-3 text-xs leading-relaxed border backdrop-blur-sm shadow-[0_0_15px_-5px_rgba(0,0,0,0.5)] relative",
