@@ -5,6 +5,7 @@ import { Timer } from './Timer'
 import { TypewriterMessage } from './TypewriterMessage'
 import { ResponsiveBackgroundSprites } from './ResponsiveBackgroundSprites'
 import { GrammarToastStack, HeartMeter, type GrammarNotice } from './GrammarToast'
+import { StepHintStack, type StepHint } from './StepHintToast'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/lib/hooks/useAuth'
 import { readJson } from '@/lib/api'
@@ -71,9 +72,15 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
   
   // Correcciones en curso: cada una es una notificación en la esquina.
   const [grammarNotices, setGrammarNotices] = useState<GrammarNotice[]>([])
+  /** Avisos suaves de "te falta X": se van solos. */
+  const [stepHints, setStepHints] = useState<StepHint[]>([])
+  /** Fallos seguidos en el paso actual; al tercero llega la corrección completa. */
+  const [stepFailures, setStepFailures] = useState(0)
 
   // Desafío: 3 corazones. Cada frase fuera de tema o mal gramaticalmente cuesta uno.
   const TOTAL_HEARTS = 3
+  /** Fallos seguidos en el mismo paso antes de mostrar la forma correcta. */
+  const HELP_AFTER_FAILURES = 3
   const [hearts, setHearts] = useState(TOTAL_HEARTS)
   const [showFailedNotification, setShowFailedNotification] = useState(false)
   /** Lo dice la conversación (mission_completed), no el evaluador del reporte. */
@@ -204,22 +211,32 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
                 return [...updated, newAssistantMsg]
              })
             
-            // Frase con errores (rating 1-3): notificación en la esquina.
-            // El chat sigue abierto: no hay nada que cerrar para reintentar.
+            // Frase incompleta o con errores (rating 1-3). La ayuda va por
+            // niveles: primero sólo qué falta; si insiste, la forma correcta.
             if (data.message.rating && data.message.rating >= 1 && data.message.rating <= 3) {
-              // Si el modelo no devolvió corrección, no se le muestra al alumno
-              // su propia respuesta errónea como si fuera la correcta.
-              const correctedVersion = data.correctedText || '[Respuesta rechazada]'
+              const failures = stepFailures + 1
+              setStepFailures(failures)
 
-              setGrammarNotices(current => [
-                ...current,
-                {
-                  id: `notice-${crypto.randomUUID()}`,
-                  original: userMsg.content,
-                  corrected: correctedVersion,
-                  feedback: data.feedback || 'Tu respuesta no es correcta para esta pregunta.',
-                },
-              ])
+              if (failures >= HELP_AFTER_FAILURES) {
+                // Ya ha fallado varias veces en el mismo paso: corrección completa.
+                const correctedVersion = data.correctedText || '[Respuesta rechazada]'
+
+                setGrammarNotices(current => [
+                  ...current,
+                  {
+                    id: `notice-${crypto.randomUUID()}`,
+                    original: userMsg.content,
+                    corrected: correctedVersion,
+                    feedback: data.feedback || 'Tu respuesta no es correcta para esta pregunta.',
+                  },
+                ])
+              } else if (data.missingStep) {
+                // Aún está cerca: se le dice qué falta, nunca cómo decirlo.
+                setStepHints(current => [
+                  ...current,
+                  { id: `hint-${crypto.randomUUID()}`, missing: data.missingStep },
+                ])
+              }
 
               // En el Desafío cada frase mal cuesta un corazón; sin corazones,
               // el desafío se acaba.
@@ -247,6 +264,12 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
 
             // Auto-complete if mission passed
             const isComplete = data.mission_completed || (data.progress && data.progress >= 100);
+            if (data.message.rating && data.message.rating >= 4) {
+              // Paso superado: el siguiente empieza con el contador a cero.
+              setStepFailures(0)
+              setStepHints([])
+            }
+
             if (isComplete) {
                 setMissionProgress(100)
                 setMissionCompleted(true)
@@ -283,6 +306,10 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
 
   const dismissGrammarNotice = (id: string) => {
     setGrammarNotices(current => current.filter(notice => notice.id !== id))
+  }
+
+  const dismissStepHint = (id: string) => {
+    setStepHints(current => current.filter(hint => hint.id !== id))
   }
 
   const handleCompleteMission = async () => {
@@ -1058,6 +1085,7 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
       )}
 
       {/* Notificación de corrección (esquina superior derecha) */}
+      <StepHintStack hints={stepHints} onDismiss={dismissStepHint} />
       <GrammarToastStack notices={grammarNotices} onDismiss={dismissGrammarNotice} />
     </div>
   )

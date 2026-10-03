@@ -134,6 +134,8 @@ export async function requestRoleplayTurn(params: {
       estimated_time: data.estimated_time || 30,
       feedback: data.feedback,
       correctedText: data.correctedText || null,
+      /** Lo que le falta al paso actual; alimenta la ayuda, no la voz del bot. */
+      missingStep: data.missing_step ?? null,
       progress: data.progress || 0,
       mission_completed: data.mission_completed,
     }
