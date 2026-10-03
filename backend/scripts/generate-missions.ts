@@ -20,7 +20,13 @@ import type { CefrLevel } from '@vox/shared'
 const DURATION_BY_LEVEL: Record<CefrLevel, number> = { A1: 180, A2: 150, B1: 120, B2: 90 }
 
 /** Cuántas misiones se piden al modelo por llamada; lotes pequeños evitan truncados. */
-const BATCH_SIZE = 4
+const BATCH_SIZE = 3
+
+/** Reintentos por lote antes de darlo por perdido. */
+const MAX_BATCH_ATTEMPTS = 3
+
+/** Lotes vacíos seguidos que se toleran antes de parar. */
+const MAX_EMPTY_BATCHES = 3
 
 const MISSION_SCHEMA: JsonSchema = {
   type: 'object',
@@ -82,12 +88,29 @@ interface GeneratedMission {
   example_conversation: string
 }
 
-/** Dificultad y temas que debe seguir el modelo según el nivel. */
+/**
+ * Cómo escala la dificultad por nivel. Cuanto más alto, más larga la
+ * conversación, más variado el vocabulario y más cosas que resolver.
+ */
 const LEVEL_GUIDANCE: Record<CefrLevel, string> = {
-  A1: 'Very simple: present simple, basic questions, everyday vocabulary, short sentences. The student only has to say 2-4 short sentences in total.',
-  A2: 'Simple past and future, common expressions, slightly longer answers.',
-  B1: 'Varied tenses, opinions and explanations, natural conversation.',
-  B2: 'Nuanced arguments, idioms, more complex situations.',
+  A1: `EASY, for a total beginner:
+- 4-6 lines in the example conversation, very short (3-8 words each).
+- Present simple and basic questions only. Everyday words (coffee, ticket, time).
+- The student only has to say 2-3 short sentences; one single simple task.`,
+  A2: `ELEMENTARY, one step above A1:
+- 6-8 lines in the example conversation, sentences of 6-14 words.
+- Past simple and basic future allowed; common everyday expressions.
+- The student must handle 2-3 pieces of information (a date, a price, a place).`,
+  B1: `INTERMEDIATE, noticeably harder than A2:
+- 8-10 lines in the example conversation, sentences of 10-20 words.
+- Varied tenses (past, present perfect, conditionals), opinions, explanations
+  and reasons. Vocabulary beyond the basics (postpone, refund, neighbourhood...).
+- The student must handle 3-4 details, justify something and ask follow-ups.`,
+  B2: `UPPER INTERMEDIATE, the hardest:
+- 10-12 lines, sentences of 12-25 words with subordinate clauses.
+- Idioms, phrasal verbs and precise vocabulary (reimbursement, inconvenience,
+  binding agreement...). Nuanced arguments and polite but firm disagreement.
+- The student must negotiate, complain or defend a position with conditions.`,
 }
 
 function buildPrompt(level: CefrLevel, count: number, existing: string[]): string {
@@ -101,15 +124,29 @@ FORMAT (respect it exactly):
 - title, description, objective and scene_context: in SPANISH.
 - character_name and example_conversation: in ENGLISH.
 - objective must be concrete: include names, times, prices or quantities the student has to mention.
-- example_conversation: 4-6 lines alternating "Person:" (the AI character) and "User:" (the student), in English.
+- example_conversation: one turn per line (real newline characters), 4-6 lines for A1 and more as the level rises, alternating "Person:" (the AI character) and "User:" (the student), in English. NEVER put the whole dialogue on a single line.
 - character_name: the person the AI plays (waiter, clerk, neighbour, nurse...), never "Assistant".
 
-ALREADY USED SITUATIONS (do NOT repeat these or close variants):
+ALREADY USED SITUATIONS, from every level (do NOT repeat these or close variants):
 ${existing.map(title => `- ${title}`).join('\n')}
 
 Pick ${count} DIFFERENT everyday situations that an ${level} student would face (shops, transport, home, health, social, services, food, plans...). Vary the places and the people.
 
 Return ONLY the JSON.`
+}
+
+/**
+ * El modelo a veces devuelve el diálogo entero en una sola línea
+ * ("Person: ... User: ... Person: ..."). Se parte por los marcadores de
+ * hablante en lugar de descartar la misión.
+ */
+function normalizeConversation(raw: string): string {
+  const lines = raw.split('\n').map(line => line.trim()).filter(Boolean)
+  if (lines.length >= 4) return raw
+
+  const withBreaks = raw.replace(/\s+(?=[A-Za-z][A-Za-z ]{1,19}:\s)/g, '\n')
+  const splitLines = withBreaks.split('\n').map(line => line.trim()).filter(Boolean)
+  return splitLines.length > lines.length ? splitLines.join('\n') : raw
 }
 
 /** Comprueba lo que el esquema no garantiza antes de tocar la base de datos. */
@@ -137,11 +174,20 @@ function validate(missionsToCheck: GeneratedMission[], usedTitles: Set<string>):
       continue
     }
 
+    mission.example_conversation = normalizeConversation(mission.example_conversation)
     const lines = mission.example_conversation.split('\n').filter(line => line.trim())
-    const hasUser = lines.some(line => /^user:/i.test(line.trim()))
-    const hasOther = lines.some(line => !/^user:/i.test(line.trim()))
-    if (lines.length < 4 || !hasUser || !hasOther) {
-      console.warn(`  descartada "${mission.title}": diálogo de ejemplo incompleto`)
+    // Se acepta cualquier pareja de etiquetas (Person/User, Agent/Customer...):
+    // lo que importa es que haya diálogo con dos voces.
+    const speakers = new Set(
+      lines
+        .map(line => /^([^:]{2,20}):/.exec(line.trim())?.[1]?.trim().toLowerCase())
+        .filter((value): value is string => Boolean(value)),
+    )
+    if (lines.length < 4 || speakers.size < 2) {
+      console.warn(
+        `  descartada "${mission.title}": diálogo inválido (${lines.length} líneas, ${speakers.size} voces)`,
+      )
+      console.warn(`    ${lines.slice(0, 2).join(' / ').slice(0, 120)}`)
       continue
     }
 
@@ -177,44 +223,65 @@ function nextMissionId(existingIds: string[], offset: number): string {
 async function main() {
   const { level, count, dry } = parseArgs()
 
-  const existingRows = await db.select().from(missions).where(eq(missions.cefr_level, level))
-  const allIds = (await db.select({ id: missions.id }).from(missions)).map(row => row.id)
-  const usedTitles = new Set(existingRows.map(row => row.title.trim().toLowerCase()))
+  const levelRows = await db.select().from(missions).where(eq(missions.cefr_level, level))
+  const allRows = await db.select({ id: missions.id, title: missions.title }).from(missions)
+  const usedTitles = new Set(allRows.map(row => row.title.trim().toLowerCase()))
 
-  console.log(`Nivel ${level}: ${existingRows.length} misiones actuales. Se piden ${count} nuevas.`)
+  console.log(`Nivel ${level}: ${levelRows.length} misiones actuales. Se piden ${count} nuevas.`)
 
   const created: GeneratedMission[] = []
   let remaining = count
+  let emptyBatches = 0
 
   while (remaining > 0) {
     const batch = Math.min(BATCH_SIZE, remaining)
     console.log(`\nGenerando lote de ${batch}...`)
 
-    const content = await completeChat({
-      messages: [
-        {
-          role: 'user',
-          // Se incluyen las ya creadas en esta ejecución: si no, cada lote
-          // repite las situaciones de los anteriores.
-          content: buildPrompt(level, batch, [
-            ...existingRows.map(row => row.title),
-            ...created.map(mission => mission.title),
-          ]),
-        },
-      ],
-      schema: MISSION_SCHEMA,
-      maxTokens: 2600,
-    })
+    let valid: GeneratedMission[] = []
 
-    const parsed = JSON.parse(content) as { missions?: GeneratedMission[] }
-    const valid = validate(parsed.missions ?? [], usedTitles)
-    created.push(...valid)
-    remaining -= valid.length
+    // Un lote puede salir mal (formato, red): se reintenta sin perder lo ya
+    // generado en los lotes anteriores.
+    for (let attempt = 1; attempt <= MAX_BATCH_ATTEMPTS && valid.length === 0; attempt++) {
+      try {
+        const content = await completeChat({
+          messages: [
+            {
+              role: 'user',
+              // Se incluyen las ya creadas en esta ejecución: si no, cada lote
+              // repite las situaciones de los anteriores.
+              content: buildPrompt(level, batch, [
+                ...allRows.map(row => row.title),
+                ...created.map(mission => mission.title),
+              ]),
+            },
+          ],
+          schema: MISSION_SCHEMA,
+          maxTokens: 3200,
+        })
+
+        const parsed = JSON.parse(content) as { missions?: GeneratedMission[] }
+        valid = validate(parsed.missions ?? [], usedTitles)
+        if (valid.length === 0) console.warn(`  lote sin misiones válidas (intento ${attempt})`)
+      } catch (error) {
+        console.warn(`  fallo del lote (intento ${attempt}):`, (error as Error).message)
+      }
+    }
 
     if (valid.length === 0) {
-      throw new Error('El modelo no devolvió ninguna misión utilizable')
+      emptyBatches++
+      // Tras varios lotes vacíos seguidos, el modelo no está cooperando.
+      if (emptyBatches >= MAX_EMPTY_BATCHES) {
+        console.warn('\nDemasiados lotes vacíos: se inserta lo que haya.')
+        break
+      }
+      continue
     }
+
+    created.push(...valid)
+    remaining -= valid.length
   }
+
+  if (created.length === 0) throw new Error('El modelo no devolvió ninguna misión utilizable')
 
   if (dry) {
     console.log('\n--- SIMULACRO (no se inserta nada) ---')
@@ -231,7 +298,7 @@ async function main() {
   }
 
   const rows = created.map((mission, index) => ({
-    id: nextMissionId(allIds, index),
+    id: nextMissionId(allRows.map(row => row.id), index),
     title: mission.title.trim(),
     description: mission.description.trim(),
     objective: mission.objective.trim(),
