@@ -1,30 +1,6 @@
 [
   {
     "id": "m-001",
-    "title": "Reservar un vuelo",
-    "description": "Necesitas volar a otra ciudad urgentemente.",
-    "objective": "Reserva un vuelo a Madrid para el 15 de marzo. Menciona que viajas solo y necesitas asiento de ventana.",
-    "scene_context": "Estás llamando a una aerolinea internacional. Tienes que interactuar con el agente en Inglés. Tienes que completar 3 pasos: 1. Confirmar destino y fecha (Madrid, 15 Mar). 2. Confirmar pasajero (solo). 3. Seleccionar asiento (Ventana).",
-    "character_name": "Airline Agent",
-    "expected_outcome_indicator": "Flight booked for March 15th",
-    "example_conversation": "User: Hi, I'd like to book a flight to Madrid for March 15th.\nAgent: Sure, I can help with that. Are you traveling alone?\nUser: Yes, just me.\nAgent: Great. Do you have a seating preference?\nUser: I'd prefer a window seat, please.",
-    "cefr_level": "A2",
-    "base_duration_seconds": 150
-  },
-  {
-    "id": "m-002",
-    "title": "Problema técnico al soporte",
-    "description": "Tu computador tiene un error crítico.",
-    "objective": "Explica al agente de soporte que tu computador no enciende desde esta mañana y que escuchas un sonido extraño al encenderlo.",
-    "scene_context": "Llamas al soporte técnico de tu empresa. El agente contesta y pide que describas el problema.",
-    "character_name": "Tech Support",
-    "expected_outcome_indicator": "Support ticket opened with correct details",
-    "example_conversation": "User: Hello, I'm calling because my computer won't turn on.\nAgent: I'm sorry to hear that. Did anything happen before this?\nUser: It was working fine yesterday, but this morning I heard a strange noise and it won't start.\nAgent: Okay, let's try some troubleshooting steps.",
-    "cefr_level": "B1",
-    "base_duration_seconds": 120
-  },
-  {
-    "id": "m-003",
     "title": "Pedir direcciones",
     "description": "Estás perdido en una ciudad desconocida.",
     "objective": "Pregunta a un transeúnte cómo llegar al Museo de Historia. Menciona que vas caminando.",
@@ -36,79 +12,7 @@
     "base_duration_seconds": 180
   },
   {
-    "id": "m-004",
-    "title": "Negociar un precio",
-    "description": "Quieres comprar un artículo pero el precio es alto.",
-    "objective": "Negocia el precio de una mochila. El precio inicial es $80. Intenta conseguirlo por menos de $65, justificando tu oferta.",
-    "scene_context": "Estás en un mercado artesanal. El vendedor tiene mochilas de cuero. Ves una que te gusta.",
-    "character_name": "Market Vendor",
-    "expected_outcome_indicator": "Price negotiated below $65",
-    "example_conversation": "User: I love this backpack, but $80 is a bit out of my budget.\nVendor: It's good quality leather. How much were you thinking?\nUser: Could you do $60? I'm buying it as a gift.\nVendor: I can't go that low, but I could do $70.\nUser: How about $65? That matches the cash I have.",
-    "cefr_level": "B2",
-    "base_duration_seconds": 90
-  },
-  {
-    "id": "m-005",
-    "title": "Llamar al médico",
-    "description": "No te sientes bien y necesitas una cita.",
-    "objective": "Llama al consultorio médico y agenda una cita para mañana. Menciona que tienes fiebre y dolor de garganta.",
-    "scene_context": "Llamas al consultorio del Dr. Rivera. La recepcionista contesta y pregunta en qué puede ayudarte.",
-    "character_name": "Doctor",
-    "expected_outcome_indicator": "Doctor appointment confirmed for tomorrow",
-    "example_conversation": "Receptionist: Dr. Rivera's office, how can I help you?\nUser: Hi, I need to make an appointment for tomorrow, please.\nReceptionist: Is it for a check-up or are you feeling ill?\nUser: I'm not feeling well. I have a fever and a sore throat.\nReceptionist: Okay, we can squeeze you in at 10 AM.",
-    "cefr_level": "A2",
-    "base_duration_seconds": 150
-  },
-  {
-    "id": "m-006",
-    "title": "Check-in en el hotel",
-    "description": "Llegas al hotel pero hay un problema con tu reserva.",
-    "objective": "Explica al recepcionista que tienes una reserva para esta noche pero que no aparece en el sistema. Tu confirmación es #45823.",
-    "scene_context": "Llegas al Hotel Plaza después de un largo viaje. El recepcionista te saluda y pide tu nombre.",
-    "character_name": "Hotel Receptionist",
-    "expected_outcome_indicator": "Reservation issue resolved",
-    "example_conversation": "Receptionist: Good afternoon, welcome to Hotel Plaza. Do you have a reservation?\nUser: Yes, I booked a room for tonight, but I don't see it on my app.\nReceptionist: Let me check. Do you have the confirmation number?\nUser: Yes, it's #45823. I booked it last week.\nReceptionist: Ah, found it. There was a typo in the name. You're all set.",
-    "cefr_level": "B1",
-    "base_duration_seconds": 120
-  },
-  {
-    "id": "m-007",
-    "title": "Ordenar en un restaurante",
-    "description": "Tienes una alergia alimentaria importante.",
-    "objective": "Ordena el plato del día pero pregunta si contiene nueces porque eres alérgico. Si tiene nueces, pide una alternativa.",
-    "scene_context": "Estás en un restaurante casual. El mesero se acerca con la carta y te pregunta qué vas a ordenar.",
-    "character_name": "Airline Agent",
-    "expected_outcome_indicator": "Order placed with allergy confirmed",
-    "example_conversation": "Waiter: Are you ready to order?\nUser: Yes, I'd like the daily special, please.\nWaiter: Excellent choice.\nUser: Does it contain any nuts? I have a severe allergy.\nWaiter: The sauce has crushed walnuts. I can have the chef prepare it without the sauce for you.",
-    "cefr_level": "A2",
-    "base_duration_seconds": 150
-  },
-  {
-    "id": "m-008",
-    "title": "Presentarse en trabajo nuevo",
-    "description": "Es tu primer día en una empresa nueva.",
-    "objective": "Preséntate a tu nuevo colega. Di tu nombre, tu cargo (Marketing Manager), y menciona algo de tu experiencia anterior.",
-    "scene_context": "Entras a la oficina el primer día. Tu colega se acerca sonriendo y se presenta. Te toca responder.",
-    "character_name": "Tech Support",
-    "expected_outcome_indicator": "Professional introduction completed",
-    "example_conversation": "Colleague: Hi, welcome to the team! I'm Sarah.\nUser: Hi Sarah, nice to meet you. I'm Alex.\nColleague: What will you be working on?\nUser: I'm the new Marketing Manager. I used to work in digital advertising for 5 years.",
-    "cefr_level": "B1",
-    "base_duration_seconds": 120
-  },
-  {
-    "id": "m-009",
-    "title": "Reclamar un paquete perdido",
-    "description": "Tu pedido online nunca llegó.",
-    "objective": "Reclama a la empresa de envíos que tu paquete con número de seguimiento TK-2847 no llegó en la fecha prometida. Pide solución.",
-    "scene_context": "Llamas al servicio al cliente de la empresa de envíos. Llevas 5 días esperando el paquete.",
-    "character_name": "Tech Support",
-    "expected_outcome_indicator": "Claim registered with tracking number",
-    "example_conversation": "Agent: Customer service, how can I help?\nUser: Hi, I'm calling about a missing package. Tracking number TK-2847.\nAgent: Let me check. It says it was delivered yesterday.\nUser: I've been home all day and nothing arrived. I need a solution or a refund.",
-    "cefr_level": "B2",
-    "base_duration_seconds": 90
-  },
-  {
-    "id": "m-010",
+    "id": "m-002",
     "title": "Pedir ayuda en una tienda",
     "description": "Buscas un producto específico.",
     "objective": "Pide ayuda para encontrar vitamina C en presentación de 1000mg. Pregunta también si tienen una marca específica.",
@@ -120,55 +24,7 @@
     "base_duration_seconds": 180
   },
   {
-    "id": "m-011",
-    "title": "Reportar un problema de vecindad",
-    "description": "Hay ruido excesivo en tu edificio.",
-    "objective": "Reporta al administrador del edificio que el apartamento 4B tiene música muy alta desde las 11pm todos los días. Pide que intervengan.",
-    "scene_context": "Llamas a la oficina de administración del edificio. El administrador contesta.",
-    "character_name": "Hotel Receptionist",
-    "expected_outcome_indicator": "Complaint registered with details",
-    "example_conversation": "User: Hello, I'm calling to report a noise problem.\nManager: Okay, what seems to be the issue?\nUser: Apartment 4B has been playing very loud music every night since 11 PM.\nManager: I see. Have you spoken to them?\nUser: No, I'd like you to intervene, please.",
-    "cefr_level": "B1",
-    "base_duration_seconds": 120
-  },
-  {
-    "id": "m-012",
-    "title": "Cancelar una suscripción",
-    "description": "Quieres cancelar un servicio que no usas.",
-    "objective": "Cancela tu suscripción al gimnasio. Llevas 6 meses pagando sin ir. Pide que el cargo no se haga el próximo mes.",
-    "scene_context": "Llamas al servicio al cliente del gimnasio. Te contesta un representante.",
-    "character_name": "Tech Support",
-    "expected_outcome_indicator": "Subscription cancellation confirmed",
-    "example_conversation": "Agent: Gym membership services, how can I help?\nUser: Hi, I'd like to cancel my subscription.\nAgent: May I ask why you're leaving?\nUser: I haven't used it in 6 months. Please ensure no charge is made next month.\nAgent: I can process that for you.",
-    "cefr_level": "B2",
-    "base_duration_seconds": 90
-  },
-  {
-    "id": "m-013",
-    "title": "Pedir información de un curso",
-    "description": "Quieres inscribirte en un curso de idiomas.",
-    "objective": "Pregunta cuánto cuesta el curso de inglés avanzado, cuándo empieza el próximo grupo y si hay descuento por pagar completo.",
-    "scene_context": "Llamas a un instituto de idiomas. La secretaria contesta con un saludo y ofrece su ayuda.",
-    "character_name": "Airline Agent",
-    "expected_outcome_indicator": "Price, start date, and discount info obtained",
-    "example_conversation": "Secretary: Hello, Language Institute.\nUser: Hi, I'd like information about the advanced English course.\nSecretary: Certainly. What would you like to know?\nUser: How much does it cost and when does the next group start?\nSecretary: It's $200 and starts next Monday.\nUser: Is there a discount for paying in full?",
-    "cefr_level": "A2",
-    "base_duration_seconds": 150
-  },
-  {
-    "id": "m-014",
-    "title": "Describir un accidente menor",
-    "description": "Tuviste un pequeño accidente de tráfico.",
-    "objective": "Explica a la policía lo que pasó: otro carro te golpeó por detrás mientras esperabas en un semáforo. No hay heridos.",
-    "scene_context": "Un oficial de policía se acerca al lugar del accidente y pide tu declaración de lo sucedido.",
-    "character_name": "Street Guide",
-    "expected_outcome_indicator": "Accident description given with key details",
-    "example_conversation": "Officer: Can you tell me what happened here?\nUser: Yes, officer. I was waiting at the red light.\nOfficer: And then?\nUser: Another car hit me from behind. There are no injuries, just damage to the bumper.",
-    "cefr_level": "B2",
-    "base_duration_seconds": 90
-  },
-  {
-    "id": "m-015",
+    "id": "m-003",
     "title": "Saludar y presentarse",
     "description": "Tu primera conversación en inglés.",
     "objective": "Preséntate: di tu nombre, de dónde eres y algo que te guste. Hazle una pregunta a la otra persona.",
@@ -180,7 +36,7 @@
     "base_duration_seconds": 180
   },
   {
-    "id": "m-016",
+    "id": "m-004",
     "title": "Conocer a alguien en una fiesta",
     "description": "Estás en una fiesta y no conoces a nadie.",
     "objective": "Preséntate a la persona que está junto a las bebidas. Pregúntale su nombre y de dónde conoce al anfitrión (Juan).",
@@ -192,55 +48,7 @@
     "base_duration_seconds": 180
   },
   {
-    "id": "m-017",
-    "title": "Hablar de planes de fin de semana",
-    "description": "Es viernes y quieres hacer planes con un amigo.",
-    "objective": "Invita a tu amigo a ir al cine el sábado. Propón ver la nueva película de acción a las 7 PM.",
-    "scene_context": "Estás charlando con un amigo en la cafetería. Él te pregunta qué harás el fin de semana.",
-    "character_name": "Close Friend",
-    "expected_outcome_indicator": "Movie plan proposed for Saturday evening",
-    "example_conversation": "Friend: Hey, any plans for the weekend?\nUser: I was thinking of going to the movies on Saturday. Want to come?\nFriend: Sounds fun. What time?\nUser: The new action movie is playing at 7 PM.",
-    "cefr_level": "A2",
-    "base_duration_seconds": 150
-  },
-  {
-    "id": "m-018",
-    "title": "Conversación casual en una boda",
-    "description": "Estás sentado en una mesa con desconocidos.",
-    "objective": "Inicia una conversación con la persona a tu lado. Pregunta cómo conoce a los novios y comenta qué te parece la ceremonia.",
-    "scene_context": "Estás en la recepción de una boda elegante. La cena aún no empieza y hay un silencio incómodo en la mesa.",
-    "character_name": "Wedding Guest",
-    "expected_outcome_indicator": "Conversation started about the couple and ceremony",
-    "example_conversation": "User: It's a beautiful ceremony, isn't it?\nGuest: Yes, absolutely lovely. Are you a friend of the bride or groom?\nUser: I'm a friend of the groom from high school. And you?",
-    "cefr_level": "B1",
-    "base_duration_seconds": 120
-  },
-  {
-    "id": "m-019",
-    "title": "Debatir sobre una película",
-    "description": "Acabas de ver una película con un amigo y tienen opiniones diferentes.",
-    "objective": "Expresa tu opinión de que el final de la película fue decepcionante porque no tuvo sentido, aunque los efectos especiales fueron buenos.",
-    "scene_context": "Están saliendo del cine. Tu amigo dice que le encantó la película y te pregunta qué piensas tú.",
-    "character_name": "Movie Buff Friend",
-    "expected_outcome_indicator": "Opinion expressed with pros and cons",
-    "example_conversation": "Friend: That was amazing! The best movie I've seen all year. What did you think?\nUser: To be honest, I was a bit disappointed.\nFriend: Really? Why?\nUser: The special effects were great, but the ending didn't make any sense to me.",
-    "cefr_level": "B2",
-    "base_duration_seconds": 90
-  },
-  {
-    "id": "m-020",
-    "title": "Recomendar un restaurante",
-    "description": "Un colega visita tu ciudad y busca dónde cenar.",
-    "objective": "Recomienda tu restaurante italiano favorito. Describe por qué es bueno (la comida, el ambiente) y explica cómo llegar desde la oficina.",
-    "scene_context": "Estás en el descanso del café con un colega de otra sucursal. Él menciona que quiere probar comida local esta noche.",
-    "character_name": "Visiting Colleague",
-    "expected_outcome_indicator": "Restaurant recommendation given with reasons and directions",
-    "example_conversation": "Colleague: I'm looking for a good place for dinner tonight. Do you know any local spots?\nUser: You have to try 'La Trattoria'. It's my favorite Italian place.\nColleague: Oh, that sounds good. Why do you like it?\nUser: The pasta is handmade and the atmosphere is very cozy. plus, it's just two blocks from here.",
-    "cefr_level": "B1",
-    "base_duration_seconds": 120
-  },
-  {
-    "id": "m-022",
+    "id": "m-005",
     "title": "Preguntar la hora a un desconocido",
     "description": "Necesitas saber qué hora es porque se te olvidó el reloj.",
     "objective": "Preguntarle a una persona en la calle qué hora es, esperar la respuesta y decir 'gracias'.",
@@ -252,7 +60,7 @@
     "base_duration_seconds": 180
   },
   {
-    "id": "m-023",
+    "id": "m-006",
     "title": "Reservar una mesa en un restaurante",
     "description": "Quieres comer con tu familia en un restaurante este fin de semana.",
     "objective": "Reservar una mesa para 4 personas el sábado a las 19:00 horas a nombre de García.",
@@ -264,7 +72,7 @@
     "base_duration_seconds": 180
   },
   {
-    "id": "m-024",
+    "id": "m-007",
     "title": "Pedir ayuda sobre un dolor en la farmacia",
     "description": "No te sientes bien y necesitas hablar con el farmacéutico.",
     "objective": "Explicar que tienes dolor de cabeza, preguntar qué medicamento recomienda y el precio de la aspirina.",
@@ -276,7 +84,7 @@
     "base_duration_seconds": 180
   },
   {
-    "id": "m-026",
+    "id": "m-008",
     "title": "Comprar un billete de autobús",
     "description": "Necesitas comprar un billete para viajar en autobús a una ciudad cercana.",
     "objective": "Comprar un billete de autobús a Barcelona para el lunes a las 14:00 horas, y preguntar el precio (aproximadamente 12 euros).",
@@ -288,7 +96,7 @@
     "base_duration_seconds": 180
   },
   {
-    "id": "m-028",
+    "id": "m-009",
     "title": "Pedir información sobre una casa en alquiler",
     "description": "Viste un anuncio de un apartamento y quieres saber más detalles sobre él.",
     "objective": "Preguntar al propietario si el apartamento tiene dos dormitorios, baño, y cuál es el precio del alquiler (500 euros al mes).",
@@ -300,7 +108,7 @@
     "base_duration_seconds": 180
   },
   {
-    "id": "m-029",
+    "id": "m-010",
     "title": "Ordenar comida en una cafetería",
     "description": "El alumno pide un desayuno en una cafetería local.",
     "objective": "Pedir un café con leche, dos tostadas y un zumo de naranja. Preguntar el precio total.",
@@ -312,7 +120,7 @@
     "base_duration_seconds": 180
   },
   {
-    "id": "m-031",
+    "id": "m-011",
     "title": "Pedir la cuenta en un restaurante",
     "description": "El estudiante pide la factura y pregunta el precio total en un restaurante.",
     "objective": "Pedir la cuenta a la mesera, preguntar el precio total y mencionar que el total es 25 euros.",
@@ -324,7 +132,7 @@
     "base_duration_seconds": 180
   },
   {
-    "id": "m-032",
+    "id": "m-012",
     "title": "Comprar un libro en una librería",
     "description": "El estudiante compra un libro específico en una librería y pregunta por el precio.",
     "objective": "Entra en una librería, pregunta por el libro 'The Little Prince' y cuánto cuesta (£8.99).",
@@ -336,7 +144,7 @@
     "base_duration_seconds": 180
   },
   {
-    "id": "m-033",
+    "id": "m-013",
     "title": "Preguntar por el horario de cierre de una piscina",
     "description": "El estudiante pregunta a qué hora cierra la piscina pública hoy.",
     "objective": "Pregunta en la recepción de la piscina a qué hora cierra hoy (cierra a las 18:00).",
@@ -348,7 +156,7 @@
     "base_duration_seconds": 180
   },
   {
-    "id": "m-034",
+    "id": "m-014",
     "title": "Pedir información sobre una clase de yoga",
     "description": "El estudiante pregunta dónde y cuándo es la próxima clase de yoga.",
     "objective": "Pregúntale al instructor dónde es la clase de yoga, qué día es (jueves) y a qué hora (19:00).",
@@ -360,7 +168,7 @@
     "base_duration_seconds": 180
   },
   {
-    "id": "m-035",
+    "id": "m-015",
     "title": "Comprar un billete de cine",
     "description": "El estudiante compra una entrada de cine para una película específica.",
     "objective": "Pide una entrada para 'Frozen 2' hoy a las 16:00 y pregunta el precio (£9.50).",
@@ -372,7 +180,67 @@
     "base_duration_seconds": 180
   },
   {
-    "id": "m-036",
+    "id": "m-016",
+    "title": "Reservar un vuelo",
+    "description": "Necesitas volar a otra ciudad urgentemente.",
+    "objective": "Reserva un vuelo a Madrid para el 15 de marzo. Menciona que viajas solo y necesitas asiento de ventana.",
+    "scene_context": "Estás llamando a una aerolinea internacional. Tienes que interactuar con el agente en Inglés. Tienes que completar 3 pasos: 1. Confirmar destino y fecha (Madrid, 15 Mar). 2. Confirmar pasajero (solo). 3. Seleccionar asiento (Ventana).",
+    "character_name": "Airline Agent",
+    "expected_outcome_indicator": "Flight booked for March 15th",
+    "example_conversation": "User: Hi, I'd like to book a flight to Madrid for March 15th.\nAgent: Sure, I can help with that. Are you traveling alone?\nUser: Yes, just me.\nAgent: Great. Do you have a seating preference?\nUser: I'd prefer a window seat, please.",
+    "cefr_level": "A2",
+    "base_duration_seconds": 150
+  },
+  {
+    "id": "m-017",
+    "title": "Llamar al médico",
+    "description": "No te sientes bien y necesitas una cita.",
+    "objective": "Llama al consultorio médico y agenda una cita para mañana. Menciona que tienes fiebre y dolor de garganta.",
+    "scene_context": "Llamas al consultorio del Dr. Rivera. La recepcionista contesta y pregunta en qué puede ayudarte.",
+    "character_name": "Doctor",
+    "expected_outcome_indicator": "Doctor appointment confirmed for tomorrow",
+    "example_conversation": "Receptionist: Dr. Rivera's office, how can I help you?\nUser: Hi, I need to make an appointment for tomorrow, please.\nReceptionist: Is it for a check-up or are you feeling ill?\nUser: I'm not feeling well. I have a fever and a sore throat.\nReceptionist: Okay, we can squeeze you in at 10 AM.",
+    "cefr_level": "A2",
+    "base_duration_seconds": 150
+  },
+  {
+    "id": "m-018",
+    "title": "Ordenar en un restaurante",
+    "description": "Tienes una alergia alimentaria importante.",
+    "objective": "Ordena el plato del día pero pregunta si contiene nueces porque eres alérgico. Si tiene nueces, pide una alternativa.",
+    "scene_context": "Estás en un restaurante casual. El mesero se acerca con la carta y te pregunta qué vas a ordenar.",
+    "character_name": "Airline Agent",
+    "expected_outcome_indicator": "Order placed with allergy confirmed",
+    "example_conversation": "Waiter: Are you ready to order?\nUser: Yes, I'd like the daily special, please.\nWaiter: Excellent choice.\nUser: Does it contain any nuts? I have a severe allergy.\nWaiter: The sauce has crushed walnuts. I can have the chef prepare it without the sauce for you.",
+    "cefr_level": "A2",
+    "base_duration_seconds": 150
+  },
+  {
+    "id": "m-019",
+    "title": "Pedir información de un curso",
+    "description": "Quieres inscribirte en un curso de idiomas.",
+    "objective": "Pregunta cuánto cuesta el curso de inglés avanzado, cuándo empieza el próximo grupo y si hay descuento por pagar completo.",
+    "scene_context": "Llamas a un instituto de idiomas. La secretaria contesta con un saludo y ofrece su ayuda.",
+    "character_name": "Airline Agent",
+    "expected_outcome_indicator": "Price, start date, and discount info obtained",
+    "example_conversation": "Secretary: Hello, Language Institute.\nUser: Hi, I'd like information about the advanced English course.\nSecretary: Certainly. What would you like to know?\nUser: How much does it cost and when does the next group start?\nSecretary: It's $200 and starts next Monday.\nUser: Is there a discount for paying in full?",
+    "cefr_level": "A2",
+    "base_duration_seconds": 150
+  },
+  {
+    "id": "m-020",
+    "title": "Hablar de planes de fin de semana",
+    "description": "Es viernes y quieres hacer planes con un amigo.",
+    "objective": "Invita a tu amigo a ir al cine el sábado. Propón ver la nueva película de acción a las 7 PM.",
+    "scene_context": "Estás charlando con un amigo en la cafetería. Él te pregunta qué harás el fin de semana.",
+    "character_name": "Close Friend",
+    "expected_outcome_indicator": "Movie plan proposed for Saturday evening",
+    "example_conversation": "Friend: Hey, any plans for the weekend?\nUser: I was thinking of going to the movies on Saturday. Want to come?\nFriend: Sounds fun. What time?\nUser: The new action movie is playing at 7 PM.",
+    "cefr_level": "A2",
+    "base_duration_seconds": 150
+  },
+  {
+    "id": "m-021",
     "title": "Cambiar un artículo en una tienda",
     "description": "Necesitas devolver una camiseta que compraste hace una semana porque la talla no es correcta.",
     "objective": "Explica que la camiseta (talla M, €19.99, comprada hace una semana) no te queda bien y pide cambiarla por una talla L.",
@@ -384,7 +252,7 @@
     "base_duration_seconds": 150
   },
   {
-    "id": "m-037",
+    "id": "m-022",
     "title": "Preguntar sobre un servicio en una peluquería",
     "description": "Quieres saber el precio y la duración de un corte de cabello antes de hacer una cita.",
     "objective": "Pregunta al peluquero el precio del corte (unos €25-30), cuánto dura (unos 30 minutos) y si hay hueco el sábado a las 10:00.",
@@ -396,7 +264,7 @@
     "base_duration_seconds": 150
   },
   {
-    "id": "m-038",
+    "id": "m-023",
     "title": "Comprar entradas para un evento",
     "description": "Necesitas comprar dos entradas para un concierto que será el próximo mes.",
     "objective": "Compra 2 entradas para el concierto de The Singers el 15 de marzo (€35 cada una) y di si prefieres primera o segunda fila.",
@@ -408,7 +276,7 @@
     "base_duration_seconds": 150
   },
   {
-    "id": "m-039",
+    "id": "m-024",
     "title": "Cambiar la hora de una cita médica",
     "description": "Tu cita con el doctor es mañana a las 2 de la tarde, pero no puedes asistir a esa hora.",
     "objective": "Explica que no puedes ir a la cita del médico de mañana a las 14:00 y pide cambiarla a las 16:00 o a otro día.",
@@ -420,7 +288,7 @@
     "base_duration_seconds": 150
   },
   {
-    "id": "m-040",
+    "id": "m-025",
     "title": "Comprar un regalo de cumpleaños",
     "description": "Necesitas comprar un regalo en una tienda de ropa para el cumpleaños de tu amiga el próximo sábado.",
     "objective": "Pregunta por un suéter azul, su precio (entre 30 y 50 euros) y si hay descuento o envoltorio de regalo. Confirma que te lo llevas.",
@@ -432,7 +300,7 @@
     "base_duration_seconds": 150
   },
   {
-    "id": "m-041",
+    "id": "m-026",
     "title": "Cambiar dinero en una oficina de cambio",
     "description": "Necesitas cambiar 200 libras esterlinas a euros antes de tu viaje a Barcelona.",
     "objective": "Di que quieres cambiar 200 libras, pregunta el tipo de cambio, cuántos euros recibirás y la comisión.",
@@ -444,7 +312,7 @@
     "base_duration_seconds": 150
   },
   {
-    "id": "m-042",
+    "id": "m-027",
     "title": "Pedir un día libre en el trabajo",
     "description": "Necesitas hablar con tu jefe para pedir un día libre el próximo miércoles por una cita importante.",
     "objective": "Explica que necesitas libre el miércoles 15 por una cita médica y pregunta si es posible.",
@@ -456,7 +324,7 @@
     "base_duration_seconds": 150
   },
   {
-    "id": "m-043",
+    "id": "m-028",
     "title": "Alquilar una bicicleta para el fin de semana",
     "description": "Necesitas alquilar una bicicleta en una tienda local para pasear el sábado.",
     "objective": "Alquila una bicicleta para el sábado, pregunta el precio (15 euros) y confirma que la recoges a las 10:00.",
@@ -468,7 +336,7 @@
     "base_duration_seconds": 150
   },
   {
-    "id": "m-044",
+    "id": "m-029",
     "title": "Comprar un teléfono móvil usado",
     "description": "Visitas una tienda de electrónica de segunda mano para comprar un teléfono.",
     "objective": "Pregunta el precio del iPhone 12, el año de fabricación, si tiene 6 meses de garantía y cómpralo por 250 euros.",
@@ -480,7 +348,7 @@
     "base_duration_seconds": 150
   },
   {
-    "id": "m-045",
+    "id": "m-030",
     "title": "Reservar una clase de arte en un centro comunitario",
     "description": "Llamas a un centro comunitario para inscribirte en una clase de pintura.",
     "objective": "Pregunta por la clase de pintura de los martes a las 19:00, el precio (45 euros al mes) y si incluye materiales; reserva tu sitio.",
@@ -492,7 +360,79 @@
     "base_duration_seconds": 150
   },
   {
-    "id": "m-046",
+    "id": "m-031",
+    "title": "Problema técnico al soporte",
+    "description": "Tu computador tiene un error crítico.",
+    "objective": "Explica al agente de soporte que tu computador no enciende desde esta mañana y que escuchas un sonido extraño al encenderlo.",
+    "scene_context": "Llamas al soporte técnico de tu empresa. El agente contesta y pide que describas el problema.",
+    "character_name": "Tech Support",
+    "expected_outcome_indicator": "Support ticket opened with correct details",
+    "example_conversation": "User: Hello, I'm calling because my computer won't turn on.\nAgent: I'm sorry to hear that. Did anything happen before this?\nUser: It was working fine yesterday, but this morning I heard a strange noise and it won't start.\nAgent: Okay, let's try some troubleshooting steps.",
+    "cefr_level": "B1",
+    "base_duration_seconds": 120
+  },
+  {
+    "id": "m-032",
+    "title": "Check-in en el hotel",
+    "description": "Llegas al hotel pero hay un problema con tu reserva.",
+    "objective": "Explica al recepcionista que tienes una reserva para esta noche pero que no aparece en el sistema. Tu confirmación es #45823.",
+    "scene_context": "Llegas al Hotel Plaza después de un largo viaje. El recepcionista te saluda y pide tu nombre.",
+    "character_name": "Hotel Receptionist",
+    "expected_outcome_indicator": "Reservation issue resolved",
+    "example_conversation": "Receptionist: Good afternoon, welcome to Hotel Plaza. Do you have a reservation?\nUser: Yes, I booked a room for tonight, but I don't see it on my app.\nReceptionist: Let me check. Do you have the confirmation number?\nUser: Yes, it's #45823. I booked it last week.\nReceptionist: Ah, found it. There was a typo in the name. You're all set.",
+    "cefr_level": "B1",
+    "base_duration_seconds": 120
+  },
+  {
+    "id": "m-033",
+    "title": "Presentarse en trabajo nuevo",
+    "description": "Es tu primer día en una empresa nueva.",
+    "objective": "Preséntate a tu nuevo colega. Di tu nombre, tu cargo (Marketing Manager), y menciona algo de tu experiencia anterior.",
+    "scene_context": "Entras a la oficina el primer día. Tu colega se acerca sonriendo y se presenta. Te toca responder.",
+    "character_name": "Tech Support",
+    "expected_outcome_indicator": "Professional introduction completed",
+    "example_conversation": "Colleague: Hi, welcome to the team! I'm Sarah.\nUser: Hi Sarah, nice to meet you. I'm Alex.\nColleague: What will you be working on?\nUser: I'm the new Marketing Manager. I used to work in digital advertising for 5 years.",
+    "cefr_level": "B1",
+    "base_duration_seconds": 120
+  },
+  {
+    "id": "m-034",
+    "title": "Reportar un problema de vecindad",
+    "description": "Hay ruido excesivo en tu edificio.",
+    "objective": "Reporta al administrador del edificio que el apartamento 4B tiene música muy alta desde las 11pm todos los días. Pide que intervengan.",
+    "scene_context": "Llamas a la oficina de administración del edificio. El administrador contesta.",
+    "character_name": "Hotel Receptionist",
+    "expected_outcome_indicator": "Complaint registered with details",
+    "example_conversation": "User: Hello, I'm calling to report a noise problem.\nManager: Okay, what seems to be the issue?\nUser: Apartment 4B has been playing very loud music every night since 11 PM.\nManager: I see. Have you spoken to them?\nUser: No, I'd like you to intervene, please.",
+    "cefr_level": "B1",
+    "base_duration_seconds": 120
+  },
+  {
+    "id": "m-035",
+    "title": "Conversación casual en una boda",
+    "description": "Estás sentado en una mesa con desconocidos.",
+    "objective": "Inicia una conversación con la persona a tu lado. Pregunta cómo conoce a los novios y comenta qué te parece la ceremonia.",
+    "scene_context": "Estás en la recepción de una boda elegante. La cena aún no empieza y hay un silencio incómodo en la mesa.",
+    "character_name": "Wedding Guest",
+    "expected_outcome_indicator": "Conversation started about the couple and ceremony",
+    "example_conversation": "User: It's a beautiful ceremony, isn't it?\nGuest: Yes, absolutely lovely. Are you a friend of the bride or groom?\nUser: I'm a friend of the groom from high school. And you?",
+    "cefr_level": "B1",
+    "base_duration_seconds": 120
+  },
+  {
+    "id": "m-036",
+    "title": "Recomendar un restaurante",
+    "description": "Un colega visita tu ciudad y busca dónde cenar.",
+    "objective": "Recomienda tu restaurante italiano favorito. Describe por qué es bueno (la comida, el ambiente) y explica cómo llegar desde la oficina.",
+    "scene_context": "Estás en el descanso del café con un colega de otra sucursal. Él menciona que quiere probar comida local esta noche.",
+    "character_name": "Visiting Colleague",
+    "expected_outcome_indicator": "Restaurant recommendation given with reasons and directions",
+    "example_conversation": "Colleague: I'm looking for a good place for dinner tonight. Do you know any local spots?\nUser: You have to try 'La Trattoria'. It's my favorite Italian place.\nColleague: Oh, that sounds good. Why do you like it?\nUser: The pasta is handmade and the atmosphere is very cozy. plus, it's just two blocks from here.",
+    "cefr_level": "B1",
+    "base_duration_seconds": 120
+  },
+  {
+    "id": "m-037",
     "title": "Reclamar una devolución de ropa defectuosa",
     "description": "Devolver un abrigo con defectos a una tienda de moda después de dos semanas de uso.",
     "objective": "Devuelve un abrigo azul marino comprado hace 14 días por €89,99: explica que la cremallera está rota, pide el reembolso completo en vez de un cambio y pregunta cuánto tarda (3-5 días hábiles).",
@@ -504,7 +444,7 @@
     "base_duration_seconds": 120
   },
   {
-    "id": "m-047",
+    "id": "m-038",
     "title": "Posponer una entrevista de trabajo importante",
     "description": "Contactar a un reclutador para cambiar la fecha de una entrevista de trabajo que está programada en una fecha inconveniente.",
     "objective": "Llama al reclutador: tienes una cita médica ese día, pide posponer la entrevista dos semanas (del 15 al 29 de marzo), discúlpate y confirma que sigues interesado.",
@@ -516,7 +456,7 @@
     "base_duration_seconds": 120
   },
   {
-    "id": "m-048",
+    "id": "m-039",
     "title": "Negociar el contrato de un Airbnb antes de reservar",
     "description": "Contactar al propietario de un Airbnb para discutir términos especiales antes de hacer la reserva oficial.",
     "objective": "Contacta al propietario para reservar del 10 al 17 de abril (7 noches), pide un 15% de descuento por estancia larga, pregunta la política de cancelación y negocia de €700 a €595.",
@@ -528,7 +468,7 @@
     "base_duration_seconds": 120
   },
   {
-    "id": "m-049",
+    "id": "m-040",
     "title": "Argumentar la necesidad de trabajar desde casa",
     "description": "Proponer una nueva modalidad de trabajo flexible a tu jefe después de pasar seis meses en la empresa.",
     "objective": "Solicita teletrabajar lunes y miércoles: da tres razones (menos distracciones, mejor concentración, ahorras dos horas de transporte), ofrece un mes de prueba y propone reuniones presenciales martes y jueves.",
@@ -540,7 +480,7 @@
     "base_duration_seconds": 120
   },
   {
-    "id": "m-051",
+    "id": "m-041",
     "title": "Cambiar el horario de una clase que ya pagaste",
     "description": "Contactas a tu centro de entrenamiento porque no puedes asistir a la clase que reservaste.",
     "objective": "Llamar al gimnasio para cambiar tu clase de pilates del jueves a las 18:30 (que ya pagaste 80 euros hace un mes) por otra clase disponible, explicar que tienes una reunión de trabajo ese día y preguntar si hay un costo adicional.",
@@ -552,7 +492,7 @@
     "base_duration_seconds": 120
   },
   {
-    "id": "m-052",
+    "id": "m-042",
     "title": "Reclamar un vuelo retrasado y pedir compensación",
     "description": "Tu vuelo se retrasó 4 horas y reclamas tus derechos de pasajero.",
     "objective": "Hablar con el representante de la aerolínea Blue Airways para reclamar compensación por un retraso de 4 horas en el vuelo BA 302 del 15 de marzo, mencionar que solicitaste comidas pero no las recibiste, y preguntar si eres elegible para los 250 euros de indemnización.",
@@ -564,7 +504,7 @@
     "base_duration_seconds": 120
   },
   {
-    "id": "m-053",
+    "id": "m-043",
     "title": "Reclamar sobre un electrodoméstico defectuoso",
     "description": "Devuelves un microondas roto a la tienda donde lo compraste hace dos semanas y negocias una solución.",
     "objective": "Explica que el microondas no calienta bien, que lo compraste hace 14 días por 89 euros, y negocia entre reparación gratuita o reembolso completo justificando tu elección.",
@@ -576,7 +516,7 @@
     "base_duration_seconds": 120
   },
   {
-    "id": "m-054",
+    "id": "m-044",
     "title": "Reclamar un reembolso parcial por un viaje pospuesto",
     "description": "Debe contactar a una agencia de viajes para recuperar dinero por un viaje que tuvo que postponer por razones personales.",
     "objective": "Lograr un reembolso de al menos 200 euros de los 850 euros pagados por un viaje a Barcelona del 15 de julio que pospuso para el 20 de septiembre. Debe explicar las razones, preguntar sobre la política de cancelación y negociar las condiciones.",
@@ -588,7 +528,7 @@
     "base_duration_seconds": 120
   },
   {
-    "id": "m-055",
+    "id": "m-045",
     "title": "Reclamar sobre un mal servicio de limpieza del hogar",
     "description": "Necesitas contactar a la empresa de limpieza para reclamar sobre el trabajo deficiente realizado la semana pasada.",
     "objective": "Explica qué salió mal en la limpieza (3-4 áreas: cocina, baños, alfombras), por qué no estás satisfecho, pregunta si pueden volver sin coste adicional y acuerda una fecha entre el 15 y el 20 de marzo.",
@@ -598,5 +538,185 @@
     "example_conversation": "Person: Good afternoon, thank you for calling CleanHome Services. How can I help you today?\nUser: Hello, I'm calling because I'm really disappointed with the cleaning service you provided at my house last week. The kitchen wasn't thoroughly cleaned and the bathrooms still had stains.\nPerson: I'm very sorry to hear that. Could you tell me more about what exactly didn't meet your expectations? We pride ourselves on our quality standards.\nUser: Well, the tiles in both bathrooms weren't properly scrubbed, the kitchen appliances were left streaky, and the carpets looked like they hadn't been vacuumed properly. I've been a customer for two years and this is the worst job they've done.\nPerson: That's concerning. I sincerely apologize. Would you be willing to let us send a team to redo the cleaning at no additional charge?\nUser: Yes, that would be great. Could we schedule it between March 15th and 20th? Would morning or afternoon be better for you?\nPerson: We can definitely arrange that. How about March 18th in the morning, around 9 AM?\nUser: That works perfectly. Thank you for resolving this so quickly.",
     "cefr_level": "B1",
     "base_duration_seconds": 120
+  },
+  {
+    "id": "m-046",
+    "title": "Negociar un precio",
+    "description": "Quieres comprar un artículo pero el precio es alto.",
+    "objective": "Negocia el precio de una mochila. El precio inicial es $80. Intenta conseguirlo por menos de $65, justificando tu oferta.",
+    "scene_context": "Estás en un mercado artesanal. El vendedor tiene mochilas de cuero. Ves una que te gusta.",
+    "character_name": "Market Vendor",
+    "expected_outcome_indicator": "Price negotiated below $65",
+    "example_conversation": "User: I love this backpack, but $80 is a bit out of my budget.\nVendor: It's good quality leather. How much were you thinking?\nUser: Could you do $60? I'm buying it as a gift.\nVendor: I can't go that low, but I could do $70.\nUser: How about $65? That matches the cash I have.",
+    "cefr_level": "B2",
+    "base_duration_seconds": 90
+  },
+  {
+    "id": "m-047",
+    "title": "Reclamar un paquete perdido",
+    "description": "Tu pedido online nunca llegó.",
+    "objective": "Reclama a la empresa de envíos que tu paquete con número de seguimiento TK-2847 no llegó en la fecha prometida. Pide solución.",
+    "scene_context": "Llamas al servicio al cliente de la empresa de envíos. Llevas 5 días esperando el paquete.",
+    "character_name": "Tech Support",
+    "expected_outcome_indicator": "Claim registered with tracking number",
+    "example_conversation": "Agent: Customer service, how can I help?\nUser: Hi, I'm calling about a missing package. Tracking number TK-2847.\nAgent: Let me check. It says it was delivered yesterday.\nUser: I've been home all day and nothing arrived. I need a solution or a refund.",
+    "cefr_level": "B2",
+    "base_duration_seconds": 90
+  },
+  {
+    "id": "m-048",
+    "title": "Cancelar una suscripción",
+    "description": "Quieres cancelar un servicio que no usas.",
+    "objective": "Cancela tu suscripción al gimnasio. Llevas 6 meses pagando sin ir. Pide que el cargo no se haga el próximo mes.",
+    "scene_context": "Llamas al servicio al cliente del gimnasio. Te contesta un representante.",
+    "character_name": "Tech Support",
+    "expected_outcome_indicator": "Subscription cancellation confirmed",
+    "example_conversation": "Agent: Gym membership services, how can I help?\nUser: Hi, I'd like to cancel my subscription.\nAgent: May I ask why you're leaving?\nUser: I haven't used it in 6 months. Please ensure no charge is made next month.\nAgent: I can process that for you.",
+    "cefr_level": "B2",
+    "base_duration_seconds": 90
+  },
+  {
+    "id": "m-049",
+    "title": "Describir un accidente menor",
+    "description": "Tuviste un pequeño accidente de tráfico.",
+    "objective": "Explica a la policía lo que pasó: otro carro te golpeó por detrás mientras esperabas en un semáforo. No hay heridos.",
+    "scene_context": "Un oficial de policía se acerca al lugar del accidente y pide tu declaración de lo sucedido.",
+    "character_name": "Street Guide",
+    "expected_outcome_indicator": "Accident description given with key details",
+    "example_conversation": "Officer: Can you tell me what happened here?\nUser: Yes, officer. I was waiting at the red light.\nOfficer: And then?\nUser: Another car hit me from behind. There are no injuries, just damage to the bumper.",
+    "cefr_level": "B2",
+    "base_duration_seconds": 90
+  },
+  {
+    "id": "m-050",
+    "title": "Debatir sobre una película",
+    "description": "Acabas de ver una película con un amigo y tienen opiniones diferentes.",
+    "objective": "Expresa tu opinión de que el final de la película fue decepcionante porque no tuvo sentido, aunque los efectos especiales fueron buenos.",
+    "scene_context": "Están saliendo del cine. Tu amigo dice que le encantó la película y te pregunta qué piensas tú.",
+    "character_name": "Movie Buff Friend",
+    "expected_outcome_indicator": "Opinion expressed with pros and cons",
+    "example_conversation": "Friend: That was amazing! The best movie I've seen all year. What did you think?\nUser: To be honest, I was a bit disappointed.\nFriend: Really? Why?\nUser: The special effects were great, but the ending didn't make any sense to me.",
+    "cefr_level": "B2",
+    "base_duration_seconds": 90
+  },
+  {
+    "id": "m-051",
+    "title": "Resolver una factura telefónica con cargos duplicados",
+    "description": "Contactas a tu proveedor de servicios móviles para disputar cargos inesperados y exigir un reembolso.",
+    "objective": "Debes identificar los cargos duplicados en tu factura de €87,50 (dos cargos de roaming internacional de €35 del 12 de junio), solicitar un reembolso completo más una compensación por la inconveniencia, y obtener una explicación por escrito.",
+    "scene_context": "Estás llamando al servicio de atención al cliente de tu operadora móvil. Un agente te atiende después de esperar 8 minutos.",
+    "character_name": "Customer Service Representative",
+    "expected_outcome_indicator": "Duplicate charges removed, full refund obtained, compensation approved.",
+    "example_conversation": "Person: Thank you for calling. I see here you're questioning charges from June 12th. Can you walk me through your concern?\nUser: Yes, there are two identical roaming charges of €35 on the same date, which appears to be a system error since I only used data once that day.\nPerson: I understand your frustration. Let me investigate the billing records to determine what happened.\nUser: I'd appreciate that. Furthermore, this error has caused me considerable inconvenience, so I'll need a full reimbursement plus compensation for the trouble.\nPerson: We can certainly credit both charges back. As for compensation, I can offer a €15 credit to your next bill as goodwill.\nUser: I appreciate the gesture, but given the billing error took two weeks to discover, I'd find €25 more appropriate to acknowledge the inconvenience.\nPerson: That's fair. I'll process the full reimbursement of €70 plus a €25 credit immediately, and you'll receive written confirmation within 24 hours.",
+    "cefr_level": "B2",
+    "base_duration_seconds": 90
+  },
+  {
+    "id": "m-052",
+    "title": "Disputar un depósito de caución en un Airbnb después del checkout",
+    "description": "Negocias con tu anfitrión sobre daños supuestamente causados durante tu estancia que cuestionas.",
+    "objective": "El anfitrión reclama €200 del depósito de €500 por una mancha en el sofá que afirma no estaba allí antes. Debes demostrar con evidencia fotográfica de tu llegada que el daño ya existía, negarte a pagar, y exigir la devolución completa del depósito dentro de 10 días.",
+    "scene_context": "Recibes un mensaje de Airbnb del anfitrión después de tu checkout el 15 de marzo. Respondes a su reclamo enviando fotos y argumentando tu posición.",
+    "character_name": "Airbnb Host",
+    "expected_outcome_indicator": "Full deposit refund justified with photographic evidence.",
+    "example_conversation": "Person: I'm claiming €200 because the sofa now has a stain that wasn't there before. Please accept this deduction from your security deposit.\nUser: I must respectfully disagree. I took photos on arrival showing the same stain was already present, which I documented in the platform's check-in report.\nPerson: I don't recall seeing those photos in your initial comments. Are you certain they're timestamped correctly?\nUser: Yes, the metadata confirms they were taken at 3:45 PM on March 1st, well before I occupied the property. I've attached them for your review.\nPerson: Upon reviewing your evidence, the stain does appear to have existed previously. I apologize for the confusion and will authorize full deposit return immediately.\nUser: Thank you for reconsidering. Please process the complete €500 reimbursement within the binding agreement's 10-day window, and I'll leave you a fair review.\nPerson: Done. Your refund will appear in your account by March 25th, and I appreciate your understanding.",
+    "cefr_level": "B2",
+    "base_duration_seconds": 90
+  },
+  {
+    "id": "m-053",
+    "title": "Reclamar un reembolso por un vuelo modificado",
+    "description": "Necesitas contactar con la aerolínea porque tu vuelo ha sido reprogramado y quieres compensación por los inconvenientes causados.",
+    "objective": "Debes negociar un reembolso parcial de 150 euros o un vuelo alternativo gratuito para el 15 de marzo a las 10:00, argumentando que los cambios en tu itinerario te han causado pérdidas económicas significativas en tus planes de trabajo.",
+    "scene_context": "Estás llamando al departamento de atención al cliente de una aerolínea. Hablas con un agente que intenta resolver tu queja de manera formal.",
+    "character_name": "Airline Customer Service Agent",
+    "expected_outcome_indicator": "Negotiated partial refund or alternative flight with compensation",
+    "example_conversation": "Person: Good afternoon, I understand you're calling about your flight modification. Could you provide your booking reference, please?\nUser: Yes, my reference is BX4729. My flight was pushed back by eight hours without prior notice, which has created substantial inconvenience and financial loss for my business meeting.\nPerson: I sincerely apologize for the disruption. However, according to our terms and conditions, we're entitled to reschedule flights due to operational reasons.\nUser: I'm aware of those conditions, but given the significant impact this has had on my schedule, I believe you should offer either a full reimbursement or a complimentary rebooking on an earlier flight as compensation.\nPerson: Let me check what options are available. We might be able to offer you a travel voucher worth 100 euros instead.\nUser: That's insufficient given the circumstances. I'd prefer either 150 euros reimbursed to my account or a confirmed seat on the 10:00 departure on March 15th, whichever comes first.",
+    "cefr_level": "B2",
+    "base_duration_seconds": 90
+  },
+  {
+    "id": "m-054",
+    "title": "Reclamar sobre una compra defectuosa con devolución rechazada",
+    "description": "Compraste un electrodoméstico hace cinco semanas que dejó de funcionar correctamente, pero la tienda rechaza tu devolución argumentando que ha pasado el período de garantía.",
+    "objective": "Debes argumentar que el artículo (un aspirador sin bolsa Dyson modelo XR7 comprado por 280 euros el 15 de enero) tiene un defecto de fabricación, no desgaste normal, y que dentro de 14 días deberías tener derecho a cambio o reembolso según la Directiva de Derechos del Consumidor, independientemente de lo que diga el recibo.",
+    "scene_context": "Estás en la sección de servicio al cliente de una tienda de electrónica. El gerente intenta convencerte de que el producto está fuera de garantía.",
+    "character_name": "Store Manager",
+    "expected_outcome_indicator": "Defective appliance returned for replacement or refund within cooling-off period",
+    "example_conversation": "Person: I've reviewed your receipt. I'm afraid your Dyson XR7 is outside the manufacturer's one-month guarantee period. There's nothing we can do for you.\nUser: I respectfully disagree. The aspiration motor failed unexpectedly after only five weeks of normal use, which clearly indicates a manufacturing defect rather than normal wear and tear. This is materially different from the product I purchased.\nPerson: Even if it's a defect, you're well beyond our return window. Our policy states that customers have fourteen days to return items.\nUser: Your internal policy doesn't override consumer protection regulations. According to EU consumer law, I have fourteen days from purchase to return a defective item, which falls within my rights period.\nPerson: That's not quite accurate. The cooling-off period applies to online purchases primarily, not in-store transactions.\nUser: That's incorrect. The cooling-off period for manufacturing defects applies across all retail channels. Furthermore, I'm invoking my statutory right to a replacement or reimbursement of 280 euros because the product fails to meet the standards I reasonably expected. I'm prepared to provide photographic evidence of the malfunction.",
+    "cefr_level": "B2",
+    "base_duration_seconds": 90
+  },
+  {
+    "id": "m-055",
+    "title": "Reclamar por un servicio de catering insatisfactorio",
+    "description": "Necesitas contactar con una empresa de catering para reclamar por la comida de mala calidad en un evento importante que organizaste.",
+    "objective": "Debes explicar que la comida llegó fría, que faltaban 15 porciones de postre, que el servicio fue lento (40 minutos de retraso) y que pagaste 450 euros. Exige un reembolso parcial del 30% o la devolución del dinero completo si no aceptan las condiciones.",
+    "scene_context": "Estás llamando por teléfono al gerente de la empresa de catering 'Delicious Events' el día después del evento para presentar tu queja formal.",
+    "character_name": "Catering Manager",
+    "expected_outcome_indicator": "Successfully lodge a formal complaint and negotiate compensation for poor service quality.",
+    "example_conversation": "Person: Good morning, this is James from Delicious Events speaking. How can I help you today?\nUser: Hello James. I'm calling to lodge a formal complaint about your catering service yesterday at my corporate event. The food arrived cold, which was completely unacceptable for a 200-person function that I paid 450 euros for.\nPerson: I'm sorry to hear that. Could you provide me with more details about what exactly went wrong during the service?\nUser: Absolutely. First, you were 40 minutes late, which threw off my entire schedule. Second, you were short 15 dessert portions, and third, the main courses were nowhere near the temperature they should have been. This was a binding agreement, and you failed to deliver the standards we discussed.\nPerson: I understand your frustration, and I sincerely apologize for these inconveniences. What resolution would you be looking for?\nUser: I'm seeking either a 30% reimbursement given the gravity of these issues, or I'll have to pursue this further. I have witnesses and photographs documenting the problems. I trust we can resolve this amicably, but I need a commitment from you today.",
+    "cefr_level": "B2",
+    "base_duration_seconds": 90
+  },
+  {
+    "id": "m-056",
+    "title": "Negociar el cambio de términos en un contrato de alquiler",
+    "description": "Necesitas renegociar ciertos términos de tu contrato de alquiler con el propietario antes de firmar el acuerdo vinculante.",
+    "objective": "Debes solicitar una reducción del precio de alquiler de 1200 euros a 1050 euros por mes (duración 24 meses), y además pedir que el depósito de caución se reduzca de 3 meses a 2 meses de renta. Debes presentar argumentos sobre el estado del apartamento (necesita reparaciones menores) y justificar con datos de mercado.",
+    "scene_context": "Te reúnes en persona con el propietario, señor García, en la oficina de su agencia inmobiliaria para discutir los términos del contrato antes de la firma final.",
+    "character_name": "Property Owner",
+    "expected_outcome_indicator": "Successfully renegotiate lease terms with evidence-based arguments and reach a mutually acceptable agreement.",
+    "example_conversation": "Person: Good afternoon. I've reviewed your application and I'm pleased you're interested in the apartment. However, I must mention the rent is non-negotiable at 1200 euros monthly. Shall we proceed to signing?\nUser: Thank you for considering my application, señor García. Before we sign, I'd like to discuss the terms, as I have some legitimate concerns about both the rent and the deposit structure. The market rate for similar properties in this neighborhood is approximately 1050 euros, according to three recent listings I've reviewed.\nPerson: I understand you've done your research, but my property includes premium finishes and a convenient location. The deposit is standard at three months' rent. What specifically are your concerns?\nUser: While I appreciate the location, the apartment does require some minor repairs—the bathroom tiles need grouting, and the kitchen door hinges are loose. Given these issues and current market conditions, I'm proposing 1050 euros monthly rent with a two-month deposit instead of three. This is still a fair rate for the property, and it demonstrates my commitment with a substantial deposit.\nPerson: Those repairs are minor cosmetic issues that won't affect your tenancy. However, I respect your position. Let me consider your proposal, as a 24-month commitment does have value for me.",
+    "cefr_level": "B2",
+    "base_duration_seconds": 90
+  },
+  {
+    "id": "m-057",
+    "title": "Defender tu posición en una reunión sobre cambio de responsabilidades laborales",
+    "description": "Debes argumentar firmemente contra una redistribución de tareas que consideras injusta y desequilibrada.",
+    "objective": "En una reunión con tu gerente, explicar por qué no puedes asumir las responsabilidades adicionales del proyecto de marketing (que implica 15 horas semanales extra sin compensación) cuando ya trabajas en dos proyectos simultáneamente con una carga de 45 horas, solicitando que se contrate personal adicional o se redefina tu rol con ajuste salarial del 12%.",
+    "scene_context": "Estás en la oficina en una reunión con tu gerente, Maria. Ella acaba de proponerte tomar el proyecto de marketing de forma inesperada.",
+    "character_name": "Manager",
+    "expected_outcome_indicator": "Negotiated workload expectations and secured commitment to review compensation or staffing.",
+    "example_conversation": "Person: As you know, we've decided to merge the marketing initiative with your current responsibilities. We believe you're the best fit for this expanded role given your track record and expertise in digital communications.\nUser: I appreciate your confidence, Maria, but I have to be honest—this proposal isn't feasible given my current commitments. I'm already managing two concurrent projects that require 45 hours per week, and adding 15 hours of marketing work would be unsustainable without compromising quality or my wellbeing.\nPerson: Understood, but the project is time-sensitive, and we simply don't have budget approval for additional hiring at the moment. Could you prioritize and perhaps delegate some of your existing tasks?\nUser: I've already optimized my workflow considerably. What I'm proposing is either hiring a junior team member to support me, or alternatively, if the company insists on this expanded scope, we'd need to discuss a salary adjustment of at least 12% to reflect the new responsibilities and workload.\nPerson: That's quite a significant request. Let me discuss this with upper management and get back to you.\nUser: I appreciate that, Maria. However, I do need a resolution within the next two weeks, as I cannot commit to this additional workload under the current terms. I'm hoping we can find a solution that works for both the company and my career development.",
+    "cefr_level": "B2",
+    "base_duration_seconds": 90
+  },
+  {
+    "id": "m-058",
+    "title": "Presentar una propuesta alternativa en una entrevista de trabajo sobre horario flexible",
+    "description": "Debes defender tu necesidad de horario flexible en una entrevista final sin parecer poco comprometido.",
+    "objective": "En tu entrevista final para el puesto de Analista de Datos en Deloitte (salario €48,000 anuales, contrato de 3 años), explicar por qué necesitas trabajar 2 días desde casa y 3 desde la oficina, argumentar cómo esto mejorará tu productividad y concentración, y ofrecer un acuerdo de 6 meses de prueba con métricas de desempeño claras.",
+    "scene_context": "Estás en la oficina de Deloitte en una reunión con el director de recursos humanos, Thomas. Ha mencionado que la posición requiere presencia completa en la oficina 5 días a la semana.",
+    "character_name": "HR Director",
+    "expected_outcome_indicator": "Negotiated hybrid work arrangement with performance review period.",
+    "example_conversation": "Person: We're delighted with your technical qualifications, but I should mention that this analyst role traditionally requires full-time office attendance. Our teams collaborate extensively, and we believe the best results come from in-person interaction.\nUser: I truly appreciate the offer, and I'm committed to delivering exceptional results for Deloitte. I'd like to propose a hybrid arrangement where I work three days in the office for team collaboration and two days remotely for focused analytical work that requires deep concentration without interruptions.\nPerson: That's an interesting suggestion, but it deviates significantly from our standard policy. Many clients expect our analysts to be available on-site during business hours.\nUser: I understand those concerns, which is why I'm proposing we implement this as a six-month trial period with clear performance metrics. I'm confident that my productivity, project completion rates, and code quality will demonstrate that this arrangement is not only feasible but actually enhances output. Should the metrics fall below agreed benchmarks, we can revert to the full on-site model.\nPerson: That's a thoughtful proposal. Let me discuss this with the team leads and see if we can accommodate this arrangement on a trial basis.\nUser: Thank you, Thomas. I believe this flexibility will allow me to contribute my best work while maintaining the collaborative spirit your team values. I'm eager to make this partnership successful.",
+    "cefr_level": "B2",
+    "base_duration_seconds": 90
+  },
+  {
+    "id": "m-059",
+    "title": "Discutir una prórroga de plazo de entrega con tu profesor",
+    "description": "Necesitas negociar una extensión de dos semanas para entregar tu trabajo de investigación de fin de semestre debido a circunstancias imprevistas.",
+    "objective": "Debes convencer al profesor de que te otorgue una prórroga de 14 días para entregar tu ensayo sobre cambio climático, explicando las razones válidas (enfermedad familiar, problema técnico) y comprometiéndote a entregar un trabajo de calidad superior.",
+    "scene_context": "Estás en la oficina de tu profesor de la Universidad durante sus horas de consulta. Él es un docente experimentado pero conocido por ser estricto con los plazos.",
+    "character_name": "Professor Henderson",
+    "expected_outcome_indicator": "Successfully negotiates a two-week extension with clear conditions and commitment.",
+    "example_conversation": "Person: Good afternoon. I see you've come to discuss your assignment deadline. What seems to be the issue?\nUser: Professor, I appreciate your time. Due to unexpected family circumstances and a technical failure that corrupted my initial draft, I've fallen behind schedule, but I'd like to request a two-week extension to deliver work that meets your standards.\nPerson: I understand, but you're aware that extensions set a precedent. What guarantee can you provide that this won't compromise the quality of your research?\nUser: I'm prepared to submit detailed progress notes every three days and a comprehensive outline by next Friday to demonstrate commitment. Additionally, I'll include supplementary sources that weren't in my original plan.\nPerson: That's a reasonable proposal. However, I can only grant this extension if you understand it's conditional upon those check-ins and if you submit the final version no later than two weeks from today.\nUser: Absolutely. I'm grateful for your understanding, and I assure you this extension will result in a significantly improved submission.",
+    "cefr_level": "B2",
+    "base_duration_seconds": 90
+  },
+  {
+    "id": "m-060",
+    "title": "Consultar sobre síntomas persistentes y opciones de tratamiento",
+    "description": "Necesitas hablar con un especialista sobre problemas digestivos crónicos y explorar opciones de tratamiento más allá de los medicamentos convencionales.",
+    "objective": "Debes describir con detalle tus síntomas (dolor abdominal después de ciertas comidas, fatiga durante el día, inflamación ocasional), cuestionar la efectividad del tratamiento actual, solicitar pruebas adicionales específicas (endoscopia, análisis de intolerancias alimentarias) y discutir enfoques alternativos como cambios dietéticos o terapia complementaria.",
+    "scene_context": "Estás en la consulta privada de un gastroenterólogo especializado. Es tu segunda visita y quieres tomar un papel más activo en tus cuidados.",
+    "character_name": "Dr. Martinez",
+    "expected_outcome_indicator": "Clearly articulates symptoms, questions current treatment, and negotiates comprehensive diagnostic plan.",
+    "example_conversation": "Person: Welcome back. I see you've been on the prescribed medication for three months now. How are you feeling overall?\nUser: To be honest, the improvement has been minimal. I still experience significant abdominal pain roughly two hours after eating certain foods, and I'm noticing persistent fatigue throughout the day, which is affecting my work performance considerably.\nPerson: That's concerning. Have you noticed any particular foods that trigger these symptoms more than others?\nUser: Yes, actually. High-fat foods and dairy products seem especially problematic. Given these patterns, I'm wondering whether we should pursue more advanced testing, such as an endoscopy or food intolerance analysis, before continuing with medication alone.\nPerson: That's a reasonable request. An endoscopy could be useful, though it's more invasive. Regarding food intolerance testing, the scientific evidence is mixed. However, we could explore a structured elimination diet under nutritionist supervision alongside the endoscopy.\nUser: I appreciate that balanced perspective. Could you refer me to a qualified nutritionist who works with gastroenterologists? I'd like to take a more integrated approach combining medical investigation with dietary management.",
+    "cefr_level": "B2",
+    "base_duration_seconds": 90
   }
 ]

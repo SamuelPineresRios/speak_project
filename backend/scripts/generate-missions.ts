@@ -22,6 +22,9 @@ const DURATION_BY_LEVEL: Record<CefrLevel, number> = { A1: 180, A2: 150, B1: 120
 /** Cuántas misiones se piden al modelo por llamada; lotes pequeños evitan truncados. */
 const BATCH_SIZE = 3
 
+/** Margen de salida por nivel; B2 escribe diálogos largos. */
+const MAX_TOKENS_BY_LEVEL: Record<CefrLevel, number> = { A1: 2200, A2: 2800, B1: 3400, B2: 4200 }
+
 /** Reintentos por lote antes de darlo por perdido. */
 const MAX_BATCH_ATTEMPTS = 3
 
@@ -113,7 +116,7 @@ const LEVEL_GUIDANCE: Record<CefrLevel, string> = {
 - The student must negotiate, complain or defend a position with conditions.`,
 }
 
-function buildPrompt(level: CefrLevel, count: number, existing: string[]): string {
+function buildPrompt(level: CefrLevel, count: number, existing: string[], topics: string | null): string {
   return `Create ${count} NEW English-learning missions for a CEFR ${level} student.
 
 Each mission is a short real-life situation the student will play as a spoken/written roleplay with an AI character.
@@ -130,7 +133,14 @@ FORMAT (respect it exactly):
 ALREADY USED SITUATIONS, from every level (do NOT repeat these or close variants):
 ${existing.map(title => `- ${title}`).join('\n')}
 
-Pick ${count} DIFFERENT everyday situations that an ${level} student would face (shops, transport, home, health, social, services, food, plans...). Vary the places and the people.
+Pick ${count} DIFFERENT everyday situations that an ${level} student would face.
+
+${topics ? `FOCUS ON THESE SITUATIONS (they are the ones still missing):\n${topics}\n` : ''}
+DOMAIN DIVERSITY (important): spread them across different areas — work, study,
+health, travel, social, home, shops, services, money, technology. Do NOT make
+them all complaints, refunds or negotiations: include a mix where the student
+gives an opinion, explains a problem, makes a request, asks for information or
+stands their ground. Vary the places and the people too.
 
 Return ONLY the JSON.`
 }
@@ -198,16 +208,18 @@ function validate(missionsToCheck: GeneratedMission[], usedTitles: Set<string>):
   return valid
 }
 
-function parseArgs(): { level: CefrLevel; count: number; dry: boolean } {
+function parseArgs(): { level: CefrLevel; count: number; dry: boolean; topics: string | null } {
   const args = process.argv.slice(2)
   const level = (args[args.indexOf('--level') + 1] ?? 'A1').toUpperCase() as CefrLevel
   const count = Number(args[args.indexOf('--count') + 1] ?? 4)
   const dry = args.includes('--dry')
+  const topicsIndex = args.indexOf('--topics')
+  const topics = topicsIndex === -1 ? null : (args[topicsIndex + 1] ?? null)
 
   if (!(level in DURATION_BY_LEVEL)) throw new Error(`Nivel no válido: ${level}`)
   if (!Number.isInteger(count) || count < 1 || count > 20) throw new Error(`Cantidad no válida: ${count}`)
 
-  return { level, count, dry }
+  return { level, count, dry, topics }
 }
 
 /** Siguiente id libre con el formato m-0NN del proyecto. */
@@ -221,7 +233,7 @@ function nextMissionId(existingIds: string[], offset: number): string {
 }
 
 async function main() {
-  const { level, count, dry } = parseArgs()
+  const { level, count, dry, topics } = parseArgs()
 
   const levelRows = await db.select().from(missions).where(eq(missions.cefr_level, level))
   const allRows = await db.select({ id: missions.id, title: missions.title }).from(missions)
@@ -252,11 +264,11 @@ async function main() {
               content: buildPrompt(level, batch, [
                 ...allRows.map(row => row.title),
                 ...created.map(mission => mission.title),
-              ]),
+              ], topics),
             },
           ],
           schema: MISSION_SCHEMA,
-          maxTokens: 3200,
+          maxTokens: MAX_TOKENS_BY_LEVEL[level],
         })
 
         const parsed = JSON.parse(content) as { missions?: GeneratedMission[] }
