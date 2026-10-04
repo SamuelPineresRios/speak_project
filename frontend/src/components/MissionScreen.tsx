@@ -26,13 +26,6 @@ interface MissionScreenProps {
 }
     type MissionState = 'introduction' | 'preparation' | 'active' | 'submitting'
 
-interface BriefingData {
-  key_verbs: string[]
-  useful_phrases: string[]
-  grammar_tips: string
-  estimated_duration_minutes: number
-}
-
 interface Message {
   role: 'user' | 'assistant' | 'system'
   content: string
@@ -52,10 +45,6 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
   const [isThinking, setIsThinking] = useState(false)
   const [isLastMessageTyping, setIsLastMessageTyping] = useState(false)
   const [timedOut, setTimedOut] = useState(false)
-  const [showHelp, setShowHelp] = useState(false)
-
-  const [dynamicHints, setDynamicHints] = useState<BriefingData | null>(null)
-  const [loadingHints, setLoadingHints] = useState(false)
   const [showCompletionNotification, setShowCompletionNotification] = useState(false)
   const [hasNotifiedCompletion, setHasNotifiedCompletion] = useState(false)
   const [missionProgress, setMissionProgress] = useState(0)
@@ -420,39 +409,6 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
       } 
   }
 
-  // Load dynamic hints based on the last assistant message
-  const handleOpenHints = async () => {
-    setShowHelp(true)
-    setLoadingHints(true)
-    
-    const lastAssistantMessage = messages.findLast(m => m.role === 'assistant')
-    if (!lastAssistantMessage) {
-      setLoadingHints(false)
-      return
-    }
-
-    try {
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          mode: 'hints',
-          lastMessage: lastAssistantMessage.content,
-          mission,
-          userLevel: user?.cefr_level || mission.cefr_level 
-        })
-      })
-      const data = await readJson(res)
-      if (data?.key_verbs || data?.useful_phrases || data?.grammar_tips) {
-        setDynamicHints(data)
-      }
-    } catch (err) {
-      console.error("Failed to fetch dynamic hints", err)
-    } finally {
-      setLoadingHints(false)
-    }
-  }
-
   // ── Fase 2: escena narrativa ──────────────────────────────────────────
   if (state === 'introduction') {
     if (loadingIntroduction) {
@@ -621,15 +577,6 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
           <button onClick={() => navigate(-1)} className="text-slate-light hover:text-foreground transition-colors">←</button>
           <div className="flex-1 text-center font-body text-cyan text-xs uppercase tracking-widest">{mission.title}</div>
           <div className="flex gap-2">
-            {state === 'active' && (
-              <button 
-                onClick={handleOpenHints}
-                className="text-xs text-blue-400 hover:text-blue-300 border border-blue-500/50 px-2 py-1 rounded bg-blue-500/10 uppercase tracking-wide transition-colors"
-                title="Get help with grammar and vocabulary hints"
-              >
-                💡 Hint
-              </button>
-            )}
             <button onClick={handleCompleteMission} className="text-xs text-emerald hover:text-emerald-400 border border-emerald/50 px-2 py-1 rounded bg-emerald/10 uppercase tracking-wide">
                Complete
             </button>
@@ -683,9 +630,6 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
               
               return (
                   <div key={i} className={cn("flex gap-2 mb-4", isUser ? "flex-row-reverse items-end" : "items-end")}>
-                      <span className="text-xl flex-shrink-0">
-                          {isUser ? "👤" : "🤖"}
-                      </span>
                       <div className="flex flex-col gap-1">
                           <span className={cn("text-[9px] uppercase tracking-wider opacity-60", isUser ? "text-emerald text-right" : "text-cyan")}>
                               {isUser ? 'YOU' : mission.character_name}
@@ -761,8 +705,9 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
         </div>
       </div>
 
-      {/* Columna derecha: registro de frases y correcciones */}
-      <aside className="h-72 lg:h-auto lg:min-h-0 min-h-0">
+      {/* Columna derecha: registro de frases y correcciones (sólo escritorio;
+          en móvil se oculta para dejar todo el ancho al chat) */}
+      <aside className="hidden lg:block lg:min-h-0">
         <ConversationLog entries={usedPhrases} />
       </aside>
       </div>
@@ -875,111 +820,6 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
               </button>
             </div>
           </div>
-        </div>
-      )}
-
-      {/* Help Modal - Grammar & Vocabulary Hints */}
-      {showHelp && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-in fade-in duration-200">
-            <div className="bg-slate-950 border border-blue-500/30 w-full max-w-md rounded-xl p-6 shadow-2xl relative animate-in zoom-in-95 duration-200 max-h-[80vh] overflow-y-auto">
-                <button 
-                    onClick={() => setShowHelp(false)}
-                    className="absolute top-4 right-4 text-slate-500 hover:text-blue-400 transition-colors font-body text-xs uppercase"
-                >
-                    [Close]
-                </button>
-                <div className="border-b border-blue-500/20 pb-4 mb-6">
-                    <h3 className="text-sm font-bold text-blue-400 uppercase tracking-widest flex items-center gap-2">
-                        <span>💡</span> Grammar & Vocabulary Hints
-                    </h3>
-                    <p className="text-[10px] text-slate-400 mt-1">No answers - just guidance!</p>
-                </div>
-
-                {loadingHints ? (
-                  <div className="text-center py-8">
-                    <div className="inline-block">
-                      <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-500 border-t-transparent mb-2"></div>
-                    </div>
-                    <p className="text-sm text-slate-300">Loading contextual hints...</p>
-                  </div>
-                ) : (() => {
-                  const hints = dynamicHints ?? { key_verbs: [], useful_phrases: introduction?.useful_expressions ?? [], grammar_tips: '' }
-                  return hints ? (
-                    <>
-                      {/* Show what the AI asked for context */}
-                      {dynamicHints && messages.length > 0 && (() => {
-                        const lastAssistantMsg = messages.findLast(m => m.role === 'assistant')
-                        return lastAssistantMsg ? (
-                          <div className="mb-4 p-3 rounded-lg bg-slate-700/30 border border-slate-600/50">
-                            <p className="text-[10px] text-slate-400 uppercase tracking-widest font-bold mb-1.5">AI Asked:</p>
-                            <p className="text-xs text-slate-200 leading-relaxed italic">&quot;{lastAssistantMsg.content}&quot;</p>
-                          </div>
-                        ) : null
-                      })()}
-
-                      {/* Key Verbs */}
-                      <div className="mb-6 space-y-2">
-                          <h4 className="text-xs font-bold text-blue-300 uppercase tracking-widest flex items-center gap-2">
-                              <span>📝</span> Key Verbs to Use
-                          </h4>
-                          <div className="flex flex-wrap gap-2">
-                              {hints.key_verbs && hints.key_verbs.length > 0 && hints.key_verbs.map((verb, i) => (
-                                  <span 
-                                      key={i} 
-                                      className="text-xs px-3 py-1.5 rounded-lg bg-blue-500/10 border border-blue-500/30 text-blue-300 font-body font-medium hover:bg-blue-500/20 transition-colors cursor-default"
-                                      title="Try using this verb in your response"
-                                  >
-                                      {verb}
-                                  </span>
-                              ))}
-                          </div>
-                      </div>
-
-                      {/* Useful Phrases */}
-                      {hints.useful_phrases && hints.useful_phrases.length > 0 && (
-                          <div className="mb-6 space-y-2">
-                              <h4 className="text-xs font-bold text-emerald-300 uppercase tracking-widest flex items-center gap-2">
-                                  <span>💬</span> Useful Phrases
-                              </h4>
-                              <div className="space-y-2">
-                                  {hints.useful_phrases.map((phrase, i) => (
-                                      <div 
-                                          key={i}
-                                          className="p-2 bg-emerald-500/5 border-l-2 border-emerald-500/30 text-sm text-emerald-100 rounded text-left font-light"
-                                      >
-                                          &quot;{phrase}&quot;
-                                      </div>
-                                  ))}
-                              </div>
-                          </div>
-                      )}
-
-                      {/* Grammar Tips */}
-                      {hints.grammar_tips && (
-                          <div className="space-y-2 pt-4 border-t border-slate-700">
-                              <h4 className="text-xs font-bold text-amber-300 uppercase tracking-widest flex items-center gap-2">
-                                  <span>⚡</span> Grammar Tip
-                              </h4>
-                              <p className="text-xs text-amber-100 leading-relaxed bg-amber-500/5 p-3 rounded border border-amber-500/20">
-                                  {hints.grammar_tips}
-                              </p>
-                          </div>
-                      )}
-                    </>
-                  ) : (
-                    <div className="text-center py-8 text-slate-400">
-                      <p className="text-sm">No hints available</p>
-                    </div>
-                  )
-                })()}
-
-                <button 
-                    onClick={() => setShowHelp(false)}
-                    className="w-full mt-6 bg-blue-600 hover:bg-blue-500 text-white font-medium py-2.5 rounded-lg transition-colors shadow-lg shadow-blue-500/20 text-xs uppercase tracking-wider"
-                >
-                    Got it, back to mission
-                </button>
-            </div>
         </div>
       )}
 
