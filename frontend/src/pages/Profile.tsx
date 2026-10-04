@@ -241,7 +241,7 @@ export default function ProfilePage() {
          <div className="lg:col-span-2 bg-black/20 border border-white/10 rounded-2xl p-6">
             <h3 className="text-sm font-bold text-slate-300 uppercase tracking-widest mb-6 flex items-center gap-2">
                <Target className="w-4 h-4 text-emerald-400" />
-               Mission_Log
+               Registro de misiones
             </h3>
             
             <div className="space-y-4">
