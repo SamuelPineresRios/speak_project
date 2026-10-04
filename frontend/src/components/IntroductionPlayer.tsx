@@ -75,7 +75,10 @@ function CharacterStage({
     <div className={cn('flex flex-col items-center justify-end transition-all duration-500', speaking ? 'scale-100' : 'scale-95')}>
       <div
         className={cn(
-          'relative h-40 w-40 sm:h-56 sm:w-56 overflow-hidden rounded-2xl border-2 transition-all duration-500',
+          // El ancho responde al viewport: en móvil manda el ancho de la
+          // columna, en escritorio el alto de la pantalla (para que el busto
+          // nunca desplace la burbuja ni el pie en portátiles bajos).
+          'relative aspect-square w-[min(45vw,12rem,38vh)] sm:w-[min(30vw,24rem,40vh)] overflow-hidden rounded-2xl border-2 transition-all duration-500',
           speaking ? theme.ring : 'border-white/10 opacity-55 grayscale',
         )}
       >
@@ -256,9 +259,10 @@ export function IntroductionPlayer({ introduction, cefrLevel, onFinish, onSkip }
         </p>
       </div>
 
-      {/* Conversación de lado a lado */}
-      <div className="relative z-10 flex-1 min-h-0 flex flex-col justify-between px-6 py-4">
-        <div className="grid grid-cols-2 gap-4 sm:gap-16 items-end justify-items-center">
+      {/* Personajes: centrados verticalmente en el escenario, por encima de la
+          burbuja (que vive en su propio bloque al pie). */}
+      <div className="relative z-10 flex-1 min-h-0 flex items-center justify-center px-3 sm:px-6 py-4">
+        <div className="grid w-full grid-cols-2 gap-2 sm:gap-16 items-end justify-items-center">
           {introduction.characters.map(character => (
             <CharacterStage
               key={character.id}
@@ -268,12 +272,14 @@ export function IntroductionPlayer({ introduction, cefrLevel, onFinish, onSkip }
             />
           ))}
         </div>
+      </div>
 
-        {/* Burbuja: aparece del lado del personaje que habla */}
+      {/* Burbuja: aparece del lado del personaje que habla */}
+      <div className="relative z-10 shrink-0 px-6 pb-2">
         <div
           className={cn(
-            'w-full max-w-2xl mt-4 transition-all duration-300',
-            speaker?.id === 'A' ? 'self-start' : 'self-end',
+            'w-full max-w-2xl transition-all duration-300',
+            speaker?.id === 'A' ? 'mr-auto' : 'ml-auto',
           )}
         >
           <div
