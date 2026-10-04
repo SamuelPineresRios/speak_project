@@ -192,7 +192,7 @@ export default function ProfilePage() {
             <div className="flex justify-between items-center mb-6">
                <h3 className="text-sm font-bold text-slate-300 uppercase tracking-widest flex items-center gap-2">
                  <Brain className="w-4 h-4 text-purple-400" />
-                 Neural_Sync_Status
+                 Estadísticas
                </h3>
                <span className="text-[10px] bg-purple-500/10 text-purple-400 px-2 py-1 rounded border border-purple-500/20">
                   {statusFor(overall)}
