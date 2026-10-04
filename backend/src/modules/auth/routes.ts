@@ -21,7 +21,7 @@ import {
   verifyCredentials,
 } from './service.ts'
 
-const VALID_CEFR: readonly CefrLevel[] = ['A1', 'A2', 'B1', 'B2']
+const VALID_CEFR: readonly CefrLevel[] = ['A1', 'A2', 'B1', 'B2', 'C1']
 
 export const authRouter = Router()
 

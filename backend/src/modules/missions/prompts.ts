@@ -101,6 +101,7 @@ const CEFR_EVALUATION_CRITERIA: Record<CefrLevel, string> = {
   A2: 'Accept mostly correct responses with minor errors. Focus: Is the message clear? Minor grammar errors are OK.',
   B1: 'Accept well-formed responses with natural flow. Minor errors acceptable if meaning is clear.',
   B2: 'Expect more sophisticated language. Minor errors still acceptable if communication is successful.',
+  C1: 'Expect fluent, precise, near-native language: varied structures, accurate register and nuanced ideas. Only occasional slips are acceptable.',
 }
 
 export interface EvaluationPromptContext {

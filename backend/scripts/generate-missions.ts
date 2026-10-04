@@ -17,13 +17,13 @@ import { missions } from '../src/db/schema.ts'
 import type { CefrLevel } from '@vox/shared'
 
 /** Duración por nivel, en segundos (la misma que usan las misiones actuales). */
-const DURATION_BY_LEVEL: Record<CefrLevel, number> = { A1: 180, A2: 150, B1: 120, B2: 90 }
+const DURATION_BY_LEVEL: Record<CefrLevel, number> = { A1: 180, A2: 150, B1: 120, B2: 90, C1: 75 }
 
 /** Cuántas misiones se piden al modelo por llamada; lotes pequeños evitan truncados. */
 const BATCH_SIZE = 3
 
 /** Margen de salida por nivel; B2 escribe diálogos largos. */
-const MAX_TOKENS_BY_LEVEL: Record<CefrLevel, number> = { A1: 2200, A2: 2800, B1: 3400, B2: 4200 }
+const MAX_TOKENS_BY_LEVEL: Record<CefrLevel, number> = { A1: 2200, A2: 2800, B1: 3400, B2: 4200, C1: 7000 }
 
 /** Reintentos por lote antes de darlo por perdido. */
 const MAX_BATCH_ATTEMPTS = 3
@@ -109,6 +109,13 @@ const LEVEL_GUIDANCE: Record<CefrLevel, string> = {
 - Varied tenses (past, present perfect, conditionals), opinions, explanations
   and reasons. Vocabulary beyond the basics (postpone, refund, neighbourhood...).
 - The student must handle 3-4 details, justify something and ask follow-ups.`,
+  C1: `ADVANCED, near-native:
+- 12-14 lines, long sentences with subordinate clauses, inversion and cleft
+  structures.
+- Precise, low-frequency vocabulary (liability, discretionary, procurement,
+  mitigate...), idioms and cultural references.
+- The student must hedge, persuade, concede partially, read between the lines
+  and defend a nuanced position under pressure.`,
   B2: `UPPER INTERMEDIATE, the hardest:
 - 10-12 lines, sentences of 12-25 words with subordinate clauses.
 - Idioms, phrasal verbs and precise vocabulary (reimbursement, inconvenience,

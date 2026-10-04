@@ -101,7 +101,7 @@ describe('POST /api/auth/signup', () => {
   it('rechaza niveles CEFR desconocidos', async () => {
     const res = await request(app)
       .post('/api/auth/signup')
-      .send({ ...VALID_STUDENT, cefr_level: 'C1' })
+      .send({ ...VALID_STUDENT, cefr_level: 'C2' })
 
     expect(res.status).toBe(400)
     expect(res.body).toEqual({ error: 'Nivel CEFR no válido' })

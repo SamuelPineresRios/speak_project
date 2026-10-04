@@ -22,7 +22,7 @@ import { missions } from '../src/db/schema.ts'
 import type { CefrLevel } from '@vox/shared'
 
 /** Orden de los niveles en la numeración. */
-const LEVEL_ORDER: CefrLevel[] = ['A1', 'A2', 'B1', 'B2']
+const LEVEL_ORDER: CefrLevel[] = ['A1', 'A2', 'B1', 'B2', 'C1']
 
 async function countRows(table: string): Promise<number> {
   const rows = await sql.unsafe<{ count: string }[]>(`SELECT count(*)::text AS count FROM ${table}`)
@@ -101,8 +101,10 @@ async function main() {
     }
 
     // 5. Renumerar las misiones en dos fases para no chocar consigo mismas.
+    //    La segunda fase recorre el mapeo COMPLETO: las que no cambian también
+    //    pasaron por el id temporal y hay que devolverlas a su sitio.
     await tx.execute(raw`UPDATE missions SET id = 'tmp-' || id`)
-    for (const entry of changes) {
+    for (const entry of mapping) {
       await tx.execute(
         raw`UPDATE missions SET id = ${entry.newId} WHERE id = ${'tmp-' + entry.oldId}`,
       )

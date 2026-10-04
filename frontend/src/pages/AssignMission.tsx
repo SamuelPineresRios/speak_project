@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils'
 import { readJson } from '@/lib/api'
 
 interface Mission { id: string; title: string; cefr_level: string; base_duration_seconds: number }
-const LEVEL_COLORS: Record<string, string> = { A1:'text-emerald', A2:'text-sky-400', B1:'text-amber', B2:'text-coral' }
+const LEVEL_COLORS: Record<string, string> = { A1:'text-emerald', A2:'text-cyan', B1:'text-amber', B2:'text-violet', C1:'text-coral' }
 
 export default function AssignMissionPage() {
   const { id: groupId = '' } = useParams()
