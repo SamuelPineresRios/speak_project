@@ -491,7 +491,6 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
           {/* Con quién hablas y tu papel */}
           <div className="grid sm:grid-cols-2 gap-3">
             <div className="bg-slate-900/85 border border-cyan/25 rounded-xl p-4 flex items-center gap-3">
-              <span className="text-3xl">{aiCharacter?.emoji ?? '🤖'}</span>
               <div>
                 <p className="text-[10px] text-cyan uppercase tracking-widest">Vas a hablar con</p>
                 <p className="text-sm font-bold text-white">{aiCharacter?.name ?? mission.character_name}</p>
@@ -499,7 +498,6 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
               </div>
             </div>
             <div className="bg-slate-900/85 border border-emerald/25 rounded-xl p-4 flex items-center gap-3">
-              <span className="text-3xl">{studentCharacter?.emoji ?? '🧑'}</span>
               <div>
                 <p className="text-[10px] text-emerald uppercase tracking-widest">Tu papel</p>
                 <p className="text-sm font-bold text-white">{studentCharacter?.name ?? 'Tú'}</p>
