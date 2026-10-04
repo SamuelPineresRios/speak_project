@@ -5,7 +5,7 @@
  * enfrentan en bustos grandes y la burbuja aparece del lado del que habla.
  * El texto se revela palabra a palabra y cada frase se puede escuchar.
  */
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { type RefObject, useCallback, useEffect, useRef, useState } from 'react'
 import { Pause, Play, RotateCcw, Volume2, X, Languages, SkipForward } from 'lucide-react'
 import type { IntroductionCharacter, MissionIntroduction } from '@vox/shared'
 import { cn } from '@/lib/utils'
@@ -21,6 +21,17 @@ function avatarUrl(name: string): string {
 /** URL del MP3 sintetizado por el backend (voz natural y cacheada). */
 function speechUrl(text: string, role: 'A' | 'B'): string {
   return `/api/tts?voice=${role.toLowerCase()}&text=${encodeURIComponent(text)}`
+}
+
+/**
+ * Nivel de boca (0-1) cuando no hay audio que analizar: voz apagada, voz
+ * nativa de reserva o el audio aún cargando. Dos senos de periodos distintos
+ * dan un abrir y cerrar irregular, más parecido al habla que un latido fijo.
+ */
+function syntheticMouthLevel(now: number): number {
+  const fast = 0.5 + 0.5 * Math.sin(now / 55)
+  const slow = 0.5 + 0.5 * Math.sin(now / 190 + 1.3)
+  return 0.15 + 0.85 * fast * slow
 }
 
 /**
@@ -65,10 +76,13 @@ function CharacterStage({
   character,
   speaking,
   finished,
+  mouthRef,
 }: {
   character: IntroductionCharacter
   speaking: boolean
   finished: boolean
+  /** Pieza de la boca: el reproductor le escribe el nivel por CSS. */
+  mouthRef: RefObject<HTMLSpanElement>
 }) {
   const theme = ROLE_THEME[character.id]
   return (
@@ -89,6 +103,20 @@ function CharacterStage({
           alt={character.name}
           className="h-full w-full p-2"
         />
+
+        {/* Boca animada. El sprite trae una boca fija en la zona x6-10, y9 de
+            su rejilla 16x16 (el marco interior coincide con el `p-2` de la
+            imagen); encima va esta pieza, que crece con el volumen real de la
+            voz. A nivel 0 queda invisible y se ve la boca original: el máximo
+            es media boca de alto (1,2 px de la rejilla), no el hueco entero. */}
+        <span className="pointer-events-none absolute inset-2" aria-hidden>
+          <span
+            ref={mouthRef}
+            className="absolute left-[43.75%] top-[56.25%] w-[12.5%] rounded-[3px] bg-[#5b1f2a]"
+            style={{ height: 'calc(var(--mouth-open, 0) * 7.5%)' }}
+          />
+        </span>
+
         {speaking && (
           <span className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
             <span className={cn('w-1.5 h-1.5 rounded-full animate-bounce [animation-delay:0ms]', theme.dot)} />
@@ -128,6 +156,17 @@ export function IntroductionPlayer({ introduction, cefrLevel, onFinish, onSkip }
   voiceRef.current = voice
   /** Audio en curso del backend; se corta al cambiar de frase. */
   const audioRef = useRef<HTMLAudioElement | null>(null)
+  /** Se enciende mientras suena algo (backend o voz nativa): mantiene la boca. */
+  const [audioPlaying, setAudioPlaying] = useState(false)
+  /** Analizador de la voz en curso; null si no hay audio que analizar. */
+  const analyserRef = useRef<AnalyserNode | null>(null)
+  /** AudioContext compartido: se crea al primer uso y vive con la escena. */
+  const audioContextRef = useRef<AudioContext | null>(null)
+  /** Búfer reutilizado por el analizador (no reservar 60 veces por segundo). */
+  const levelBufferRef = useRef<Uint8Array<ArrayBuffer> | null>(null)
+  /** Boca de cada personaje: el bucle de animación le escribe el nivel. */
+  const mouthARef = useRef<HTMLSpanElement | null>(null)
+  const mouthBRef = useRef<HTMLSpanElement | null>(null)
 
   const total = introduction.lines.length
   const line = introduction.lines[Math.min(index, total - 1)]
@@ -137,13 +176,40 @@ export function IntroductionPlayer({ introduction, cefrLevel, onFinish, onSkip }
   const speaker = introduction.characters.find(character => character.id === line?.speaker)
   const isLastLine = index >= total - 1
 
+  /**
+   * AudioContext compartido para analizar la voz. Devuelve null mientras el
+   * navegador lo mantenga suspendido (sin activación del usuario): en ese
+   * caso el audio se reproduce igual, sin pasar por el analizador, y la boca
+   * usa la animación sintética.
+   */
+  const ensureAudioContext = useCallback(async (): Promise<AudioContext | null> => {
+    if (!audioContextRef.current || audioContextRef.current.state === 'closed') {
+      try {
+        audioContextRef.current = new AudioContext()
+      } catch {
+        return null
+      }
+    }
+    const context = audioContextRef.current
+    if (context.state === 'suspended') {
+      try {
+        await context.resume()
+      } catch {
+        // Sin activación seguimos: la boca caerá a la animación sintética.
+      }
+    }
+    return context.state === 'running' ? context : null
+  }, [])
+
   /** Corta la voz actual (la del backend o la nativa). */
   const stopVoice = useCallback(() => {
     if (audioRef.current) {
       audioRef.current.pause()
       audioRef.current = null
     }
+    analyserRef.current = null
     window.speechSynthesis?.cancel()
+    setAudioPlaying(false)
   }, [])
 
   /** Reserva: la voz nativa del navegador, para móviles y equipos sin clave. */
@@ -152,23 +218,59 @@ export function IntroductionPlayer({ introduction, cefrLevel, onFinish, onSkip }
     const utterance = new SpeechSynthesisUtterance(text)
     utterance.lang = 'en-US'
     utterance.rate = 0.95
+    utterance.onstart = () => setAudioPlaying(true)
+    utterance.onend = () => setAudioPlaying(false)
+    utterance.onerror = () => setAudioPlaying(false)
     window.speechSynthesis.speak(utterance)
   }, [])
 
   /**
    * Lee una frase con la voz natural del backend. Si no hay clave, cuota o
    * red, cae a la voz nativa del navegador (si la tiene).
+   *
+   * El audio se enruta por un `AnalyserNode` para que la boca del personaje
+   * siga el volumen real de la voz. Si el AudioContext no arranca (política
+   * de autoplay) el audio suena igual y la boca se anima en sintético.
    */
   const speak = useCallback(
-    (text: string, role: 'A' | 'B') => {
+    async (text: string, role: 'A' | 'B') => {
       stopVoice()
       const audio = new Audio(speechUrl(text, role))
       audioRef.current = audio
-      audio.play().catch(() => {
-        if (audioRef.current === audio) speakNative(text)
-      })
+      audio.addEventListener('ended', () => setAudioPlaying(false))
+      audio.addEventListener('pause', () => setAudioPlaying(false))
+
+      const context = await ensureAudioContext()
+      // Mientras se preparaba el contexto pudo cambiar la frase: no pisar.
+      if (audioRef.current !== audio) return
+
+      if (context) {
+        try {
+          const source = context.createMediaElementSource(audio)
+          const analyser = context.createAnalyser()
+          analyser.fftSize = 512
+          analyser.smoothingTimeConstant = 0.55
+          source.connect(analyser)
+          analyser.connect(context.destination)
+          analyserRef.current = analyser
+        } catch (err) {
+          console.warn('[voz] No se pudo analizar el audio:', err)
+          analyserRef.current = null
+        }
+      }
+
+      try {
+        await audio.play()
+        if (audioRef.current === audio) setAudioPlaying(true)
+      } catch {
+        analyserRef.current = null
+        if (audioRef.current === audio) {
+          setAudioPlaying(false)
+          speakNative(text)
+        }
+      }
     },
-    [stopVoice, speakNative],
+    [stopVoice, speakNative, ensureAudioContext],
   )
 
   // Al cambiar de frase: se marca como no escrita y se lee si la voz está activa.
@@ -187,6 +289,55 @@ export function IntroductionPlayer({ introduction, cefrLevel, onFinish, onSkip }
     if (!voice || !nextLine) return
     fetch(speechUrl(nextLine.text, nextLine.speaker)).catch(() => {})
   }, [voice, nextLine])
+
+  /**
+   * Nivel actual de la boca (0-1): el volumen real de la voz si hay audio
+   * sonando, o la animación sintética si no (voz apagada, voz nativa o audio
+   * aún cargando).
+   */
+  const readMouthLevel = useCallback((): number => {
+    const analyser = analyserRef.current
+    if (!analyser) return syntheticMouthLevel(performance.now())
+
+    if (!levelBufferRef.current || levelBufferRef.current.length !== analyser.fftSize) {
+      levelBufferRef.current = new Uint8Array(analyser.fftSize)
+    }
+    const samples = levelBufferRef.current
+    analyser.getByteTimeDomainData(samples)
+    let sum = 0
+    for (const sample of samples) {
+      const value = (sample - 128) / 128
+      sum += value * value
+    }
+    const rms = Math.sqrt(sum / samples.length)
+    // El habla ronda 0,05-0,2 de RMS: se estira y se recorta a 0-1.
+    return Math.min(1, Math.max(0, (rms - 0.02) * 6))
+  }, [])
+
+  /**
+   * La boca se mueve mientras el personaje está entregando su frase: mientras
+   * se escribe el texto o mientras sigue sonando el audio. Se escribe la
+   * variable CSS directamente en el DOM para no re-renderizar a 60 fps.
+   */
+  const talkingRole =
+    !finished && speaker && (!lineComplete || audioPlaying) ? speaker.id : null
+
+  useEffect(() => {
+    if (!talkingRole) return
+    const mouthRef = talkingRole === 'A' ? mouthARef : mouthBRef
+
+    let raf = 0
+    const tick = () => {
+      mouthRef.current?.style.setProperty('--mouth-open', readMouthLevel().toFixed(3))
+      raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+
+    return () => {
+      cancelAnimationFrame(raf)
+      mouthRef.current?.style.setProperty('--mouth-open', '0')
+    }
+  }, [talkingRole, readMouthLevel])
 
   const advance = useCallback(() => {
     if (finished) return
@@ -279,6 +430,7 @@ export function IntroductionPlayer({ introduction, cefrLevel, onFinish, onSkip }
               character={character}
               speaking={!finished && speaker?.id === character.id}
               finished={finished}
+              mouthRef={character.id === 'A' ? mouthARef : mouthBRef}
             />
           ))}
         </div>
