@@ -115,7 +115,12 @@ export function IntroductionPlayer({ introduction, cefrLevel, onFinish, onSkip }
   const [index, setIndex] = useState(0)
   const [autoPlay, setAutoPlay] = useState(false)
   const [showTranslations, setShowTranslations] = useState(false)
-  const [voice, setVoice] = useState(false)
+  /**
+   * La narración empieza sonando: la primera frase se lee nada más montar la
+   * escena. El clic que abrió la misión da la activación que exige el
+   * navegador para reproducir audio.
+   */
+  const [voice, setVoice] = useState(true)
   const [finished, setFinished] = useState(false)
   /** Se pone a true cuando la frase actual termina de escribirse. */
   const [lineComplete, setLineComplete] = useState(false)
@@ -127,6 +132,8 @@ export function IntroductionPlayer({ introduction, cefrLevel, onFinish, onSkip }
   const total = introduction.lines.length
   const line = introduction.lines[Math.min(index, total - 1)]
   const nextLine = introduction.lines[index + 1]
+  const lineText = line?.text
+  const lineSpeaker = line?.speaker
   const speaker = introduction.characters.find(character => character.id === line?.speaker)
   const isLastLine = index >= total - 1
 
@@ -165,12 +172,15 @@ export function IntroductionPlayer({ introduction, cefrLevel, onFinish, onSkip }
   )
 
   // Al cambiar de frase: se marca como no escrita y se lee si la voz está activa.
+  // Las dependencias son el texto y el hablante, no el objeto `line`: si el
+  // padre vuelve a entregar la introducción (nuevo objeto con el mismo
+  // contenido), no debe repetirse la frase ni cortarse la que suena.
   useEffect(() => {
-    if (!line) return
+    if (!lineText || !lineSpeaker) return
     setLineComplete(false)
-    if (voiceRef.current) speak(line.text, line.speaker)
+    if (voiceRef.current) speak(lineText, lineSpeaker)
     return stopVoice
-  }, [line, speak, stopVoice])
+  }, [lineText, lineSpeaker, speak, stopVoice])
 
   // Precalienta el MP3 de la siguiente frase: al llegar, suena sin espera.
   useEffect(() => {
