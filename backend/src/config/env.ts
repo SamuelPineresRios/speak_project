@@ -5,6 +5,7 @@
  * muere al arrancar con un mensaje concreto, en lugar de fallar más tarde con
  * un error confuso en mitad de una petición.
  */
+import { resolve } from 'node:path'
 
 function required(name: string): string {
   const value = process.env[name]?.trim()
@@ -40,6 +41,21 @@ export const env = {
   anthropicApiKey: process.env.ANTHROPIC_API_KEY?.trim() || null,
   /** Modelo de Claude; por defecto Haiku 4.5 con snapshot fijado. */
   anthropicModel: process.env.ANTHROPIC_MODEL?.trim() || null,
+  /**
+   * Opcional: mientras esté vacía, las rutas de voz responden 503 y el
+   * navegador usa su voz nativa si la tiene.
+   */
+  elevenLabsApiKey: process.env.ELEVENLABS_API_KEY?.trim() || null,
+  /** Voz del personaje A (por defecto Sarah, femenina). */
+  elevenLabsVoiceA: process.env.ELEVENLABS_VOICE_A?.trim() || 'EXAVITQu4vr4xnSDxMaL',
+  /** Voz del personaje B (por defecto Adam, masculina). */
+  elevenLabsVoiceB: process.env.ELEVENLABS_VOICE_B?.trim() || 'pNInz6obpgDQGcFmaJgB',
+  /**
+   * Caché de audio en disco: cada frase distinta se sintetiza una sola vez y
+   * se reutiliza con todos los alumnos. Clave con el límite mensual de
+   * caracteres del plan gratuito.
+   */
+  ttsCacheDir: process.env.TTS_CACHE_DIR?.trim() || resolve(import.meta.dirname, '../../.cache/tts'),
   /** Emails con acceso a las métricas de administración (minúsculas). */
   adminEmails: (process.env.ADMIN_EMAILS ?? '')
     .split(',')

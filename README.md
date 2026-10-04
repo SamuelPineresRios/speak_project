@@ -107,6 +107,9 @@ Plantilla: `backend/.env.example`. **Ninguna** está versionada.
 | `NODE_ENV` | No | `development` \| `production` |
 | `ANTHROPIC_API_KEY` | No | Evaluación y tutor ([console.anthropic.com](https://console.anthropic.com/settings/keys)). Sin ella la app funciona: las rutas de IA responden `503` y el envío de misiones usa una evaluación de respaldo |
 | `ANTHROPIC_MODEL` | No | Modelo de Claude. Por defecto `claude-haiku-4-5-20251001` (snapshot fijado de Haiku 4.5) |
+| `ELEVENLABS_API_KEY` | No | Voz natural de la escena narrativa ([elevenlabs.io](https://elevenlabs.io/app/settings/api-keys)). Sin ella la escena usa la voz nativa del navegador. El audio se cachea en `backend/.cache/tts` |
+| `ELEVENLABS_VOICE_A` / `_B` | No | Voces de los dos personajes (ids de ElevenLabs). Por defecto Sarah y Adam |
+| `TTS_CACHE_DIR` | No | Directorio de la caché de audio (por defecto `backend/.cache/tts`) |
 | `ADMIN_EMAILS` | No | Emails (separados por coma) con acceso a `/api/admin/metrics` |
 
 El frontend **no usa variables de entorno**: habla siempre con `/api` en su mismo origen.

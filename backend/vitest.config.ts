@@ -24,6 +24,9 @@ export default defineConfig({
       DATABASE_URL: TEST_DATABASE_URL,
       JWT_SECRET: 'test-jwt-secret-de-al-menos-32-caracteres',
       ANTHROPIC_API_KEY: '',
+      // La caché de voz de los tests vive fuera del proyecto para no mezclarse
+      // con la de desarrollo (un MP3 falso cacheado se serviría en real).
+      TTS_CACHE_DIR: '/tmp/vox-tts-test',
       ADMIN_EMAILS: 'admin@vox.test',
     },
   },

@@ -18,6 +18,11 @@ function avatarUrl(name: string): string {
   return `https://api.dicebear.com/9.x/pixel-art/svg?seed=${encodeURIComponent(name)}`
 }
 
+/** URL del MP3 sintetizado por el backend (voz natural y cacheada). */
+function speechUrl(text: string, role: 'A' | 'B'): string {
+  return `/api/tts?voice=${role.toLowerCase()}&text=${encodeURIComponent(text)}`
+}
+
 /**
  * Identidad visual de cada rol: color del nombre, del texto y de la burbuja.
  * Son clases completas porque Tailwind no genera nombres construidos.
@@ -113,43 +118,72 @@ export function IntroductionPlayer({ introduction, cefrLevel, onFinish, onSkip }
   const [lineComplete, setLineComplete] = useState(false)
   const voiceRef = useRef(voice)
   voiceRef.current = voice
+  /** Audio en curso del backend; se corta al cambiar de frase. */
+  const audioRef = useRef<HTMLAudioElement | null>(null)
 
   const total = introduction.lines.length
   const line = introduction.lines[Math.min(index, total - 1)]
+  const nextLine = introduction.lines[index + 1]
   const speaker = introduction.characters.find(character => character.id === line?.speaker)
   const isLastLine = index >= total - 1
-  const canSpeak = typeof window !== 'undefined' && 'speechSynthesis' in window
 
-  /** Lee una frase en inglés con la voz del navegador. */
+  /** Corta la voz actual (la del backend o la nativa). */
+  const stopVoice = useCallback(() => {
+    if (audioRef.current) {
+      audioRef.current.pause()
+      audioRef.current = null
+    }
+    window.speechSynthesis?.cancel()
+  }, [])
+
+  /** Reserva: la voz nativa del navegador, para móviles y equipos sin clave. */
+  const speakNative = useCallback((text: string) => {
+    if (!('speechSynthesis' in window)) return
+    const utterance = new SpeechSynthesisUtterance(text)
+    utterance.lang = 'en-US'
+    utterance.rate = 0.95
+    window.speechSynthesis.speak(utterance)
+  }, [])
+
+  /**
+   * Lee una frase con la voz natural del backend. Si no hay clave, cuota o
+   * red, cae a la voz nativa del navegador (si la tiene).
+   */
   const speak = useCallback(
-    (text: string) => {
-      if (!canSpeak) return
-      window.speechSynthesis.cancel()
-      const utterance = new SpeechSynthesisUtterance(text)
-      utterance.lang = 'en-US'
-      utterance.rate = 0.95
-      window.speechSynthesis.speak(utterance)
+    (text: string, role: 'A' | 'B') => {
+      stopVoice()
+      const audio = new Audio(speechUrl(text, role))
+      audioRef.current = audio
+      audio.play().catch(() => {
+        if (audioRef.current === audio) speakNative(text)
+      })
     },
-    [canSpeak],
+    [stopVoice, speakNative],
   )
 
   // Al cambiar de frase: se marca como no escrita y se lee si la voz está activa.
   useEffect(() => {
     if (!line) return
     setLineComplete(false)
-    if (voiceRef.current) speak(line.text)
-    return () => window.speechSynthesis?.cancel()
-  }, [line, speak])
+    if (voiceRef.current) speak(line.text, line.speaker)
+    return stopVoice
+  }, [line, speak, stopVoice])
+
+  // Precalienta el MP3 de la siguiente frase: al llegar, suena sin espera.
+  useEffect(() => {
+    if (!voice || !nextLine) return
+    fetch(speechUrl(nextLine.text, nextLine.speaker)).catch(() => {})
+  }, [voice, nextLine])
 
   const advance = useCallback(() => {
     if (finished) return
     if (isLastLine) {
-      window.speechSynthesis?.cancel()
+      stopVoice()
       setFinished(true)
       return
     }
     setIndex(value => value + 1)
-  }, [finished, isLastLine])
+  }, [finished, isLastLine, stopVoice])
 
   // Modo automático: espera a que la frase termine de escribirse y deja un
   // margen de lectura antes de pasar a la siguiente.
@@ -172,24 +206,22 @@ export function IntroductionPlayer({ introduction, cefrLevel, onFinish, onSkip }
   }, [advance])
 
   const replay = () => {
-    window.speechSynthesis?.cancel()
+    stopVoice()
     setIndex(0)
     setFinished(false)
     setAutoPlay(false)
   }
 
   const toggleVoice = () => {
-    setVoice(value => {
-      const next = !value
-      if (next && line) speak(line.text)
-      else window.speechSynthesis?.cancel()
-      return next
-    })
+    const next = !voice
+    setVoice(next)
+    if (next && line) speak(line.text, line.speaker)
+    else stopVoice()
   }
 
   const readAloud = () => {
     if (!line) return
-    speak(line.text)
+    speak(line.text, line.speaker)
   }
 
   return (
@@ -266,19 +298,17 @@ export function IntroductionPlayer({ introduction, cefrLevel, onFinish, onSkip }
                         escribiendo…
                       </span>
                     )}
-                    {canSpeak && (
-                      <button
-                        onClick={readAloud}
-                        title="Escuchar esta frase"
-                        aria-label="Escuchar esta frase"
-                        className={cn(
-                          'transition-colors hover:text-white',
-                          speaker ? ROLE_THEME[speaker.id].label : 'text-cyan',
-                        )}
-                      >
-                        <Volume2 className="h-4 w-4" />
-                      </button>
-                    )}
+                    <button
+                      onClick={readAloud}
+                      title="Escuchar esta frase"
+                      aria-label="Escuchar esta frase"
+                      className={cn(
+                        'transition-colors hover:text-white',
+                        speaker ? ROLE_THEME[speaker.id].label : 'text-cyan',
+                      )}
+                    >
+                      <Volume2 className="h-4 w-4" />
+                    </button>
                   </div>
                 </div>
 
@@ -362,17 +392,15 @@ export function IntroductionPlayer({ introduction, cefrLevel, onFinish, onSkip }
             >
               <Languages className="h-3.5 w-3.5" /> Traducción
             </button>
-            {canSpeak && (
-              <button
-                onClick={toggleVoice}
-                className={cn(
-                  'px-3 py-2 rounded-lg border text-[11px] font-mono uppercase tracking-widest flex items-center gap-1.5 transition-colors',
-                  voice ? 'border-cyan/50 bg-cyan/10 text-cyan' : 'border-white/10 text-slate-300 hover:border-white/30',
-                )}
-              >
-                <Volume2 className="h-3.5 w-3.5" /> Voz {voice ? 'on' : 'off'}
-              </button>
-            )}
+            <button
+              onClick={toggleVoice}
+              className={cn(
+                'px-3 py-2 rounded-lg border text-[11px] font-mono uppercase tracking-widest flex items-center gap-1.5 transition-colors',
+                voice ? 'border-cyan/50 bg-cyan/10 text-cyan' : 'border-white/10 text-slate-300 hover:border-white/30',
+              )}
+            >
+              <Volume2 className="h-3.5 w-3.5" /> Voz {voice ? 'on' : 'off'}
+            </button>
             <button
               onClick={replay}
               className="px-3 py-2 rounded-lg border border-white/10 text-slate-300 hover:border-white/30 text-[11px] font-mono uppercase tracking-widest flex items-center gap-1.5"

@@ -112,17 +112,22 @@ Plantilla: `backend/.env.example`. Ver `README.md → Variables de entorno`.
 - **Ninguna credencial está en el repositorio.** Verificación:
 
   ```bash
-  git grep -nE "(sk-or-v1|sk-ant|eyJhbGciOi.*\.|service_role)"
+  git grep -nE "(sk-or-v1|sk-ant|sk_[0-9a-f]{40,}|eyJhbGciOi.*\.|service_role)"
   ```
 
 - El frontend no maneja secretos ni variables de entorno: sólo habla con `/api`.
+  El audio de la escena narrativa lo sintetiza el backend (`GET /api/tts`), que
+  requiere sesión; la clave de ElevenLabs nunca llega al navegador.
 
 ### Rotación de credenciales
 
 1. **Anthropic**: `https://console.anthropic.com/settings/keys`
-2. **`JWT_SECRET`**: `openssl rand -hex 32` (invalida todas las sesiones activas
+2. **ElevenLabs**: `https://elevenlabs.io/app/settings/api-keys`. Conviene
+   crearla **restringida** al permiso `text_to_speech` (lectura de cuenta y
+   listado de voces no hacen falta).
+3. **`JWT_SECRET`**: `openssl rand -hex 32` (invalida todas las sesiones activas
    — esperado)
-3. **PostgreSQL**: si `DATABASE_URL` llegó a versionarse, cambia la contraseña del
+4. **PostgreSQL**: si `DATABASE_URL` llegó a versionarse, cambia la contraseña del
    rol y actualiza la variable
 
 ---
@@ -132,7 +137,7 @@ Plantilla: `backend/.env.example`. Ver `README.md → Variables de entorno`.
 ```bash
 npm run typecheck    # tsc en shared, backend y frontend
 npm run lint         # ESLint (0 errores)
-npm test             # 96 tests de integración contra PostgreSQL
+npm test             # 115 tests de integración contra PostgreSQL
 npm run build        # build de producción del frontend
 ```
 
@@ -146,6 +151,8 @@ La suite está en `backend/tests/`:
 | `access-control.test.ts` | **matriz de IDOR y roles** |
 | `ai-flows.test.ts` | flujos de IA con el proveedor mockeado |
 | `introductions.test.ts` | generación única por misión, validación y permisos |
+| `skills.test.ts` | métricas reales del perfil |
+| `tts.test.ts` | caché de voz, validación del texto y error del proveedor |
 
 Comprobaciones manuales equivalentes:
 
@@ -171,4 +178,5 @@ Comprobaciones manuales equivalentes:
 | Sin rotación automática de claves | Ver §5. |
 | Autorización sólo a nivel de API | PostgreSQL se usa con un único rol compartido: la base de datos no distingue usuarios, así que el aislamiento depende de los guards de Express. A medio plazo: rol por usuario o row-level security. |
 | `/api/chat` confía en el cliente | El contexto de misión y el historial llegan en el body. Sólo afecta al propio alumno. Lo correcto es cargar la misión por `id` en el servidor. |
+| Cuota de voz sin límite por usuario | `GET /api/tts` exige sesión y tope de 300 caracteres, y la caché evita repetir frases, pero un alumno autenticado puede quemar la cuota mensual de ElevenLabs pidiendo textos únicos. Mitigación natural: el rate limiting del borde. |
 | DTOs sin tipar | El frontend consume la API con tipos sueltos (`any` en varios sitios); ESLint lo deja como aviso. Compartir los DTO en `@vox/shared` es la solución natural. |
