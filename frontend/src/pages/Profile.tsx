@@ -8,19 +8,51 @@ import { readJson } from '@/lib/api'
 
 interface Mission { id:string; title:string; description:string|null; cefr_level:string; status:string }
 
-// Mock data for skills since backend doesn't provide it yet
-const SKILLS_DATA = [
-  { subject: 'Vocabulary', A: 120, fullMark: 150 },
-  { subject: 'Grammar', A: 98, fullMark: 150 },
-  { subject: 'Reading', A: 86, fullMark: 150 },
-  { subject: 'Writing', A: 99, fullMark: 150 },
-  { subject: 'Comp.', A: 85, fullMark: 150 },
-  { subject: 'Speed', A: 65, fullMark: 150 },
-]
+/** Perfil de habilidades que calcula el backend desde las evaluaciones reales. */
+interface StudentSkills {
+  evaluated_responses: number
+  grammar: number | null
+  vocabulary: number | null
+  comprehension: number | null
+  writing: number | null
+  speed: number | null
+  top_structures: Array<{ structure: string; count: number }>
+}
+
+/**
+ * Ejes del radar. `reading` no está porque la app sólo mide escritura: no se
+ * inventa una nota de lectura.
+ */
+const SKILL_AXES = [
+  { key: 'vocabulary', subject: 'Vocabulary' },
+  { key: 'grammar', subject: 'Grammar' },
+  { key: 'comprehension', subject: 'Comp.' },
+  { key: 'writing', subject: 'Writing' },
+  { key: 'speed', subject: 'Speed' },
+] as const
+
+/** Nota global -> letra y estado, para no inventar una calificación fija. */
+function ratingFor(overall: number | null): string {
+  if (overall === null) return '—'
+  if (overall >= 90) return 'A+'
+  if (overall >= 80) return 'A'
+  if (overall >= 70) return 'B'
+  if (overall >= 60) return 'C'
+  if (overall >= 50) return 'D'
+  return 'E'
+}
+
+function statusFor(overall: number | null): string {
+  if (overall === null) return 'SIN DATOS'
+  if (overall >= 80) return 'OPTIMAL'
+  if (overall >= 60) return 'ESTABLE'
+  return 'EN ENTRENAMIENTO'
+}
 
 export default function ProfilePage() {
   const { user, refetch } = useAuth()
   const [missions, setMissions] = useState<Mission[]>([])
+  const [skills, setSkills] = useState<StudentSkills | null>(null)
   const [, setLoading] = useState(true)
   const [isEditing, setIsEditing] = useState(false)
   const [editName, setEditName] = useState('')
@@ -52,21 +84,40 @@ export default function ProfilePage() {
       return
     }
 
-    // Only fetch missions
-    fetch('/api/missions')
-      .then(readJson)
-      .then((missionsData) => {
+    // Misiones (para el log y la tasa) y perfil de habilidades real.
+    Promise.all([
+      fetch('/api/missions').then(readJson),
+      fetch(`/api/students/${user.id}/skills`).then(readJson),
+    ])
+      .then(([missionsData, skillsData]) => {
         setMissions(missionsData?.missions ?? [])
+        setSkills(skillsData ?? null)
         setLoading(false)
       })
       .catch((err) => {
-        console.error('Error loading missions:', err)
+        console.error('Error loading profile data:', err)
         setLoading(false)
       })
   }, [user?.id])
 
   const completedMissions = missions.filter(m => m.status === 'completed')
   const completionRate = missions.length > 0 ? Math.round((completedMissions.length / missions.length) * 100) : 0
+
+  // Sólo se pintan los ejes con datos: si aún no hay velocidad medida, no
+  // aparece como un cero que no es real.
+  const radarData = skills
+    ? SKILL_AXES
+        .filter(axis => typeof skills[axis.key] === 'number')
+        // `fullMark` fija la escala en 0-100: sin él, recharts se ajusta al
+        // valor máximo y una nota baja parecería alta.
+        .map(axis => ({ subject: axis.subject, A: skills[axis.key] as number, fullMark: 100 }))
+    : []
+
+  const measured = skills
+    ? SKILL_AXES.map(axis => skills[axis.key]).filter((value): value is number => typeof value === 'number')
+    : []
+  const overall = measured.length ? Math.round(measured.reduce((sum, value) => sum + value, 0) / measured.length) : null
+  const hasData = Boolean(skills && skills.evaluated_responses > 0)
 
   return (
     <div className="relative min-h-[100vh] w-full bg-black/90">
@@ -144,26 +195,43 @@ export default function ProfilePage() {
                  Neural_Sync_Status
                </h3>
                <span className="text-[10px] bg-purple-500/10 text-purple-400 px-2 py-1 rounded border border-purple-500/20">
-                  OPTIMAL
+                  {statusFor(overall)}
                </span>
             </div>
-            
-            <div className="h-[250px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <RadarChart cx="50%" cy="50%" outerRadius="80%" data={SKILLS_DATA}>
-                  <PolarGrid stroke="rgba(255,255,255,0.1)" />
-                  <PolarAngleAxis dataKey="subject" tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 10, fontFamily: 'monospace' }} />
-                  <Radar
-                    name="Skills"
-                    dataKey="A"
-                    stroke="#06b6d4"
-                    strokeWidth={2}
-                    fill="#06b6d4"
-                    fillOpacity={0.2}
-                  />
-                </RadarChart>
-              </ResponsiveContainer>
-            </div>
+
+            {hasData ? (
+              <>
+                <div className="h-[250px] w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <RadarChart cx="50%" cy="50%" outerRadius="80%" data={radarData}>
+                      <PolarGrid stroke="rgba(255,255,255,0.1)" />
+                      <PolarAngleAxis dataKey="subject" tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 10, fontFamily: 'monospace' }} />
+                      <Radar
+                        name="Skills"
+                        dataKey="A"
+                        stroke="#06b6d4"
+                        strokeWidth={2}
+                        fill="#06b6d4"
+                        fillOpacity={0.2}
+                      />
+                    </RadarChart>
+                  </ResponsiveContainer>
+                </div>
+                <p className="text-[10px] text-slate-500 text-center mt-2">
+                  Calculado con {skills?.evaluated_responses} respuesta(s) evaluada(s) · escala 0-100
+                </p>
+                <p className="text-[10px] text-slate-600 text-center mt-1">
+                  Lectura: sin datos — las misiones miden escritura, no lectura.
+                </p>
+              </>
+            ) : (
+              <div className="h-[250px] flex flex-col items-center justify-center gap-2 text-center">
+                <p className="text-xs text-slate-400 uppercase tracking-widest">Sin métricas todavía</p>
+                <p className="text-[11px] text-slate-500 max-w-xs">
+                  Completa una misión y sus notas de vocabulario, gramática, comprensión y velocidad aparecerán aquí.
+                </p>
+              </div>
+            )}
         </div>
       </div>
 
@@ -211,9 +279,11 @@ export default function ProfilePage() {
                   </div>
                   <span className="text-[10px] text-amber-500 font-bold border border-amber-500/30 px-2 py-0.5 rounded">RATING</span>
                </div>
-               <p className="text-3xl font-bold text-white mb-1">A+</p>
+               <p className="text-3xl font-bold text-white mb-1">{ratingFor(overall)}</p>
                <p className="text-[10px] text-slate-400 uppercase leading-relaxed">
-                  Completa mas misiones para mejorar tu calificacion.
+                  {overall === null
+                    ? 'Completa una misión para calcular tu calificación.'
+                    : `Media ${overall}/100 de tus ${skills?.evaluated_responses} respuestas evaluadas.`}
                </p>
             </div>
 
@@ -224,14 +294,22 @@ export default function ProfilePage() {
                         <TrendingUp className="w-4 h-4 text-emerald-300" />
                         <p className="text-[11px] uppercase tracking-wider text-slate-300 font-bold">Structures Tracker</p>
                      </div>
-                  <div className="flex flex-wrap gap-2">
-                     <span className="text-[10px] uppercase tracking-wide px-2 py-1 rounded border border-white/15 bg-white/5 text-slate-300">
-                        Vocabulary x5
-                     </span>
-                     <span className="text-[10px] uppercase tracking-wide px-2 py-1 rounded border border-white/15 bg-white/5 text-slate-300">
-                        Pronunciation x3
-                     </span>
-                  </div>
+                  {skills && skills.top_structures.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {skills.top_structures.map(({ structure, count }) => (
+                        <span
+                          key={structure}
+                          className="text-[10px] uppercase tracking-wide px-2 py-1 rounded border border-white/15 bg-white/5 text-slate-300"
+                        >
+                          {structure} x{count}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-[11px] text-slate-500">
+                      Aún no hay estructuras detectadas: aparecerán con tus próximas evaluaciones.
+                    </p>
+                  )}
                   </div>
          </div>
       </div>

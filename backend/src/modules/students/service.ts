@@ -216,6 +216,42 @@ function generateSuggestion(topStructures: Array<{ structure: string; count: num
 }
 
 /** Resumen de la sesión: tiempo de hoy, agregado semanal y estructuras top. */
+/**
+ * Estructuras gramaticales más detectadas en las últimas evaluaciones del
+ * alumno. Lo usan el resumen de sesión y el perfil de habilidades.
+ */
+async function topStructuresForStudent(
+  studentId: string,
+  limit: number,
+): Promise<Array<{ structure: string; count: number }>> {
+  const recentResponses = await db
+    .select({ id: responses.id })
+    .from(responses)
+    .where(eq(responses.student_id, studentId))
+    .orderBy(desc(responses.submitted_at))
+    .limit(20)
+
+  const responseIds = recentResponses.map(response => response.id)
+  const recentEvaluations = responseIds.length
+    ? await db
+        .select({ detected_structures: evaluations.detected_structures })
+        .from(evaluations)
+        .where(inArray(evaluations.response_id, responseIds))
+    : []
+
+  const frequency: Record<string, number> = {}
+  for (const evaluation of recentEvaluations) {
+    for (const structure of evaluation.detected_structures ?? []) {
+      frequency[structure] = (frequency[structure] ?? 0) + 1
+    }
+  }
+
+  return Object.entries(frequency)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, limit)
+    .map(([structure, count]) => ({ structure, count }))
+}
+
 export async function getSessionSummary(studentId: string, weekOffset: number) {
   const targetDate = new Date()
   targetDate.setDate(targetDate.getDate() - weekOffset * 7)
@@ -224,7 +260,7 @@ export async function getSessionSummary(studentId: string, weekOffset: number) {
   const todayStart = new Date()
   todayStart.setHours(0, 0, 0, 0)
 
-  const [weeklyRows, todayRows, recentResponses] = await Promise.all([
+  const [weeklyRows, todayRows] = await Promise.all([
     db
       .select()
       .from(weekly_aggregates)
@@ -243,35 +279,10 @@ export async function getSessionSummary(studentId: string, weekOffset: number) {
       .where(
         and(eq(responses.student_id, studentId), gte(responses.submitted_at, todayStart)),
       ),
-    db
-      .select({ id: responses.id })
-      .from(responses)
-      .where(eq(responses.student_id, studentId))
-      .orderBy(desc(responses.submitted_at))
-      .limit(20),
   ])
 
   const weekly = weeklyRows[0]
-  const responseIds = recentResponses.map(response => response.id)
-
-  const recentEvaluations = responseIds.length
-    ? await db
-        .select({ detected_structures: evaluations.detected_structures })
-        .from(evaluations)
-        .where(inArray(evaluations.response_id, responseIds))
-    : []
-
-  const frequency: Record<string, number> = {}
-  for (const evaluation of recentEvaluations) {
-    for (const structure of evaluation.detected_structures ?? []) {
-      frequency[structure] = (frequency[structure] ?? 0) + 1
-    }
-  }
-
-  const topStructures = Object.entries(frequency)
-    .sort(([, a], [, b]) => b - a)
-    .slice(0, 3)
-    .map(([structure, count]) => ({ structure, count }))
+  const topStructures = await topStructuresForStudent(studentId, 3)
 
   return {
     today_writing_seconds: todayRows[0]?.total ?? 0,
@@ -281,5 +292,69 @@ export async function getSessionSummary(studentId: string, weekOffset: number) {
     top_structures: topStructures,
     actionable_suggestion: generateSuggestion(topStructures),
     week_start_date: weekStartDate,
+  }
+}
+
+/** Habilidades medidas por la app, en la escala 0-100 del radar del perfil. */
+export interface StudentSkills {
+  /** Respuestas evaluadas que sustentan las métricas. */
+  evaluated_responses: number
+  grammar: number | null
+  vocabulary: number | null
+  comprehension: number | null
+  writing: number | null
+  speed: number | null
+  top_structures: Array<{ structure: string; count: number }>
+}
+
+function toScore(value: unknown): number | null {
+  // `Number(null)` es 0: sin esta guarda, "sin datos" se convertiría en un 0.
+  if (value === null || value === undefined) return null
+  const numeric = typeof value === 'number' ? value : Number(value)
+  return Number.isFinite(numeric) ? Math.round(numeric) : null
+}
+
+/**
+ * Perfil de habilidades real del alumno, calculado desde sus evaluaciones.
+ *
+ * - grammar / vocabulary / comprehension: medias de las tres notas que da el
+ *   evaluador en cada respuesta.
+ * - writing: media de esas tres notas (calidad global de la escritura).
+ * - speed: cuánto tarda frente a la duración prevista de la misión; 100 es
+ *   terminarla dentro del tiempo base.
+ *
+ * La app no tiene actividades de lectura, así que no hay nota de lectura: no
+ * se inventa.
+ */
+export async function getStudentSkills(studentId: string): Promise<StudentSkills> {
+  const [row] = await db
+    .select({
+      evaluated_responses: sql<number>`count(*)::int`,
+      grammar: sql<number | null>`avg(${evaluations.grammar_score})::float`,
+      vocabulary: sql<number | null>`avg(${evaluations.lexical_richness_score})::float`,
+      comprehension: sql<number | null>`avg(${evaluations.comprehensibility_score})::float`,
+      writing: sql<number | null>`avg((${evaluations.grammar_score} + ${evaluations.lexical_richness_score} + ${evaluations.comprehensibility_score}) / 3.0)::float`,
+      speed: sql<number | null>`avg(
+        CASE
+          WHEN ${responses.time_taken_seconds} > 0 AND ${missions.base_duration_seconds} > 0
+          THEN least(100, 100.0 * ${missions.base_duration_seconds} / ${responses.time_taken_seconds})
+        END
+      )::float`,
+    })
+    .from(responses)
+    .innerJoin(evaluations, eq(evaluations.response_id, responses.id))
+    .innerJoin(missions, eq(missions.id, responses.mission_id))
+    .where(eq(responses.student_id, studentId))
+
+  const topStructures = await topStructuresForStudent(studentId, 5)
+
+  return {
+    evaluated_responses: row?.evaluated_responses ?? 0,
+    grammar: toScore(row?.grammar),
+    vocabulary: toScore(row?.vocabulary),
+    comprehension: toScore(row?.comprehension),
+    writing: toScore(row?.writing),
+    speed: toScore(row?.speed),
+    top_structures: topStructures,
   }
 }

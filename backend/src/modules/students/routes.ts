@@ -8,6 +8,7 @@ import { HttpError } from '../../utils/http-error.ts'
 import { queryInt, routeParam } from '../../utils/route-params.ts'
 import {
   getSessionSummary,
+  getStudentSkills,
   getWeeklyStats,
   joinGroup,
   listStudentGroups,
@@ -45,6 +46,19 @@ studentsRouter.get('/:id/weekly-stats', requireAuth, async (req, res) => {
   if (!ownsResource(session, studentId, ['teacher'])) throw new HttpError(403, 'Forbidden')
 
   res.json(await getWeeklyStats(studentId))
+})
+
+/**
+ * Perfil de habilidades del alumno (radar del perfil). Sólo el propio alumno o
+ * sus profesores.
+ */
+studentsRouter.get('/:id/skills', requireAuth, async (req, res) => {
+  const session = sessionOf(req)
+  const studentId = routeParam(req, 'id')
+
+  if (!ownsResource(session, studentId, ['teacher'])) throw new HttpError(403, 'Forbidden')
+
+  res.json(await getStudentSkills(studentId))
 })
 
 studentsRouter.get('/:id/session-summary', requireAuth, async (req, res) => {
