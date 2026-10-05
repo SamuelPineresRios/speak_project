@@ -81,7 +81,10 @@ export function StudentSidebar() {
                     // color del área de contenido (slate-950, el que ya usan las
                     // páginas), sin borde visible, pegada al borde derecho y con
                     // las muescas curvas que dibujan las pseudoclases.
-                    "z-10 -mr-4 rounded-l-full rounded-r-none border border-transparent bg-slate-950 text-cyan before:bg-slate-950 after:bg-slate-950"
+                    // 17 px = los 16 del padding del nav + el 1 del `border-r`
+                    // del sidebar: la franja los cubre y su borde derecho queda
+                    // limpio, sin la línea, fundido con el contenido.
+                    "z-10 [margin-right:-17px] rounded-l-full rounded-r-none border border-transparent bg-slate-950 text-cyan before:bg-slate-950 after:bg-slate-950"
                   : "rounded-lg border border-transparent text-slate-400 hover:text-white hover:bg-white/5 before:bg-transparent after:bg-transparent",
               )}
             >
