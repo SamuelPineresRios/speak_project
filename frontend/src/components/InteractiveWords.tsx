@@ -13,6 +13,7 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { createPortal } from 'react-dom'
 import { BookmarkPlus, Check, Loader2, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { posLabel } from '@/lib/part-of-speech'
 
 export interface WordCard {
   id: string
@@ -29,10 +30,14 @@ export interface WordCard {
 /** Caché de la sesión: la misma palabra no se vuelve a pedir. */
 const cardCache = new Map<string, WordCard>()
 
-/** Separa palabras de signos, conservando todo (los grupos capturados). */
-const WORD_SPLIT = /([A-Za-z][A-Za-z'’-]*)/g
+/**
+ * Separa palabras de signos, conservando todo (los grupos capturados).
+ * `\p{L}` incluye tildes y eñes: sin eso, "Márquez" se partía en "M" + "rquez"
+ * y esos fragmentos acababan en el vocabulario.
+ */
+const WORD_SPLIT = /([\p{L}][\p{L}'’-]*)/gu
 /** Sin flag global: `test` con `g` es stateful y fallaría una de cada dos veces. */
-const IS_WORD = /^[A-Za-z][A-Za-z'’-]*$/
+const IS_WORD = /^[\p{L}][\p{L}'’-]*$/u
 
 const POPOVER_WIDTH = 288
 const MARGIN = 8
@@ -175,7 +180,7 @@ export function InteractiveWords({ text, context, className }: InteractiveWordsP
                 <p className="text-sm font-bold text-white truncate">{active.word}</p>
                 {card && (
                   <p className="text-[9px] uppercase tracking-widest text-slate-500">
-                    {card.part_of_speech}
+                    {posLabel(card.part_of_speech, false)}
                   </p>
                 )}
               </div>
