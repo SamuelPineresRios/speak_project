@@ -194,7 +194,7 @@ Operaciones agrupadas por módulo (`backend/src/modules/*/routes.ts`).
 | evaluations | `GET /api/evaluations/:id` |
 | responses | `GET /api/responses/:id` |
 | chat | `POST /api/chat` (roleplay y pistas) |
-| words | `POST /api/words/lookup` (traducción con caché) · `POST /api/words/warm` (calentado en segundo plano) · `POST /api/words` · `GET /api/words` · `DELETE /api/words/:id` |
+| words | `POST /api/words/lookup` (traducción con caché) · `POST /api/words/warm` (calentado en segundo plano) · `GET /api/words/pronunciation` (grabación libre de Wikimedia) · `POST /api/words` · `GET /api/words` · `DELETE /api/words/:id` |
 | admin | `GET /api/admin/metrics` |
 | — | `GET /health` (fuera de `/api`, sin sesión) |
 

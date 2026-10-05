@@ -27,6 +27,7 @@ export default defineConfig({
       // La caché de voz de los tests vive fuera del proyecto para no mezclarse
       // con la de desarrollo (un MP3 falso cacheado se serviría en real).
       TTS_CACHE_DIR: '/tmp/vox-tts-test',
+      PRONUNCIATION_CACHE_DIR: '/tmp/vox-pronunciation-test',
       ADMIN_EMAILS: 'admin@vox.test',
     },
   },

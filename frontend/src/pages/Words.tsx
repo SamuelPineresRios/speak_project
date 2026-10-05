@@ -313,6 +313,20 @@ export default function Words() {
                     La guardaste en: <span className="text-slate-400 italic">“{selected.context}”</span>
                   </p>
                 )}
+
+                {/* Atribución de las grabaciones (Wikimedia Commons es libre,
+                    pero pide citar la fuente). */}
+                <p className="text-[10px] text-slate-600">
+                  Pronunciación: grabaciones libres de{' '}
+                  <a
+                    href="https://commons.wikimedia.org"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="underline decoration-dotted hover:text-cyan transition-colors"
+                  >
+                    Wikimedia Commons
+                  </a>
+                </p>
               </section>
             )}
           </div>

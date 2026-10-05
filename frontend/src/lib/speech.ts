@@ -40,18 +40,41 @@ export function stopSpeaking(): void {
   window.speechSynthesis?.cancel()
 }
 
-/**
- * Pronuncia un texto. Si el backend no puede (sin clave, cuota o red), cae a
- * la voz nativa del navegador si la tiene.
- */
-export function speakText(text: string, role: 'A' | 'B' = 'A'): void {
-  stopSpeaking()
-  const audio = new Audio(speechUrl(text, role))
+/** URL de la grabación libre de una palabra (Wikimedia, cacheada en el backend). */
+export function pronunciationUrl(word: string): string {
+  return `/api/words/pronunciation?word=${encodeURIComponent(word)}`
+}
+
+/** Una sola palabra en inglés: ni frases, ni números, ni signos sueltos. */
+const SINGLE_WORD = /^[\p{L}][\p{L}'’-]*$/u
+
+function play(url: string, onFail: () => void): void {
+  const audio = new Audio(url)
   current = audio
   audio.addEventListener('ended', () => {
     if (current === audio) current = null
   })
   audio.play().catch(() => {
-    if (current === audio) speakNative(text)
+    if (current === audio) onFail()
   })
+}
+
+/** TTS del backend (ElevenLabs, cacheado) con reserva en la voz nativa. */
+function speakWithTts(text: string, role: 'A' | 'B'): void {
+  play(speechUrl(text, role), () => speakNative(text))
+}
+
+/**
+ * Pronuncia un texto. Para **palabras sueltas** usa primero la grabación
+ * humana y gratuita de Wikimedia; si no hay, cae al TTS del backend y luego a
+ * la voz nativa. Las frases van directas al TTS.
+ */
+export function speakText(text: string, role: 'A' | 'B' = 'A'): void {
+  stopSpeaking()
+  const word = text.trim()
+  if (SINGLE_WORD.test(word)) {
+    play(pronunciationUrl(word), () => speakWithTts(text, role))
+    return
+  }
+  speakWithTts(text, role)
 }

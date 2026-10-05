@@ -26,7 +26,8 @@ qué se decidió así** sin tener que reconstruirlo leyendo todo el código.
 - **Detalle** de cada palabra: traducción, presente / pasado / participio (si
   es verbo), ejemplos de uso con su traducción y la frase donde se guardó.
 - **Botón de sonido** en cada palabra de la lista y en el detalle («Escuchar»)
-  para oír cómo se pronuncia.
+  para oír cómo se pronuncia: usa grabaciones humanas y **gratuitas** de
+  Wikimedia (ver 5.6).
 - Borrado con protección de propiedad.
 
 **En segundo plano**
@@ -263,25 +264,48 @@ Traduce las categorías al español para la lista, el detalle y el popover
 (`verb → Verbo/Verbos`, `noun → Sustantivo/Sustantivos`…). Si el modelo
 devuelve una categoría desconocida, se capitaliza tal cual.
 
-### 5.6 `lib/speech.ts` — voz compartida
+### 5.6 Pronunciación: gratis con Wikimedia (`lib/speech.ts`)
 
-- `speechUrl(text, role)` construye la URL del MP3 del backend
-  (`/api/tts`, cacheado en disco por texto y voz).
-- `englishUtterance(text)` prepara un `SpeechSynthesisUtterance` en inglés
-  (`en-US`, ritmo 0.95).
-- `speakNative(text)` habla con la voz nativa del navegador.
-- `speakText(text, role)` es la función que usa el vocabulario: reproduce el
-  audio del backend y, si falla (sin clave, cuota o red), cae a la nativa.
-  Corta la reproducción anterior antes de empezar.
+Las **palabras sueltas** se pronuncian con grabaciones humanas y libres de
+Wikimedia (coste cero). Las **frases** de la escena siguen con el TTS del
+backend.
+
+Cadena de `speakText(text, role)`:
+
+1. Si es una sola palabra: `GET /api/words/pronunciation?word=…`, que sirve la
+   grabación cacheada de Wikimedia.
+2. Si no hay grabación (404) o falla: TTS del backend (`/api/tts`, ElevenLabs,
+   cacheado).
+3. Si tampoco: voz nativa del navegador (`speakNative`).
+
+Piezas del módulo:
+
+- `pronunciationUrl(word)` → endpoint de la grabación libre.
+- `speechUrl(text, role)` → endpoint del TTS (frases).
+- `englishUtterance(text)` → utterance en inglés (`en-US`, ritmo 0.95).
+- `speakNative(text)` → voz nativa.
+- `speakText(text, role)` → la cadena completa; corta lo anterior al empezar.
 
 La escena narrativa reutiliza `speechUrl` y `englishUtterance`, pero mantiene su
 propio `speakNative` porque además enciende el estado que mueve la boca.
 
-> En desarrollo la clave de ElevenLabs está desactivada por coste: un clic sobre
-> una palabra nueva pedirá el audio y recibirá `503`, así que sonará con la voz
-> nativa (en un Linux sin voces instaladas, silencio). Las palabras cuyo audio
-> ya está cacheado sí suenan. En producción, con la clave activa, cada palabra
-> se sintetiza una sola vez y queda en caché.
+#### Backend — `backend/src/modules/words/pronunciation.ts`
+
+- Busca en Wiktionary (`prop=images`) los audios de la palabra y **puntúa** los
+  ficheros por lo ingleses que son: `en-us-` (100), `en-uk`/`en-gb` (90),
+  otros `en-` (80-70), Lingua Libre inglés `LL-Q1860 (eng)-` (60).
+- Pide a Commons (`prop=videoinfo&viprop=derivatives`) el **MP3 transcodificado**
+  (si no lo hay, usa el original) y lo descarga.
+- Cachea el fichero en `backend/.cache/pronunciations/<palabra>.mp3` y sirve
+  `audio/mpeg` con caché de un año. Las palabras **sin grabación** dejan un
+  marcador `.none` para no repetir la búsqueda. Un fallo de red **no** deja
+  marcador: se reintenta más tarde.
+- La fecha del fichero es la de la descarga; el detalle muestra la atribución
+  («Pronunciación: grabaciones libres de Wikimedia Commons») porque las
+  licencias CC BY-SA lo piden.
+
+> Si algún día quieres TTS de pago también para palabras, basta invertir el
+> orden de la cadena en `speakText`; hoy la primera parada es la gratuita.
 
 ---
 
@@ -313,6 +337,7 @@ $5/MTok salida.
 | Palabra nueva | ~$0,0013 (≈ 700 tokens de entrada + ~110 de salida) |
 | Una escena (~50 palabras nuevas) | ~$0,06 la primera vez que alguien la abre |
 | Catálogo completo (75 misiones, ~3.000–4.000 palabras) | ~$4,5 repartido; ~$2,3 con Batch API |
+| Pronunciación de palabras (vocabulario) | **$0** (grabaciones de Wikimedia) |
 
 - Cada palabra se paga **una sola vez en la vida de la app** (caché global).
 - El calentado solo gasta por palabras que **aparecen en pantalla**; las que
@@ -450,12 +475,13 @@ backend/
   src/db/schema.ts                       # word_lookups, saved_words
   src/modules/words/prompts.ts           # prompt + esquema de la ficha
   src/modules/words/service.ts           # caché, calentado, vocabulario
+  src/modules/words/pronunciation.ts     # grabaciones libres (Wikimedia) + caché
   src/modules/words/routes.ts            # /api/words/*
   tests/words.test.ts                    # 16 casos
 frontend/src/
   lib/word-cache.ts                      # caché de sesión, extractWords, warmWords
   lib/part-of-speech.ts                  # categorías en español
-  lib/speech.ts                          # voz (backend + reserva nativa)
+  lib/speech.ts                          # voz (Wikimedia primero, TTS y nativa de reserva)
   components/InteractiveWords.tsx        # palabras interactivas + popover
   components/IntroductionPlayer.tsx      # escena: tipeo → interactivo + calentado
   components/MissionScreen.tsx           # chat: respuesta → interactivo + calentado
