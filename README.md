@@ -46,10 +46,10 @@ Un solo `npm install` en la raíz instala todo.
 │   │   ├── config/env.ts     # validación de entorno al arrancar
 │   │   ├── db/
 │   │   │   ├── client.ts     # pool de postgres.js + Drizzle
-│   │   │   ├── schema.ts     # las 12 tablas
+│   │   │   ├── schema.ts     # las 13 tablas
 │   │   │   └── errors.ts     # lectura de SQLSTATE
 │   │   ├── middleware/       # seguridad, sesión, autorización, errores
-│   │   ├── modules/          # auth, missions, introductions, teachers, students, words,
+│   │   ├── modules/          # auth, missions, introductions, vocabulary, teachers, students, words,
 │   │   │                     # evaluations, responses, chat, admin
 │   │   │                     #   routes.ts (HTTP) + service.ts (dominio)
 │   │   ├── lib/              # ai.ts (cliente de Anthropic)
@@ -84,7 +84,7 @@ cp backend/.env.example backend/.env.local           # rellena JWT_SECRET
 openssl rand -hex 32                                 # valor para JWT_SECRET
 
 # 4. Esquema
-npm run db:push -w @vox/backend                      # crea las 12 tablas en vox
+npm run db:push -w @vox/backend                      # crea las 13 tablas en vox
 npm run db:push:test -w @vox/backend                 # y en vox_test
 
 # 5. Arrancar API + web
@@ -189,6 +189,7 @@ Operaciones agrupadas por módulo (`backend/src/modules/*/routes.ts`).
 | auth | `POST /signup` · `POST /login` · `POST /logout` · `GET /me` · `PATCH /update-profile` |
 | missions | `GET /api/missions` · `GET /api/missions/:id` · `POST /:id/submit` · `POST /:id/mark-completed` |
 | introductions | `GET /api/missions/:id/introduction` (genera si falta) · `POST /:id/introduction/regenerate` (docentes) |
+| vocabulary | `GET /api/missions/:id/vocabulary` (genera las 7 palabras si faltan) · `POST /:id/vocabulary/regenerate` (docentes) |
 | students | `GET /api/students/groups` · `POST /join-group` · `GET /:id/weekly-stats` · `GET /:id/skills` · `GET /:id/activity` · `GET /:id/session-summary` |
 | teachers | `GET /api/teachers/groups` · `POST /groups/create` · `GET /groups/:id` · `GET /groups/:id/students` · `GET/POST /groups/:id/assign-mission` · `GET /students/:id/profile` |
 | evaluations | `GET /api/evaluations/:id` |
@@ -206,11 +207,12 @@ Operaciones agrupadas por módulo (`backend/src/modules/*/routes.ts`).
 
 ## Base de datos
 
-**12 tablas** en `backend/src/db/schema.ts`:
+**13 tablas** en `backend/src/db/schema.ts`:
 
-`users` · `missions` · `mission_introductions` · `narrative_states` · `groups` ·
-`group_members` · `mission_assignments` · `responses` · `evaluations` ·
-`weekly_aggregates` · `word_lookups` · `saved_words`
+`users` · `missions` · `mission_introductions` · `mission_vocabulary` ·
+`narrative_states` · `groups` · `group_members` · `mission_assignments` ·
+`responses` · `evaluations` · `weekly_aggregates` · `word_lookups` ·
+`saved_words`
 
 - Claves foráneas con `ON DELETE CASCADE`, y `SET NULL` donde la fila sobrevive al
   grupo (por ejemplo, una respuesta pertenece al alumno, no al grupo).

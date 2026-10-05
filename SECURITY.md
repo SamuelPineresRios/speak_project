@@ -180,6 +180,7 @@ Comprobaciones manuales equivalentes:
 | Sin rotación automática de claves | Ver §5. |
 | Autorización sólo a nivel de API | PostgreSQL se usa con un único rol compartido: la base de datos no distingue usuarios, así que el aislamiento depende de los guards de Express. A medio plazo: rol por usuario o row-level security. |
 | `/api/chat` confía en el cliente | El contexto de misión y el historial llegan en el body. Sólo afecta al propio alumno. Lo correcto es cargar la misión por `id` en el servidor. |
+| Generación de contenido por misión | `GET /api/missions/:id/introduction` y `GET /api/missions/:id/vocabulary` generan con IA la primera vez y cachean por misión (compartido entre alumnos); regenerar es de docentes. Coste acotado por misión, no por alumno. |
 | Consultas de vocabulario sin límite | `POST /api/words/lookup` genera una ficha con IA por palabra nueva (queda cacheada para todos) y `POST /api/words/warm` permite pedir hasta 60 de golpe para el calentado. Un alumno autenticado podría quemar créditos pidiendo palabras raras; el rate limiting del borde es la mitigación. |
 | Cuota de voz sin límite por usuario | `GET /api/tts` exige sesión y tope de 300 caracteres, y la caché evita repetir frases, pero un alumno autenticado puede quemar la cuota mensual de ElevenLabs pidiendo textos únicos. Mitigación natural: el rate limiting del borde. |
 | DTOs sin tipar | El frontend consume la API con tipos sueltos (`any` en varios sitios); ESLint lo deja como aviso. Compartir los DTO en `@vox/shared` es la solución natural. |

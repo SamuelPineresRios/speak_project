@@ -266,6 +266,40 @@ export const saved_words = pgTable(
   ],
 )
 
+/** Una palabra clave de la misión, con su actividad de selección. */
+export interface VocabularyWord {
+  /** Palabra en inglés, normalizada a minúsculas. */
+  word: string
+  /** Traducción correcta al español. */
+  translation: string
+  /** Exactamente 3 traducciones incorrectas pero verosímiles. */
+  distractors: string[]
+  /** Explicación corta en español del significado en esta situación. */
+  explanation: string
+}
+
+/**
+ * Vocabulario clave de una misión: las 7 palabras que el alumno repasa entre
+ * la escena narrativa y la conversación. Se genera una vez por misión y se
+ * comparte entre todos los alumnos, como la introducción.
+ */
+export const mission_vocabulary = pgTable(
+  'mission_vocabulary',
+  {
+    id: text('id').primaryKey(),
+    mission_id: text('mission_id')
+      .notNull()
+      .references(() => missions.id, { onDelete: 'cascade' }),
+    words: jsonb('words').$type<VocabularyWord[]>().notNull(),
+    generated_by: text('generated_by').notNull(),
+    /** Cada regeneración suma 1; no se guardan versiones antiguas. */
+    version: integer('version').notNull().default(1),
+    created_at: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updated_at: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex('mission_vocabulary_mission_key').on(t.mission_id)],
+)
+
 export const narrative_states = pgTable(
   'narrative_states',
   {

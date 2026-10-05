@@ -8,7 +8,7 @@
 import { randomUUID } from 'node:crypto'
 import { eq } from 'drizzle-orm'
 import type { MissionIntroduction } from '@vox/shared'
-import { completeChat } from '../../lib/ai.ts'
+import { AIProviderError, completeChat } from '../../lib/ai.ts'
 import { db } from '../../db/client.ts'
 import { missions, mission_introductions } from '../../db/schema.ts'
 import { HttpError } from '../../utils/http-error.ts'
@@ -97,11 +97,20 @@ function toSource(mission: typeof missions.$inferSelect): IntroductionSource {
  * es un fallo del proveedor, no del backend.
  */
 export async function generateIntroduction(source: IntroductionSource): Promise<MissionIntroduction> {
-  const content = await completeChat({
-    messages: [{ role: 'user', content: buildIntroductionPrompt(source) }],
-    schema: INTRODUCTION_SCHEMA,
-    maxTokens: 1600,
-  })
+  let content: string
+  try {
+    content = await completeChat({
+      messages: [{ role: 'user', content: buildIntroductionPrompt(source) }],
+      schema: INTRODUCTION_SCHEMA,
+      maxTokens: 1600,
+    })
+  } catch (err) {
+    // El proveedor caído no es un error inesperado del backend: 502.
+    if (err instanceof AIProviderError) {
+      throw new HttpError(502, 'El proveedor de IA no respondió')
+    }
+    throw err
+  }
 
   let parsed: unknown
   try {

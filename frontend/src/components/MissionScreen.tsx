@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { Timer } from './Timer'
 import { TypewriterMessage } from './TypewriterMessage'
 import { InteractiveWords } from './InteractiveWords'
+import { VocabularyQuiz } from './VocabularyQuiz'
 import { warmWords } from '@/lib/word-cache'
 import { GrammarToastStack, HeartMeter, type GrammarNotice } from './GrammarToast'
 import { StepHintStack, type StepHint } from './StepHintToast'
@@ -26,7 +27,7 @@ interface Mission {
 interface MissionScreenProps {
   mission: Mission; studentId: string; groupId?: string
 }
-    type MissionState = 'introduction' | 'preparation' | 'active' | 'submitting'
+    type MissionState = 'introduction' | 'vocabulary' | 'preparation' | 'active' | 'submitting'
 
 interface Message {
   role: 'user' | 'assistant' | 'system'
@@ -452,7 +453,7 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
               Reintentar
             </button>
             <button
-              onClick={() => setState('preparation')}
+              onClick={() => setState('vocabulary')}
               className="px-4 py-2 rounded-lg border border-white/15 text-slate-300 text-xs uppercase tracking-widest"
             >
               Continuar sin escena
@@ -466,13 +467,24 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
       <IntroductionPlayer
         introduction={introduction}
         cefrLevel={mission.cefr_level}
-        onFinish={() => setState('preparation')}
-        onSkip={() => setState('preparation')}
+        onFinish={() => setState('vocabulary')}
+        onSkip={() => setState('vocabulary')}
       />
     )
   }
 
-  // ── Fase 3: preparación ──────────────────────────────────────────────
+  // ── Fase 3: vocabulario clave (7 palabras de la escena) ──────────────
+  if (state === 'vocabulary') {
+    return (
+      <VocabularyQuiz
+        missionId={mission.id}
+        cefrLevel={mission.cefr_level}
+        onFinish={() => setState('preparation')}
+      />
+    )
+  }
+
+  // ── Fase 4: preparación ──────────────────────────────────────────────
   if (state === 'preparation') {
     const aiCharacter = introduction?.characters.find(character => character.played_by === 'ai')
     const studentCharacter = introduction?.characters.find(character => character.played_by === 'student')

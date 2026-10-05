@@ -21,6 +21,7 @@ import { responsesRouter } from './modules/responses/routes.ts'
 import { studentsRouter } from './modules/students/routes.ts'
 import { teachersRouter } from './modules/teachers/routes.ts'
 import { ttsRouter } from './modules/tts/routes.ts'
+import { vocabularyRouter } from './modules/vocabulary/routes.ts'
 import { wordsRouter } from './modules/words/routes.ts'
 
 export function createApp() {
@@ -46,6 +47,7 @@ export function createApp() {
   app.use('/api/auth', authRouter)
   app.use('/api/missions', missionsRouter)
   app.use('/api/missions', introductionsRouter)
+  app.use('/api/missions', vocabularyRouter)
   app.use('/api/students', studentsRouter)
   app.use('/api/teachers', teachersRouter)
   app.use('/api/evaluations', evaluationsRouter)
