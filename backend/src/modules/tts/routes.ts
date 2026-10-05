@@ -8,20 +8,11 @@
  * evita además pagar dos veces al proveedor por la misma frase.
  */
 import { Router } from 'express'
-import { env } from '../../config/env.ts'
 import { TTSProviderError } from '../../lib/elevenlabs.ts'
 import { requireAuth } from '../../middleware/require-auth.ts'
 import { getSpeech, normalizeVoice } from './service.ts'
 
 export const ttsRouter = Router()
-
-/**
- * Estado del servicio: el frontend lo consulta una vez por sesión para no
- * pedir audio cuando no hay clave (ni llenar la consola de 503). No sintetiza.
- */
-ttsRouter.get('/status', requireAuth, (_req, res) => {
-  res.json({ configured: Boolean(env.elevenLabsApiKey) })
-})
 
 ttsRouter.get('/', requireAuth, async (req, res) => {
   const text = typeof req.query.text === 'string' ? req.query.text : ''

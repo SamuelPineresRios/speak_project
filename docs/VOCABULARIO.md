@@ -25,9 +25,6 @@ qué se decidió así** sin tener que reconstruirlo leyendo todo el código.
   Adjetivos…): solo aparecen las categorías que existen.
 - **Detalle** de cada palabra: traducción, presente / pasado / participio (si
   es verbo), ejemplos de uso con su traducción y la frase donde se guardó.
-- **Botón de sonido** en cada palabra de la lista y en el detalle («Escuchar»)
-  para oír cómo se pronuncia: usa grabaciones humanas y **gratuitas** de
-  Wikimedia (ver 5.6).
 - Borrado con protección de propiedad.
 
 **En segundo plano**
@@ -255,92 +252,14 @@ popover (la página lo extiende con `saved_id`, `saved_at` y `context`).
   contador de la cabecera pasa a «N de M palabras».
 - Ruta `/words`, enlace **VOCABULARIO** en `StudentSidebar` y `/words` en
   `shared/src/routes.ts` (`STUDENT_PATHS`).
-- Fondo: `Canvas3DBackground` con el diseño por defecto de «grietas»
-  (`DEFAULT_CLUSTERS`), sin los sprites que sí llevan Perfil y Grupos.
+- Fondo: mismo envoltorio que Perfil y Grupos (`Canvas3DBackground` +
+  `ResponsiveBackgroundSprites`, contenido en `relative z-10`).
 
 ### 5.5 `lib/part-of-speech.ts`
 
 Traduce las categorías al español para la lista, el detalle y el popover
 (`verb → Verbo/Verbos`, `noun → Sustantivo/Sustantivos`…). Si el modelo
 devuelve una categoría desconocida, se capitaliza tal cual.
-
-### 5.6 Pronunciación: gratis con Wikimedia (`lib/speech.ts`)
-
-Las **palabras sueltas** se pronuncian con grabaciones humanas y libres de
-Wikimedia (coste cero). Las **frases** de la escena siguen con el TTS del
-backend.
-
-Cadena de `speakText(text, role)`:
-
-1. Si es una sola palabra: `GET /api/words/pronunciation?word=…`, que sirve la
-   grabación cacheada de Wikimedia.
-2. Si no hay grabación (404) o falla: TTS del backend (`/api/tts`, ElevenLabs,
-   cacheado).
-3. Si tampoco: voz nativa del navegador (`speakNative`).
-
-Piezas del módulo:
-
-- `pronunciationUrl(word)` → endpoint de la grabación libre.
-- `speechUrl(text, role)` → endpoint del TTS (frases).
-- `englishUtterance(text)` → utterance en inglés (`en-US`, ritmo 0.95).
-- `speakNative(text)` → voz nativa.
-- `speakText(text, role)` → la cadena completa; corta lo anterior al empezar.
-- `isTtsAvailable()` → pregunta **una vez por sesión** a `GET /api/tts/status` si
-  el backend tiene clave de voz. Sin clave no se pide audio (ni se llena la
-  consola de 503): se va directo a la nativa.
-
-La escena narrativa reutiliza `speechUrl` y `englishUtterance`, pero mantiene su
-propio `speakNative` porque además enciende el estado que mueve la boca.
-
-En el detalle de una palabra, **cada frase de ejemplo lleva su propio botón**.
-Las frases no existen como grabaciones libres (Wikimedia sólo tiene palabras y
-expresiones sueltas), así que van directas al TTS del backend y, si no está
-disponible, a la voz nativa. Con ElevenLabs apagado en desarrollo, para oírlas
-hace falta voz nativa en el sistema. En Linux son dos paquetes (`espeak-ng` es
-el motor y `speech-dispatcher` la capa que usa el navegador; en Arch/CachyOS
-`espeak-ng` es dependencia opcional, así que hay que nombrarlos ambos):
-
-```bash
-# Arch / CachyOS
-sudo pacman -S espeak-ng speech-dispatcher
-# Debian / Ubuntu
-sudo apt install espeak-ng speech-dispatcher
-```
-
-Después hay que reiniciar el navegador por completo. Si no arranca solo, el
-paquete de Arch trae `speech-dispatcher.socket` y `.service` de usuario:
-`systemctl --user enable --now speech-dispatcher.socket`. Las frases quedan
-cacheadas en disco cuando el TTS sí funciona.
-
-#### Backend — `backend/src/modules/words/pronunciation.ts`
-
-- Busca en Wiktionary (`prop=images`) los audios de la palabra y **puntúa** los
-  ficheros por lo ingleses que son: `en-us-` (100), `en-uk`/`en-gb` (90),
-  otros `en-` (80-70), Lingua Libre inglés `LL-Q1860 (eng)-` (60).
-- Pide a Commons (`prop=videoinfo&viprop=derivatives`) el **MP3 transcodificado**
-  (si no lo hay, usa el original) y lo descarga.
-- Cachea el fichero en `backend/.cache/pronunciations/<palabra>.mp3` y sirve
-  `audio/mpeg` con caché de un año. Las palabras **sin grabación** dejan un
-  marcador `.none` para no repetir la búsqueda. Un fallo de red **no** deja
-  marcador: se reintenta más tarde.
-- La fecha del fichero es la de la descarga; el detalle muestra la atribución
-  («Pronunciación: grabaciones libres de Wikimedia Commons») porque las
-  licencias CC BY-SA lo piden.
-
-> Si algún día quieres TTS de pago también para palabras, basta invertir el
-> orden de la cadena en `speakText`; hoy la primera parada es la gratuita.
-
-**Decisión para las frases**: voz nativa del sistema y, cuando esté configurado,
-el TTS del backend. Se evaluó un TTS neuronal local en el navegador
-(Piper/VITS en WebAssembly) y se descartó: gratis y offline, pero ~80 MB de
-descarga la primera vez (modelo de 60,3 MB + runtime ONNX 10,6 MB +
-fonemizador), 150-300 MB de RAM, CPU alta por frase y riesgo en móvil; y el
-modo rápido multihilo exige cabeceras COOP/COEP que hoy no están.
-
-**Si el equipo no tiene voces** (Linux sin `espeak-ng`, por ejemplo), la
-interfaz lo avisa con un aviso ámbar al pulsar reproducir, en vez de quedarse
-en silencio: `speakText` resuelve `true` solo si algo llegó a sonar y las
-cadenas viejas se abandonan con un contador de generación.
 
 ---
 
@@ -372,7 +291,6 @@ $5/MTok salida.
 | Palabra nueva | ~$0,0013 (≈ 700 tokens de entrada + ~110 de salida) |
 | Una escena (~50 palabras nuevas) | ~$0,06 la primera vez que alguien la abre |
 | Catálogo completo (75 misiones, ~3.000–4.000 palabras) | ~$4,5 repartido; ~$2,3 con Batch API |
-| Pronunciación de palabras (vocabulario) | **$0** (grabaciones de Wikimedia) |
 
 - Cada palabra se paga **una sola vez en la vida de la app** (caché global).
 - El calentado solo gasta por palabras que **aparecen en pantalla**; las que
@@ -510,13 +428,11 @@ backend/
   src/db/schema.ts                       # word_lookups, saved_words
   src/modules/words/prompts.ts           # prompt + esquema de la ficha
   src/modules/words/service.ts           # caché, calentado, vocabulario
-  src/modules/words/pronunciation.ts     # grabaciones libres (Wikimedia) + caché
   src/modules/words/routes.ts            # /api/words/*
   tests/words.test.ts                    # 16 casos
 frontend/src/
   lib/word-cache.ts                      # caché de sesión, extractWords, warmWords
   lib/part-of-speech.ts                  # categorías en español
-  lib/speech.ts                          # voz (Wikimedia primero, TTS y nativa de reserva)
   components/InteractiveWords.tsx        # palabras interactivas + popover
   components/IntroductionPlayer.tsx      # escena: tipeo → interactivo + calentado
   components/MissionScreen.tsx           # chat: respuesta → interactivo + calentado

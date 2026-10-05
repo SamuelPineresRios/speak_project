@@ -5,13 +5,12 @@
  * ejemplos), así que el detalle se pinta sin pedir nada más.
  */
 import { useEffect, useMemo, useState } from 'react'
-import { BookMarked, Loader2, Search, Trash2, Volume2, X } from 'lucide-react'
+import { BookMarked, Loader2, Search, Trash2, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Canvas3DBackground } from '@/components/Canvas3DBackground'
 import { readJson } from '@/lib/api'
 import { posLabel } from '@/lib/part-of-speech'
 import { type WordCard } from '@/lib/word-cache'
-import { speakText } from '@/lib/speech'
 
 /** Ficha del vocabulario: la misma tarjeta más los datos de guardado. */
 interface SavedWord extends WordCard {
@@ -50,8 +49,6 @@ export default function Words() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
-  /** Aviso cuando el equipo no tiene ninguna voz disponible. */
-  const [voiceNotice, setVoiceNotice] = useState<string | null>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -91,26 +88,6 @@ export default function Words() {
     })
   }, [words, query, posFilter])
 
-  // El aviso de «sin voz» se va solo a los pocos segundos.
-  useEffect(() => {
-    if (!voiceNotice) return
-    const timer = setTimeout(() => setVoiceNotice(null), 9000)
-    return () => clearTimeout(timer)
-  }, [voiceNotice])
-
-  /**
-   * Reproduce un texto y, si el equipo no tiene ninguna voz disponible (ni
-   * grabación, ni TTS, ni voces del sistema), lo dice en vez de callarse.
-   */
-  const pronounce = async (text: string) => {
-    const sounded = await speakText(text)
-    setVoiceNotice(
-      sounded
-        ? null
-        : 'Este equipo no tiene ninguna voz disponible. En Linux instala un motor de voz (espeak-ng + speech-dispatcher); o configura el TTS del backend.',
-    )
-  }
-
   const selected = useMemo(
     () => filtered.find(word => word.saved_id === selectedId) ?? filtered[0] ?? null,
     [filtered, selectedId],
@@ -136,15 +113,6 @@ export default function Words() {
   return (
     <div className="relative min-h-[100vh] w-full bg-black/90">
       <Canvas3DBackground className="opacity-60" />
-
-      {voiceNotice && (
-        <div
-          role="status"
-          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 max-w-md rounded-xl border border-amber/40 bg-slate-950/95 px-4 py-3 text-[11px] text-amber shadow-[0_0_25px_-8px_rgba(245,158,11,0.6)]"
-        >
-          {voiceNotice}
-        </div>
-      )}
 
       {/* Contenido */}
       <div className="relative z-10 min-h-screen p-8 font-mono max-w-6xl mx-auto space-y-8 animate-fade-in pt-16 lg:pt-8">
@@ -240,34 +208,22 @@ export default function Words() {
                 {filtered.map(word => {
                   const isActive = selected?.saved_id === word.saved_id
                   return (
-                    <div
+                    <button
                       key={word.saved_id}
+                      onClick={() => setSelectedId(word.saved_id)}
                       className={cn(
-                        'w-full rounded-xl border px-3 py-3 transition-colors flex items-center gap-2',
+                        'w-full text-left rounded-xl border px-4 py-3 transition-colors',
                         isActive
                           ? 'border-cyan/50 bg-cyan/10 shadow-[0_0_15px_-6px_rgba(6,182,212,0.6)]'
                           : 'border-white/10 bg-white/5 hover:border-white/25',
                       )}
                     >
-                      <button
-                        onClick={() => setSelectedId(word.saved_id)}
-                        className="flex-1 min-w-0 text-left"
-                      >
-                        <p className="text-sm font-bold text-white">{word.word}</p>
-                        <p className="text-xs text-slate-400 truncate">{word.translation}</p>
-                        <p className="text-[9px] uppercase tracking-widest text-slate-600 mt-1">
-                          {posLabel(word.part_of_speech)} · {formatSavedAt(word.saved_at)}
-                        </p>
-                      </button>
-                      <button
-                        onClick={() => void pronounce(word.word)}
-                        aria-label={`Escuchar ${word.word}`}
-                        title="Escuchar cómo suena"
-                        className="shrink-0 rounded-lg border border-white/10 p-2 text-slate-500 hover:text-cyan hover:border-cyan/40 transition-colors"
-                      >
-                        <Volume2 className="h-4 w-4" />
-                      </button>
-                    </div>
+                      <p className="text-sm font-bold text-white">{word.word}</p>
+                      <p className="text-xs text-slate-400 truncate">{word.translation}</p>
+                      <p className="text-[9px] uppercase tracking-widest text-slate-600 mt-1">
+                        {posLabel(word.part_of_speech)} · {formatSavedAt(word.saved_at)}
+                      </p>
+                    </button>
                   )
                 })}
 
@@ -289,24 +245,14 @@ export default function Words() {
                       {posLabel(selected.part_of_speech, false)}
                     </p>
                   </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    <button
-                      onClick={() => void pronounce(selected.word)}
-                      aria-label={`Escuchar ${selected.word}`}
-                      title="Escuchar cómo suena"
-                      className="flex items-center gap-1.5 rounded-lg border border-cyan/40 bg-cyan/10 px-3 py-2 text-[10px] font-mono uppercase tracking-widest text-cyan hover:bg-cyan/20 transition-colors"
-                    >
-                      <Volume2 className="h-4 w-4" /> Escuchar
-                    </button>
-                    <button
-                      onClick={() => remove(selected.saved_id)}
-                      disabled={deleting}
-                      aria-label="Quitar del vocabulario"
-                      className="shrink-0 rounded-lg border border-white/10 p-2 text-slate-500 hover:text-coral hover:border-coral/40 transition-colors disabled:opacity-40"
-                    >
-                      {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
-                    </button>
-                  </div>
+                  <button
+                    onClick={() => remove(selected.saved_id)}
+                    disabled={deleting}
+                    aria-label="Quitar del vocabulario"
+                    className="shrink-0 rounded-lg border border-white/10 p-2 text-slate-500 hover:text-coral hover:border-coral/40 transition-colors disabled:opacity-40"
+                  >
+                    {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                  </button>
                 </div>
 
                 <div className="rounded-xl border border-cyan/20 bg-cyan/5 px-4 py-3">
@@ -330,22 +276,9 @@ export default function Words() {
                     <p className="text-[10px] uppercase tracking-widest text-slate-400 mb-2">Ejemplos de uso</p>
                     <ul className="space-y-2">
                       {selected.examples.map((example, index) => (
-                        <li
-                          key={index}
-                          className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 flex items-start gap-2"
-                        >
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm text-white">{example.en}</p>
-                            <p className="text-xs text-slate-400 italic">{example.es}</p>
-                          </div>
-                          <button
-                            onClick={() => void pronounce(example.en)}
-                            aria-label={`Escuchar: ${example.en}`}
-                            title="Escuchar la frase"
-                            className="shrink-0 rounded-lg border border-white/10 p-2 text-slate-500 hover:text-cyan hover:border-cyan/40 transition-colors"
-                          >
-                            <Volume2 className="h-3.5 w-3.5" />
-                          </button>
+                        <li key={index} className="rounded-lg border border-white/10 bg-white/5 px-3 py-2">
+                          <p className="text-sm text-white">{example.en}</p>
+                          <p className="text-xs text-slate-400 italic">{example.es}</p>
                         </li>
                       ))}
                     </ul>
@@ -357,21 +290,6 @@ export default function Words() {
                     La guardaste en: <span className="text-slate-400 italic">“{selected.context}”</span>
                   </p>
                 )}
-
-                {/* Atribución de las grabaciones (Wikimedia Commons es libre,
-                    pero pide citar la fuente). */}
-                <p className="text-[10px] text-slate-600">
-                  Palabras: grabaciones libres de{' '}
-                  <a
-                    href="https://commons.wikimedia.org"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="underline decoration-dotted hover:text-cyan transition-colors"
-                  >
-                    Wikimedia Commons
-                  </a>
-                  . Frases: voz del navegador (o el TTS configurado).
-                </p>
               </section>
             )}
           </div>

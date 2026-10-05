@@ -1,7 +1,6 @@
 /**
  * Rutas del vocabulario (montadas en `/api/words`).
  *
- * - GET  /pronunciation -> grabación libre de una palabra (Wikimedia)
  * - POST /lookup     -> ficha de una palabra (hover de la escena y el chat)
  * - POST /warm       -> calienta en segundo plano las palabras en pantalla
  * - POST /            -> guarda la palabra en el vocabulario del alumno
@@ -11,7 +10,6 @@
 import { Router } from 'express'
 import { requireAuth, sessionOf } from '../../middleware/require-auth.ts'
 import { routeParam } from '../../utils/route-params.ts'
-import { getPronunciation } from './pronunciation.ts'
 import { deleteSavedWord, listSavedWords, lookupWord, saveWord, warmWords } from './service.ts'
 
 export const wordsRouter = Router()
@@ -34,24 +32,6 @@ wordsRouter.post('/', requireAuth, async (req, res) => {
   const session = sessionOf(req)
   const card = await saveWord(session.userId, req.body?.word, req.body?.context)
   res.status(201).json({ card })
-})
-
-/**
- * Pronunciación libre de una palabra (grabación de Wikimedia, cacheada en
- * disco). Responde 404 cuando no hay grabación para que el cliente pruebe
- * otra voz.
- */
-wordsRouter.get('/pronunciation', requireAuth, async (req, res) => {
-  const pronunciation = await getPronunciation(req.query.word)
-  if (!pronunciation) {
-    res.status(404).json({ error: 'Sin pronunciación' })
-    return
-  }
-
-  res.setHeader('Content-Type', pronunciation.contentType)
-  res.setHeader('Cache-Control', 'private, max-age=31536000, immutable')
-  res.setHeader('X-Pronunciation-Cache', pronunciation.cached ? 'hit' : 'miss')
-  res.send(pronunciation.audio)
 })
 
 wordsRouter.get('/', requireAuth, async (req, res) => {

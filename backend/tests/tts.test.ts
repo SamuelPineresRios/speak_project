@@ -92,22 +92,6 @@ describe('servicio de voz con caché', () => {
   })
 })
 
-describe('GET /api/tts/status', () => {
-  it('exige sesión', async () => {
-    expect((await request(app).get('/api/tts/status')).status).toBe(401)
-  })
-
-  it('informa de si hay clave configurada sin sintetizar nada', async () => {
-    const student = await signupActor(app, 'student')
-    const res = await student.agent.get('/api/tts/status')
-
-    expect(res.status).toBe(200)
-    // En los tests no hay clave de ElevenLabs.
-    expect(res.body).toEqual({ configured: false })
-    expect(mockedSynthesize).not.toHaveBeenCalled()
-  })
-})
-
 describe('GET /api/tts', () => {
   it('exige sesión', async () => {
     const res = await request(app).get('/api/tts').query({ text: 'Hello' })

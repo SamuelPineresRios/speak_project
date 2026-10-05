@@ -56,13 +56,6 @@ export const env = {
    * caracteres del plan gratuito.
    */
   ttsCacheDir: process.env.TTS_CACHE_DIR?.trim() || resolve(import.meta.dirname, '../../.cache/tts'),
-  /**
-   * Caché de pronunciaciones libres (grabaciones de Wikimedia Commons). No
-   * cuesta dinero: se descarga una vez por palabra y se sirve del disco.
-   */
-  pronunciationCacheDir:
-    process.env.PRONUNCIATION_CACHE_DIR?.trim() ||
-    resolve(import.meta.dirname, '../../.cache/pronunciations'),
   /** Emails con acceso a las métricas de administración (minúsculas). */
   adminEmails: (process.env.ADMIN_EMAILS ?? '')
     .split(',')
