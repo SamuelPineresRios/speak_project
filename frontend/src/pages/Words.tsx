@@ -11,16 +11,10 @@ import { ResponsiveBackgroundSprites } from '@/components/ResponsiveBackgroundSp
 import { Canvas3DBackground } from '@/components/Canvas3DBackground'
 import { readJson } from '@/lib/api'
 import { posLabel } from '@/lib/part-of-speech'
+import { type WordCard } from '@/lib/word-cache'
 
-interface WordCard {
-  id: string
-  word: string
-  translation: string
-  part_of_speech: string
-  present: string | null
-  past: string | null
-  past_participle: string | null
-  examples: Array<{ en: string; es: string }>
+/** Ficha del vocabulario: la misma tarjeta más los datos de guardado. */
+interface SavedWord extends WordCard {
   saved_id: string
   saved_at: string
   context: string | null
@@ -49,7 +43,7 @@ function VerbForm({ label, value }: { label: string; value: string | null }) {
 }
 
 export default function Words() {
-  const [words, setWords] = useState<WordCard[]>([])
+  const [words, setWords] = useState<SavedWord[]>([])
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [query, setQuery] = useState('')
   const [posFilter, setPosFilter] = useState('all')

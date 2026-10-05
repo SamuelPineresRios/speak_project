@@ -2,6 +2,7 @@
  * Rutas del vocabulario (montadas en `/api/words`).
  *
  * - POST /lookup     -> ficha de una palabra (hover de la escena y el chat)
+ * - POST /warm       -> calienta en segundo plano las palabras en pantalla
  * - POST /            -> guarda la palabra en el vocabulario del alumno
  * - GET  /            -> vocabulario completo, con fichas
  * - DELETE /:id       -> quita una palabra propia
@@ -9,7 +10,7 @@
 import { Router } from 'express'
 import { requireAuth, sessionOf } from '../../middleware/require-auth.ts'
 import { routeParam } from '../../utils/route-params.ts'
-import { deleteSavedWord, listSavedWords, lookupWord, saveWord } from './service.ts'
+import { deleteSavedWord, listSavedWords, lookupWord, saveWord, warmWords } from './service.ts'
 
 export const wordsRouter = Router()
 
@@ -17,6 +18,14 @@ wordsRouter.post('/lookup', requireAuth, async (req, res) => {
   const session = sessionOf(req)
   const card = await lookupWord(session.userId, req.body?.word, req.body?.context)
   res.json({ card })
+})
+
+/**
+ * Calentado: responde 202 sin esperar a la IA. El cliente lo llama al mostrar
+ * una escena o una respuesta, para que el hover encuentre la ficha hecha.
+ */
+wordsRouter.post('/warm', requireAuth, async (req, res) => {
+  res.status(202).json(await warmWords(req.body?.words))
 })
 
 wordsRouter.post('/', requireAuth, async (req, res) => {

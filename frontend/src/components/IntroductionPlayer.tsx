@@ -11,6 +11,7 @@ import type { IntroductionCharacter, MissionIntroduction } from '@vox/shared'
 import { cn } from '@/lib/utils'
 import { TypewriterMessage } from './TypewriterMessage'
 import { InteractiveWords } from './InteractiveWords'
+import { warmWords } from '@/lib/word-cache'
 
 /** Milisegundos que espera el modo automático tras terminar la frase. */
 const AUTOPLAY_NEXT_DELAY_MS = 2400
@@ -291,6 +292,16 @@ export function IntroductionPlayer({ introduction, cefrLevel, onFinish, onSkip }
     if (!voice || !nextLine) return
     fetch(speechUrl(nextLine.text, nextLine.speaker)).catch(() => {})
   }, [voice, nextLine])
+
+  /**
+   * Calienta en el backend las palabras de toda la escena mientras el alumno
+   * la lee: cuando pase el cursor, la ficha ya estará generada. Se manda el
+   * orden de aparición (primero las primeras líneas, que son las que antes se
+   * miran).
+   */
+  useEffect(() => {
+    warmWords([...introduction.lines.map(line => line.text), ...introduction.useful_expressions])
+  }, [introduction])
 
   /**
    * Nivel actual de la boca (0-1): el volumen real de la voz si hay audio

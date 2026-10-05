@@ -27,14 +27,28 @@ vi.mock('../src/lib/ai.ts', () => {
   }
 })
 
+import { eq } from 'drizzle-orm'
 import { completeChat } from '../src/lib/ai.ts'
 import { createApp } from '../src/app.ts'
-import { normalizeWord } from '../src/modules/words/service.ts'
+import { db } from '../src/db/client.ts'
+import { word_lookups } from '../src/db/schema.ts'
+import { MAX_WARM_WORDS, normalizeWord, warmQueueIdle } from '../src/modules/words/service.ts'
 import { resetDb } from './helpers/db.ts'
 import { signupActor } from './helpers/fixtures.ts'
 
 const app = createApp()
 const mockedCompleteChat = vi.mocked(completeChat)
+
+/** Espera a que el calentado (en segundo plano) deje la ficha en la tabla. */
+async function esperarFicha(word: string, timeout = 3000): Promise<void> {
+  const inicio = Date.now()
+  while (Date.now() - inicio < timeout) {
+    const rows = await db.select().from(word_lookups).where(eq(word_lookups.word, word))
+    if (rows.length > 0) return
+    await new Promise(resolve => setTimeout(resolve, 50))
+  }
+  throw new Error(`la ficha de "${word}" no se generó a tiempo`)
+}
 
 /** Ficha que devolvería el modelo para "help". */
 const HELP_CARD = JSON.stringify({
@@ -50,6 +64,9 @@ const HELP_CARD = JSON.stringify({
 })
 
 beforeEach(async () => {
+  // El calentado es en segundo plano: hay que dejarlo terminar antes de
+  // vaciar la base, o sus escrituras caerían en el test siguiente.
+  await warmQueueIdle()
   await resetDb()
   mockedCompleteChat.mockReset()
   mockedCompleteChat.mockResolvedValue(HELP_CARD)
@@ -104,6 +121,79 @@ describe('POST /api/words/lookup', () => {
 
     expect(mockedCompleteChat).toHaveBeenCalledTimes(1)
     expect(segunda.body.card.translation).toBe('ayudar')
+  })
+})
+
+describe('POST /api/words/warm', () => {
+  it('exige sesión', async () => {
+    const res = await request(app).post('/api/words/warm').send({ words: ['help'] })
+    expect(res.status).toBe(401)
+  })
+
+  it('solo genera las que faltan y responde al instante', async () => {
+    const student = await signupActor(app, 'student')
+    // Primera palabra ya cacheada por un lookup normal.
+    await student.agent.post('/api/words/lookup').send({ word: 'help' })
+    mockedCompleteChat.mockClear()
+
+    const res = await student.agent.post('/api/words/warm').send({ words: ['help', 'museum'] })
+
+    expect(res.status).toBe(202)
+    expect(res.body).toEqual({ pending: 1, cached: 1 })
+    await esperarFicha('museum')
+    expect(mockedCompleteChat).toHaveBeenCalledTimes(1)
+  })
+
+  it('recorta al tope de palabras por petición', async () => {
+    const student = await signupActor(app, 'student')
+    // Solo letras: los dígitos finales se recortan al normalizar ("word0" -> "word").
+    const words = Array.from({ length: MAX_WARM_WORDS + 5 }, (_, index) => {
+      const primera = String.fromCharCode(97 + Math.floor(index / 26))
+      const segunda = String.fromCharCode(97 + (index % 26))
+      return `zz${primera}${segunda}`
+    })
+
+    const res = await student.agent.post('/api/words/warm').send({ words })
+
+    expect(res.status).toBe(202)
+    expect(res.body.pending + res.body.cached).toBe(MAX_WARM_WORDS)
+  })
+
+  it('ignora entradas vacías, sin letras o que no son texto', async () => {
+    const student = await signupActor(app, 'student')
+
+    const res = await student.agent
+      .post('/api/words/warm')
+      .send({ words: ['   ', '¿?', 42, null, 'help'] })
+
+    expect(res.status).toBe(202)
+    expect(res.body.pending).toBe(1)
+  })
+
+  it('no genera dos veces la misma palabra si se calienta en paralelo', async () => {
+    const student = await signupActor(app, 'student')
+
+    await Promise.all([
+      student.agent.post('/api/words/warm').send({ words: ['help'] }),
+      student.agent.post('/api/words/warm').send({ words: ['help'] }),
+    ])
+    await esperarFicha('help')
+
+    expect(mockedCompleteChat).toHaveBeenCalledTimes(1)
+  })
+
+  it('después de calentar, el lookup sale de caché sin llamar a la IA', async () => {
+    const student = await signupActor(app, 'student')
+
+    await student.agent.post('/api/words/warm').send({ words: ['help'] })
+    await esperarFicha('help')
+    mockedCompleteChat.mockClear()
+
+    const res = await student.agent.post('/api/words/lookup').send({ word: 'help' })
+
+    expect(res.status).toBe(200)
+    expect(res.body.card.translation).toBe('ayudar')
+    expect(mockedCompleteChat).not.toHaveBeenCalled()
   })
 })
 

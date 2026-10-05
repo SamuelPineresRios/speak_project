@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { Timer } from './Timer'
 import { TypewriterMessage } from './TypewriterMessage'
 import { InteractiveWords } from './InteractiveWords'
+import { warmWords } from '@/lib/word-cache'
 import { GrammarToastStack, HeartMeter, type GrammarNotice } from './GrammarToast'
 import { StepHintStack, type StepHint } from './StepHintToast'
 import { cn } from '@/lib/utils'
@@ -140,6 +141,15 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
     setCurrentInput(failedMessage.content)
     setTimeout(() => textareaRef.current?.focus(), 100)
   }
+
+  /**
+   * Calienta las palabras de cada respuesta de la IA al aparecer, para que el
+   * hover las encuentre ya traducidas.
+   */
+  useEffect(() => {
+    const last = messages[messages.length - 1]
+    if (last?.role === 'assistant') warmWords([last.content])
+  }, [messages])
 
   const handleSendMessage = async () => {
     if (!currentInput.trim() || isThinking) return;

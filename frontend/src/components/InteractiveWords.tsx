@@ -14,21 +14,7 @@ import { createPortal } from 'react-dom'
 import { BookmarkPlus, Check, Loader2, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { posLabel } from '@/lib/part-of-speech'
-
-export interface WordCard {
-  id: string
-  word: string
-  translation: string
-  part_of_speech: string
-  present: string | null
-  past: string | null
-  past_participle: string | null
-  examples: Array<{ en: string; es: string }>
-  saved: boolean
-}
-
-/** Caché de la sesión: la misma palabra no se vuelve a pedir. */
-const cardCache = new Map<string, WordCard>()
+import { getCachedWord, setCachedWord, type WordCard } from '@/lib/word-cache'
 
 /**
  * Separa palabras de signos, conservando todo (los grupos capturados).
@@ -96,7 +82,7 @@ export function InteractiveWords({ text, context, className }: InteractiveWordsP
     setActive({ word, rect: element.getBoundingClientRect() })
     setError(null)
 
-    const cached = cardCache.get(key)
+    const cached = getCachedWord(key)
     if (cached) {
       setCard(cached)
       setLoading(false)
@@ -114,7 +100,7 @@ export function InteractiveWords({ text, context, className }: InteractiveWordsP
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data?.error ?? 'Error')
-      cardCache.set(key, data.card)
+      setCachedWord(key, data.card)
       if (requestId.current === id) setCard(data.card)
     } catch {
       if (requestId.current === id) setError('No se pudo traducir la palabra.')
@@ -135,7 +121,7 @@ export function InteractiveWords({ text, context, className }: InteractiveWordsP
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data?.error ?? 'Error')
-      cardCache.set(card.word, data.card)
+      setCachedWord(card.word, data.card)
       setCard(data.card)
     } catch {
       setError('No se pudo guardar la palabra.')
