@@ -107,7 +107,7 @@ export default function Words() {
     setVoiceNotice(
       sounded
         ? null
-        : 'Este equipo no tiene ninguna voz disponible. En Linux: sudo apt install espeak-ng speech-dispatcher; o configura el TTS del backend.',
+        : 'Este equipo no tiene ninguna voz disponible. En Linux instala un motor de voz (espeak-ng + speech-dispatcher); o configura el TTS del backend.',
     )
   }
 

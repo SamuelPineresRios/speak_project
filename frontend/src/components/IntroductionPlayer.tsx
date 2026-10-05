@@ -611,8 +611,8 @@ export function IntroductionPlayer({ introduction, cefrLevel, onFinish, onSkip }
         {voiceUnavailable && (
           <p role="status" className="text-[11px] text-amber leading-relaxed">
             Tu equipo no tiene voces instaladas y el TTS está apagado, así que la narración no
-            sonará. En Linux:{' '}
-            <code className="text-amber/80">sudo apt install espeak-ng speech-dispatcher</code>
+            sonará. En Linux instala un motor de voz: <code className="text-amber/80">espeak-ng</code>{' '}
+            + <code className="text-amber/80">speech-dispatcher</code>.
           </p>
         )}
 

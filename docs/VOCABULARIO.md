@@ -296,9 +296,21 @@ En el detalle de una palabra, **cada frase de ejemplo lleva su propio botón**.
 Las frases no existen como grabaciones libres (Wikimedia sólo tiene palabras y
 expresiones sueltas), así que van directas al TTS del backend y, si no está
 disponible, a la voz nativa. Con ElevenLabs apagado en desarrollo, para oírlas
-hace falta voz nativa en el sistema (en Linux: `sudo apt install espeak-ng
-speech-dispatcher`). Las frases quedan cacheadas en disco cuando el TTS sí
-funciona.
+hace falta voz nativa en el sistema. En Linux son dos paquetes (`espeak-ng` es
+el motor y `speech-dispatcher` la capa que usa el navegador; en Arch/CachyOS
+`espeak-ng` es dependencia opcional, así que hay que nombrarlos ambos):
+
+```bash
+# Arch / CachyOS
+sudo pacman -S espeak-ng speech-dispatcher
+# Debian / Ubuntu
+sudo apt install espeak-ng speech-dispatcher
+```
+
+Después hay que reiniciar el navegador por completo. Si no arranca solo, el
+paquete de Arch trae `speech-dispatcher.socket` y `.service` de usuario:
+`systemctl --user enable --now speech-dispatcher.socket`. Las frases quedan
+cacheadas en disco cuando el TTS sí funciona.
 
 #### Backend — `backend/src/modules/words/pronunciation.ts`
 
