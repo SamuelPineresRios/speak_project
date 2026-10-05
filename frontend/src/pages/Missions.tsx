@@ -123,7 +123,6 @@ export default function MissionsPage() {
         </div>
         <div className="flex flex-col items-end gap-2">
           <div className="flex items-center gap-3">
-             <Link to="/session-summary" className="text-[10px] uppercase tracking-wider text-slate-light hover:text-cyan transition-colors bg-white/5 px-2 py-1 rounded border border-white/5 hover:border-cyan/30">Stats</Link>
              <button onClick={logout} className="text-[10px] uppercase tracking-wider text-slate/50 hover:text-coral transition-colors px-2 py-1">Disconnect</button>
           </div>
           <div className="flex gap-1">
