@@ -83,8 +83,10 @@ export function StudentSidebar() {
                     // las muescas curvas que dibujan las pseudoclases.
                     // 17 px = los 16 del padding del nav + el 1 del `border-r`
                     // del sidebar: la franja los cubre y su borde derecho queda
-                    // limpio, sin la línea, fundido con el contenido.
-                    "z-10 [margin-right:-17px] rounded-l-full rounded-r-none border border-transparent bg-slate-950 text-cyan before:bg-slate-950 after:bg-slate-950"
+                    // limpio, sin la línea. El tinte cian es el del estado activo
+                    // de siempre, y va también en las muescas para que la curva
+                    // del borde derecho se lea contra el fondo del sidebar.
+                    "z-10 [margin-right:-17px] rounded-l-full rounded-r-none border border-transparent bg-cyan/10 text-cyan before:bg-cyan/10 after:bg-cyan/10"
                   : "rounded-lg border border-transparent text-slate-400 hover:text-white hover:bg-white/5 before:bg-transparent after:bg-transparent",
               )}
             >
