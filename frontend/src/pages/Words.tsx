@@ -7,7 +7,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { BookMarked, Loader2, Search, Trash2, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { Canvas3DBackground, type BackgroundCluster } from '@/components/Canvas3DBackground'
+import { Canvas3DBackground } from '@/components/Canvas3DBackground'
 import { readJson } from '@/lib/api'
 import { posLabel } from '@/lib/part-of-speech'
 import { type WordCard } from '@/lib/word-cache'
@@ -40,18 +40,6 @@ function VerbForm({ label, value }: { label: string; value: string | null }) {
     </div>
   )
 }
-
-/**
- * Redes de puntos unidos («grietas») del fondo de este módulo: una central más
- * grande y tres repartidas, para que el fondo se note. Perfil y Grupos siguen
- * con su nube sutil de siempre.
- */
-const WORDS_CLUSTERS: BackgroundCluster[] = [
-  { fx: 0.5, fy: 0.42, radius: 220, points: 18 },
-  { fx: 0.8, fy: 0.2, radius: 150, points: 13 },
-  { fx: 0.34, fy: 0.74, radius: 160, points: 15 },
-  { fx: 0.84, fy: 0.72, radius: 140, points: 12 },
-]
 
 export default function Words() {
   const [words, setWords] = useState<SavedWord[]>([])
@@ -124,7 +112,7 @@ export default function Words() {
 
   return (
     <div className="relative min-h-[100vh] w-full bg-black/90">
-      <Canvas3DBackground className="opacity-60" clusters={WORDS_CLUSTERS} />
+      <Canvas3DBackground className="opacity-60" />
 
       {/* Contenido */}
       <div className="relative z-10 min-h-screen p-8 font-mono max-w-6xl mx-auto space-y-8 animate-fade-in pt-16 lg:pt-8">

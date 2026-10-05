@@ -16,9 +16,21 @@ export interface BackgroundCluster {
   points?: number
 }
 
+/**
+ * Redes de puntos unidos («grietas») del fondo: una central más grande y tres
+ * repartidas. Es el diseño por defecto de todos los módulos que usan este
+ * componente (Misiones, Perfil, Grupos y Vocabulario).
+ */
+export const DEFAULT_CLUSTERS: BackgroundCluster[] = [
+  { fx: 0.5, fy: 0.42, radius: 220, points: 18 },
+  { fx: 0.8, fy: 0.2, radius: 150, points: 13 },
+  { fx: 0.34, fy: 0.74, radius: 160, points: 15 },
+  { fx: 0.84, fy: 0.72, radius: 140, points: 12 },
+]
+
 export function Canvas3DBackground({
   className,
-  clusters,
+  clusters = DEFAULT_CLUSTERS,
 }: {
   className?: string
   /** Configuración estable (constante del módulo): se lee al montar. */
@@ -65,7 +77,7 @@ export function Canvas3DBackground({
             return {
                 x: Math.cos(angulo) * distancia,
                 y: Math.sin(angulo) * distancia,
-                size: Math.random() * 1.4 + 1,
+                size: Math.random() * 1.8 + 1.4,
                 alpha: Math.random() * 0.5 + 0.5,
             }
         }),
@@ -156,7 +168,7 @@ export function Canvas3DBackground({
                 for (let j = i + 1; j < nodos.length; j++) {
                     const dist = Math.hypot(nodos[i].x - nodos[j].x, nodos[i].y - nodos[j].y)
                     if (dist < limite) {
-                        ctx.strokeStyle = `rgba(6, 182, 212, ${(0.45 * (1 - dist / limite)).toFixed(3)})`
+                        ctx.strokeStyle = `rgba(6, 182, 212, ${(0.65 * (1 - dist / limite)).toFixed(3)})`
                         ctx.beginPath()
                         ctx.moveTo(nodos[i].x, nodos[i].y)
                         ctx.lineTo(nodos[j].x, nodos[j].y)
