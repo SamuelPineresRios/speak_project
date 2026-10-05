@@ -11,6 +11,7 @@ import type { IntroductionCharacter, MissionIntroduction } from '@vox/shared'
 import { cn } from '@/lib/utils'
 import { TypewriterMessage } from './TypewriterMessage'
 import { InteractiveWords } from './InteractiveWords'
+import { Canvas3DBackground } from './Canvas3DBackground'
 import { warmWords } from '@/lib/word-cache'
 
 /** Milisegundos que espera el modo automático tras terminar la frase. */
@@ -406,6 +407,8 @@ export function IntroductionPlayer({ introduction, cefrLevel, onFinish, onSkip }
       {/* Fondo del escenario */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_35%,rgba(8,51,68,0.6)_0%,rgba(2,6,23,0.97)_100%)]" />
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#0e2a38_1px,transparent_1px),linear-gradient(to_bottom,#0e2a38_1px,transparent_1px)] bg-[size:56px_56px] opacity-20" />
+      {/* Las mismas «grietas» del resto de módulos, por encima del degradado */}
+      <Canvas3DBackground className="opacity-60" />
 
       {/* Cabecera */}
       <header className="relative z-10 shrink-0 flex items-center justify-between gap-4 px-6 py-4">
