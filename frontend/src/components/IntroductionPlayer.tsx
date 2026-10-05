@@ -12,17 +12,13 @@ import { cn } from '@/lib/utils'
 import { TypewriterMessage } from './TypewriterMessage'
 import { InteractiveWords } from './InteractiveWords'
 import { warmWords } from '@/lib/word-cache'
+import { englishUtterance, speechUrl } from '@/lib/speech'
 
 /** Milisegundos que espera el modo automático tras terminar la frase. */
 const AUTOPLAY_NEXT_DELAY_MS = 2400
 
 function avatarUrl(name: string): string {
   return `https://api.dicebear.com/9.x/pixel-art/svg?seed=${encodeURIComponent(name)}`
-}
-
-/** URL del MP3 sintetizado por el backend (voz natural y cacheada). */
-function speechUrl(text: string, role: 'A' | 'B'): string {
-  return `/api/tts?voice=${role.toLowerCase()}&text=${encodeURIComponent(text)}`
 }
 
 /**
@@ -218,9 +214,7 @@ export function IntroductionPlayer({ introduction, cefrLevel, onFinish, onSkip }
   /** Reserva: la voz nativa del navegador, para móviles y equipos sin clave. */
   const speakNative = useCallback((text: string) => {
     if (!('speechSynthesis' in window)) return
-    const utterance = new SpeechSynthesisUtterance(text)
-    utterance.lang = 'en-US'
-    utterance.rate = 0.95
+    const utterance = englishUtterance(text)
     utterance.onstart = () => setAudioPlaying(true)
     utterance.onend = () => setAudioPlaying(false)
     utterance.onerror = () => setAudioPlaying(false)

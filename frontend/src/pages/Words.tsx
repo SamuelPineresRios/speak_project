@@ -5,12 +5,13 @@
  * ejemplos), así que el detalle se pinta sin pedir nada más.
  */
 import { useEffect, useMemo, useState } from 'react'
-import { BookMarked, Loader2, Search, Trash2, X } from 'lucide-react'
+import { BookMarked, Loader2, Search, Trash2, Volume2, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Canvas3DBackground } from '@/components/Canvas3DBackground'
 import { readJson } from '@/lib/api'
 import { posLabel } from '@/lib/part-of-speech'
 import { type WordCard } from '@/lib/word-cache'
+import { speakText } from '@/lib/speech'
 
 /** Ficha del vocabulario: la misma tarjeta más los datos de guardado. */
 interface SavedWord extends WordCard {
@@ -208,22 +209,34 @@ export default function Words() {
                 {filtered.map(word => {
                   const isActive = selected?.saved_id === word.saved_id
                   return (
-                    <button
+                    <div
                       key={word.saved_id}
-                      onClick={() => setSelectedId(word.saved_id)}
                       className={cn(
-                        'w-full text-left rounded-xl border px-4 py-3 transition-colors',
+                        'w-full rounded-xl border px-3 py-3 transition-colors flex items-center gap-2',
                         isActive
                           ? 'border-cyan/50 bg-cyan/10 shadow-[0_0_15px_-6px_rgba(6,182,212,0.6)]'
                           : 'border-white/10 bg-white/5 hover:border-white/25',
                       )}
                     >
-                      <p className="text-sm font-bold text-white">{word.word}</p>
-                      <p className="text-xs text-slate-400 truncate">{word.translation}</p>
-                      <p className="text-[9px] uppercase tracking-widest text-slate-600 mt-1">
-                        {posLabel(word.part_of_speech)} · {formatSavedAt(word.saved_at)}
-                      </p>
-                    </button>
+                      <button
+                        onClick={() => setSelectedId(word.saved_id)}
+                        className="flex-1 min-w-0 text-left"
+                      >
+                        <p className="text-sm font-bold text-white">{word.word}</p>
+                        <p className="text-xs text-slate-400 truncate">{word.translation}</p>
+                        <p className="text-[9px] uppercase tracking-widest text-slate-600 mt-1">
+                          {posLabel(word.part_of_speech)} · {formatSavedAt(word.saved_at)}
+                        </p>
+                      </button>
+                      <button
+                        onClick={() => speakText(word.word)}
+                        aria-label={`Escuchar ${word.word}`}
+                        title="Escuchar cómo suena"
+                        className="shrink-0 rounded-lg border border-white/10 p-2 text-slate-500 hover:text-cyan hover:border-cyan/40 transition-colors"
+                      >
+                        <Volume2 className="h-4 w-4" />
+                      </button>
+                    </div>
                   )
                 })}
 
@@ -245,14 +258,24 @@ export default function Words() {
                       {posLabel(selected.part_of_speech, false)}
                     </p>
                   </div>
-                  <button
-                    onClick={() => remove(selected.saved_id)}
-                    disabled={deleting}
-                    aria-label="Quitar del vocabulario"
-                    className="shrink-0 rounded-lg border border-white/10 p-2 text-slate-500 hover:text-coral hover:border-coral/40 transition-colors disabled:opacity-40"
-                  >
-                    {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
-                  </button>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      onClick={() => speakText(selected.word)}
+                      aria-label={`Escuchar ${selected.word}`}
+                      title="Escuchar cómo suena"
+                      className="flex items-center gap-1.5 rounded-lg border border-cyan/40 bg-cyan/10 px-3 py-2 text-[10px] font-mono uppercase tracking-widest text-cyan hover:bg-cyan/20 transition-colors"
+                    >
+                      <Volume2 className="h-4 w-4" /> Escuchar
+                    </button>
+                    <button
+                      onClick={() => remove(selected.saved_id)}
+                      disabled={deleting}
+                      aria-label="Quitar del vocabulario"
+                      className="shrink-0 rounded-lg border border-white/10 p-2 text-slate-500 hover:text-coral hover:border-coral/40 transition-colors disabled:opacity-40"
+                    >
+                      {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                    </button>
+                  </div>
                 </div>
 
                 <div className="rounded-xl border border-cyan/20 bg-cyan/5 px-4 py-3">

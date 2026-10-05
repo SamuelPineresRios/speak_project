@@ -25,6 +25,8 @@ qué se decidió así** sin tener que reconstruirlo leyendo todo el código.
   Adjetivos…): solo aparecen las categorías que existen.
 - **Detalle** de cada palabra: traducción, presente / pasado / participio (si
   es verbo), ejemplos de uso con su traducción y la frase donde se guardó.
+- **Botón de sonido** en cada palabra de la lista y en el detalle («Escuchar»)
+  para oír cómo se pronuncia.
 - Borrado con protección de propiedad.
 
 **En segundo plano**
@@ -252,14 +254,34 @@ popover (la página lo extiende con `saved_id`, `saved_at` y `context`).
   contador de la cabecera pasa a «N de M palabras».
 - Ruta `/words`, enlace **VOCABULARIO** en `StudentSidebar` y `/words` en
   `shared/src/routes.ts` (`STUDENT_PATHS`).
-- Fondo: mismo envoltorio que Perfil y Grupos (`Canvas3DBackground` +
-  `ResponsiveBackgroundSprites`, contenido en `relative z-10`).
+- Fondo: `Canvas3DBackground` con el diseño por defecto de «grietas»
+  (`DEFAULT_CLUSTERS`), sin los sprites que sí llevan Perfil y Grupos.
 
 ### 5.5 `lib/part-of-speech.ts`
 
 Traduce las categorías al español para la lista, el detalle y el popover
 (`verb → Verbo/Verbos`, `noun → Sustantivo/Sustantivos`…). Si el modelo
 devuelve una categoría desconocida, se capitaliza tal cual.
+
+### 5.6 `lib/speech.ts` — voz compartida
+
+- `speechUrl(text, role)` construye la URL del MP3 del backend
+  (`/api/tts`, cacheado en disco por texto y voz).
+- `englishUtterance(text)` prepara un `SpeechSynthesisUtterance` en inglés
+  (`en-US`, ritmo 0.95).
+- `speakNative(text)` habla con la voz nativa del navegador.
+- `speakText(text, role)` es la función que usa el vocabulario: reproduce el
+  audio del backend y, si falla (sin clave, cuota o red), cae a la nativa.
+  Corta la reproducción anterior antes de empezar.
+
+La escena narrativa reutiliza `speechUrl` y `englishUtterance`, pero mantiene su
+propio `speakNative` porque además enciende el estado que mueve la boca.
+
+> En desarrollo la clave de ElevenLabs está desactivada por coste: un clic sobre
+> una palabra nueva pedirá el audio y recibirá `503`, así que sonará con la voz
+> nativa (en un Linux sin voces instaladas, silencio). Las palabras cuyo audio
+> ya está cacheado sí suenan. En producción, con la clave activa, cada palabra
+> se sintetiza una sola vez y queda en caché.
 
 ---
 
@@ -433,6 +455,7 @@ backend/
 frontend/src/
   lib/word-cache.ts                      # caché de sesión, extractWords, warmWords
   lib/part-of-speech.ts                  # categorías en español
+  lib/speech.ts                          # voz (backend + reserva nativa)
   components/InteractiveWords.tsx        # palabras interactivas + popover
   components/IntroductionPlayer.tsx      # escena: tipeo → interactivo + calentado
   components/MissionScreen.tsx           # chat: respuesta → interactivo + calentado
