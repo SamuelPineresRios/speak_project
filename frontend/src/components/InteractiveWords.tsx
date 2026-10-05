@@ -1,0 +1,233 @@
+/**
+ * Texto con palabras interactivas.
+ *
+ * Al pasar el cursor (o tocar, en móvil) sobre una palabra se muestra su
+ * traducción y un botón para guardarla en el vocabulario. La ficha la genera
+ * el backend y queda cacheada allí para todos; aquí se guarda además en
+ * memoria durante la sesión, así que repetir una palabra es instantáneo.
+ *
+ * El popover se monta en el body con posición fija: dentro de la escena hay
+ * transformaciones (scale) que romperían un `fixed` normal.
+ */
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
+import { createPortal } from 'react-dom'
+import { BookmarkPlus, Check, Loader2, X } from 'lucide-react'
+import { cn } from '@/lib/utils'
+
+export interface WordCard {
+  id: string
+  word: string
+  translation: string
+  part_of_speech: string
+  present: string | null
+  past: string | null
+  past_participle: string | null
+  examples: Array<{ en: string; es: string }>
+  saved: boolean
+}
+
+/** Caché de la sesión: la misma palabra no se vuelve a pedir. */
+const cardCache = new Map<string, WordCard>()
+
+/** Separa palabras de signos, conservando todo (los grupos capturados). */
+const WORD_SPLIT = /([A-Za-z][A-Za-z'’-]*)/g
+/** Sin flag global: `test` con `g` es stateful y fallaría una de cada dos veces. */
+const IS_WORD = /^[A-Za-z][A-Za-z'’-]*$/
+
+const POPOVER_WIDTH = 288
+const MARGIN = 8
+
+/** Coloca el popover encima de la palabra; si no cabe, debajo. */
+function popoverStyle(rect: DOMRect): CSSProperties {
+  const left = Math.min(
+    Math.max(MARGIN, rect.left + rect.width / 2 - POPOVER_WIDTH / 2),
+    window.innerWidth - POPOVER_WIDTH - MARGIN,
+  )
+  const fitsAbove = rect.top > 230
+  return fitsAbove
+    ? { left, bottom: window.innerHeight - rect.top + MARGIN, width: POPOVER_WIDTH }
+    : { left, top: rect.bottom + MARGIN, width: POPOVER_WIDTH }
+}
+
+interface InteractiveWordsProps {
+  text: string
+  /** Frase completa donde va la palabra: le da contexto a la traducción. */
+  context?: string
+  className?: string
+}
+
+export function InteractiveWords({ text, context, className }: InteractiveWordsProps) {
+  const [active, setActive] = useState<{ word: string; rect: DOMRect } | null>(null)
+  const [card, setCard] = useState<WordCard | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  /** Descarta respuestas de palabras que ya no están en pantalla. */
+  const requestId = useRef(0)
+
+  const cancelClose = () => {
+    if (closeTimer.current) clearTimeout(closeTimer.current)
+  }
+  const scheduleClose = () => {
+    cancelClose()
+    closeTimer.current = setTimeout(() => setActive(null), 220)
+  }
+  useEffect(() => cancelClose, [])
+
+  useEffect(() => {
+    if (!active) return
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setActive(null)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [active])
+
+  const openFor = async (word: string, element: HTMLElement) => {
+    cancelClose()
+    const key = word.toLowerCase()
+    setActive({ word, rect: element.getBoundingClientRect() })
+    setError(null)
+
+    const cached = cardCache.get(key)
+    if (cached) {
+      setCard(cached)
+      setLoading(false)
+      return
+    }
+
+    const id = ++requestId.current
+    setCard(null)
+    setLoading(true)
+    try {
+      const res = await fetch('/api/words/lookup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ word: key, context: context ?? text }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data?.error ?? 'Error')
+      cardCache.set(key, data.card)
+      if (requestId.current === id) setCard(data.card)
+    } catch {
+      if (requestId.current === id) setError('No se pudo traducir la palabra.')
+    } finally {
+      if (requestId.current === id) setLoading(false)
+    }
+  }
+
+  const save = async () => {
+    if (!card || card.saved || saving) return
+    setSaving(true)
+    setError(null)
+    try {
+      const res = await fetch('/api/words', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ word: card.word, context: context ?? text }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data?.error ?? 'Error')
+      cardCache.set(card.word, data.card)
+      setCard(data.card)
+    } catch {
+      setError('No se pudo guardar la palabra.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const parts = text.split(WORD_SPLIT)
+
+  return (
+    <span className={className}>
+      {parts.map((part, index) =>
+        IS_WORD.test(part) ? (
+          <span
+            key={index}
+            role="button"
+            tabIndex={0}
+            className="cursor-help underline decoration-dotted decoration-current/30 underline-offset-4 transition-colors hover:text-cyan hover:decoration-cyan"
+            onMouseEnter={event => openFor(part, event.currentTarget)}
+            onMouseLeave={scheduleClose}
+            onClick={event => openFor(part, event.currentTarget)}
+            onFocus={event => openFor(part, event.currentTarget)}
+          >
+            {part}
+          </span>
+        ) : (
+          <span key={index}>{part}</span>
+        ),
+      )}
+
+      {active &&
+        createPortal(
+          <div
+            onMouseEnter={cancelClose}
+            onMouseLeave={scheduleClose}
+            style={popoverStyle(active.rect)}
+            className="fixed z-[200] rounded-xl border border-cyan/30 bg-slate-950/95 backdrop-blur-md p-3 shadow-[0_10px_40px_-10px_rgba(6,182,212,0.5)] font-body animate-in fade-in zoom-in-95 duration-150"
+          >
+            <div className="flex items-start justify-between gap-2 mb-1">
+              <div className="min-w-0">
+                <p className="text-sm font-bold text-white truncate">{active.word}</p>
+                {card && (
+                  <p className="text-[9px] uppercase tracking-widest text-slate-500">
+                    {card.part_of_speech}
+                  </p>
+                )}
+              </div>
+              <button
+                onClick={() => setActive(null)}
+                aria-label="Cerrar"
+                className="text-slate-500 hover:text-white transition-colors shrink-0"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </div>
+
+            {loading && (
+              <p className="flex items-center gap-2 text-xs text-slate-400 py-1">
+                <Loader2 className="h-3.5 w-3.5 animate-spin" /> Traduciendo…
+              </p>
+            )}
+
+            {!loading && card && (
+              <>
+                <p className="text-base text-cyan-100">{card.translation}</p>
+                <button
+                  onClick={save}
+                  disabled={card.saved || saving}
+                  className={cn(
+                    'mt-2 w-full flex items-center justify-center gap-1.5 rounded-lg border px-2 py-1.5 text-[10px] font-mono uppercase tracking-widest transition-colors',
+                    card.saved
+                      ? 'border-emerald/40 bg-emerald/10 text-emerald cursor-default'
+                      : 'border-cyan/40 bg-cyan/10 text-cyan hover:bg-cyan/20',
+                  )}
+                >
+                  {card.saved ? (
+                    <>
+                      <Check className="h-3.5 w-3.5" /> Guardada
+                    </>
+                  ) : saving ? (
+                    <>
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" /> Guardando…
+                    </>
+                  ) : (
+                    <>
+                      <BookmarkPlus className="h-3.5 w-3.5" /> Guardar palabra
+                    </>
+                  )}
+                </button>
+              </>
+            )}
+
+            {!loading && error && <p className="text-xs text-coral">{error}</p>}
+          </div>,
+          document.body,
+        )}
+    </span>
+  )
+}

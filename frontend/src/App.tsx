@@ -14,6 +14,7 @@ import Missions from '@/pages/Missions'
 import Profile from '@/pages/Profile'
 import SessionSummary from '@/pages/SessionSummary'
 import Signup from '@/pages/Signup'
+import Words from '@/pages/Words'
 import StudentGroups from '@/pages/StudentGroups'
 import TeacherDashboardPage from '@/pages/TeacherDashboardPage'
 
@@ -43,6 +44,7 @@ export function App() {
             <Route path="/join-group" element={<JoinGroup />} />
             <Route path="/groups" element={<StudentGroups />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/words" element={<Words />} />
           </Route>
 
           <Route element={<ProtectedRoute teacherOnly />}>

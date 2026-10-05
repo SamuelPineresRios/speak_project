@@ -43,10 +43,10 @@ Un solo `npm install` en la raíz instala todo.
 │   │   ├── config/env.ts     # validación de entorno al arrancar
 │   │   ├── db/
 │   │   │   ├── client.ts     # pool de postgres.js + Drizzle
-│   │   │   ├── schema.ts     # las 13 tablas
+│   │   │   ├── schema.ts     # las 12 tablas
 │   │   │   └── errors.ts     # lectura de SQLSTATE
 │   │   ├── middleware/       # seguridad, sesión, autorización, errores
-│   │   ├── modules/          # auth, missions, introductions, teachers, students,
+│   │   ├── modules/          # auth, missions, introductions, teachers, students, words,
 │   │   │                     # evaluations, responses, chat, admin
 │   │   │                     #   routes.ts (HTTP) + service.ts (dominio)
 │   │   ├── lib/              # ai.ts (cliente de Anthropic)
@@ -81,7 +81,7 @@ cp backend/.env.example backend/.env.local           # rellena JWT_SECRET
 openssl rand -hex 32                                 # valor para JWT_SECRET
 
 # 4. Esquema
-npm run db:push -w @vox/backend                      # crea las 13 tablas en vox
+npm run db:push -w @vox/backend                      # crea las 12 tablas en vox
 npm run db:push:test -w @vox/backend                 # y en vox_test
 
 # 5. Arrancar API + web
@@ -179,18 +179,19 @@ turnos siguientes).
 
 ## API
 
-30 operaciones agrupadas por módulo (`backend/src/modules/*/routes.ts`).
+Operaciones agrupadas por módulo (`backend/src/modules/*/routes.ts`).
 
 | Módulo | Operaciones |
 |--------|-------------|
 | auth | `POST /signup` · `POST /login` · `POST /logout` · `GET /me` · `PATCH /update-profile` |
 | missions | `GET /api/missions` · `GET /api/missions/:id` · `POST /:id/submit` · `POST /:id/mark-completed` |
 | introductions | `GET /api/missions/:id/introduction` (genera si falta) · `POST /:id/introduction/regenerate` (docentes) |
-| students | `GET /api/students/groups` · `POST /join-group` · `GET /:id/weekly-stats` · `GET /:id/session-summary` |
+| students | `GET /api/students/groups` · `POST /join-group` · `GET /:id/weekly-stats` · `GET /:id/skills` · `GET /:id/activity` · `GET /:id/session-summary` |
 | teachers | `GET /api/teachers/groups` · `POST /groups/create` · `GET /groups/:id` · `GET /groups/:id/students` · `GET/POST /groups/:id/assign-mission` · `GET /students/:id/profile` |
 | evaluations | `GET /api/evaluations/:id` |
 | responses | `GET /api/responses/:id` |
 | chat | `POST /api/chat` (roleplay y pistas) |
+| words | `POST /api/words/lookup` (traducción con caché) · `POST /api/words` · `GET /api/words` · `DELETE /api/words/:id` |
 | admin | `GET /api/admin/metrics` |
 | — | `GET /health` (fuera de `/api`, sin sesión) |
 
@@ -202,16 +203,17 @@ turnos siguientes).
 
 ## Base de datos
 
-**13 tablas** en `backend/src/db/schema.ts`:
+**12 tablas** en `backend/src/db/schema.ts`:
 
 `users` · `missions` · `mission_introductions` · `narrative_states` · `groups` ·
 `group_members` · `mission_assignments` · `responses` · `evaluations` ·
-`weekly_aggregates`
+`weekly_aggregates` · `word_lookups` · `saved_words`
 
 - Claves foráneas con `ON DELETE CASCADE`, y `SET NULL` donde la fila sobrevive al
   grupo (por ejemplo, una respuesta pertenece al alumno, no al grupo).
 - Restricciones únicas en `email`, `access_code`, `(grupo, alumno)`,
-  `(alumno, semana)` y `evaluations.response_id`.
+  `(alumno, semana)`, `evaluations.response_id`, `word_lookups.word` y
+  `(alumno, ficha)` en `saved_words`.
 - Índices por patrón de consulta: `responses(student_id, submitted_at)`,
   `responses(student_id, submitted_at)`, etc.
 - Los campos se llaman **igual que las columnas** (`cefr_level`, `scene_context`),

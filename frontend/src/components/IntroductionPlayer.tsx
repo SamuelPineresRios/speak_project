@@ -10,6 +10,7 @@ import { Pause, Play, RotateCcw, Volume2, X, Languages, SkipForward } from 'luci
 import type { IntroductionCharacter, MissionIntroduction } from '@vox/shared'
 import { cn } from '@/lib/utils'
 import { TypewriterMessage } from './TypewriterMessage'
+import { InteractiveWords } from './InteractiveWords'
 
 /** Milisegundos que espera el modo automático tras terminar la frase. */
 const AUTOPLAY_NEXT_DELAY_MS = 2400
@@ -482,7 +483,11 @@ export function IntroductionPlayer({ introduction, cefrLevel, onFinish, onSkip }
                 </div>
 
                 <p className={cn('text-lg leading-relaxed', speaker ? ROLE_THEME[speaker.id].text : 'text-slate-100')}>
-                  <TypewriterMessage text={line.text} isActive speed={26} onComplete={() => setLineComplete(true)} />
+                  {lineComplete ? (
+                    <InteractiveWords text={line.text} context={line.text} />
+                  ) : (
+                    <TypewriterMessage text={line.text} isActive speed={26} onComplete={() => setLineComplete(true)} />
+                  )}
                 </p>
 
                 {showTranslations && lineComplete && (

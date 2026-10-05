@@ -21,6 +21,7 @@ import { responsesRouter } from './modules/responses/routes.ts'
 import { studentsRouter } from './modules/students/routes.ts'
 import { teachersRouter } from './modules/teachers/routes.ts'
 import { ttsRouter } from './modules/tts/routes.ts'
+import { wordsRouter } from './modules/words/routes.ts'
 
 export function createApp() {
   const app = express()
@@ -51,6 +52,7 @@ export function createApp() {
   app.use('/api/responses', responsesRouter)
   app.use('/api/chat', chatRouter)
   app.use('/api/tts', ttsRouter)
+  app.use('/api/words', wordsRouter)
   app.use('/api/admin', adminRouter)
 
   app.use(notFoundHandler)

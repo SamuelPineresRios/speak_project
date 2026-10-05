@@ -212,6 +212,60 @@ export const mission_introductions = pgTable(
   (t) => [uniqueIndex('mission_introductions_mission_key').on(t.mission_id)],
 )
 
+/** Frase de ejemplo de una palabra, con su traducción. */
+export interface WordExample {
+  en: string
+  es: string
+}
+
+/**
+ * Ficha de una palabra consultada (hover en la escena o el chat).
+ *
+ * La genera la IA una sola vez por palabra y se comparte entre todos los
+ * alumnos: sin esta caché, cada hover costaría una llamada al modelo.
+ */
+export const word_lookups = pgTable(
+  'word_lookups',
+  {
+    id: text('id').primaryKey(),
+    /** Palabra normalizada (minúsculas, sin puntuación): clave de la caché. */
+    word: text('word').notNull(),
+    translation: text('translation').notNull(),
+    /** 'verb', 'noun', 'adjective'...; decide si hay conjugación que mostrar. */
+    part_of_speech: text('part_of_speech').notNull(),
+    /** Formas verbales en inglés; null cuando la palabra no es un verbo. */
+    present: text('present'),
+    past: text('past'),
+    past_participle: text('past_participle'),
+    examples: jsonb('examples').$type<WordExample[]>().notNull(),
+    created_at: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex('word_lookups_word_key').on(t.word)],
+)
+
+/** Vocabulario personal: palabras que el alumno decidió guardar. */
+export const saved_words = pgTable(
+  'saved_words',
+  {
+    id: text('id').primaryKey(),
+    student_id: text('student_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    // La ficha es compartida; si algún día se borra, la palabra guardada cae.
+    word_lookup_id: text('word_lookup_id')
+      .notNull()
+      .references(() => word_lookups.id, { onDelete: 'cascade' }),
+    /** Frase donde la encontró; ayuda a recordar el sentido en contexto. */
+    context: text('context'),
+    created_at: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    // Guardar dos veces la misma palabra no crea dos entradas.
+    uniqueIndex('saved_words_student_word_key').on(t.student_id, t.word_lookup_id),
+    index('saved_words_student_idx').on(t.student_id, t.created_at),
+  ],
+)
+
 export const narrative_states = pgTable(
   'narrative_states',
   {

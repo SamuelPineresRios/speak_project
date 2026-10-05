@@ -3,6 +3,7 @@ import type { MissionIntroduction } from '@vox/shared'
 import { useNavigate } from 'react-router-dom'
 import { Timer } from './Timer'
 import { TypewriterMessage } from './TypewriterMessage'
+import { InteractiveWords } from './InteractiveWords'
 import { GrammarToastStack, HeartMeter, type GrammarNotice } from './GrammarToast'
 import { StepHintStack, type StepHint } from './StepHintToast'
 import { cn } from '@/lib/utils'
@@ -643,12 +644,17 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
                           )}>
                               {isUser ? (
                                   msg.content
-                              ) : (
-                                  <TypewriterMessage 
-                                      text={msg.content} 
-                                      isActive={isLastAssistantMessageTyping}
+                              ) : msg.role === 'system' ? (
+                                  msg.content
+                              ) : isLastAssistantMessageTyping ? (
+                                  <TypewriterMessage
+                                      text={msg.content}
+                                      isActive
                                       speed={30}
+                                      onComplete={() => setIsLastMessageTyping(false)}
                                   />
+                              ) : (
+                                  <InteractiveWords text={msg.content} context={msg.content} />
                               )}
                           </div>
 
