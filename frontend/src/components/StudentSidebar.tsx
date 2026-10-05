@@ -21,9 +21,7 @@ export function StudentSidebar() {
       {/* Mobile Top Bar */}
       <div className="lg:hidden fixed top-0 left-0 right-0 h-16 border-b border-white/10 bg-black/80 backdrop-blur-xl z-50 flex items-center justify-between px-4">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-[0_0_15px_rgba(6,182,212,0.5)]">
-            <span className="font-bold text-black font-display text-lg">L</span>
-          </div>
+          <img src="/Letoura_logo.png" alt="" className="h-8 w-8 object-contain" />
           <div>
             <h1 className="font-display font-bold text-lg tracking-wider text-white">Letoura</h1>
           </div>
@@ -52,9 +50,7 @@ export function StudentSidebar() {
         {/* Brand - hidden on mobile since it's in top bar */}
         <div className="p-6 border-b border-white/10 hidden lg:block">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded bg-gradient-to-br from-cyan to-blue-600 flex items-center justify-center shadow-[0_0_15px_rgba(6,182,212,0.5)]">
-            <span className="font-bold text-black font-display text-lg">L</span>
-          </div>
+          <img src="/Letoura_logo.png" alt="" className="h-8 w-8 object-contain" />
           <div>
             <h1 className="font-display font-bold text-lg tracking-wider text-white">Letoura</h1>
           </div>
