@@ -4,6 +4,9 @@ Plataforma de aprendizaje de inglés donde **escribir es el único camino para a
 Estudiantes completan misiones de conversación escritas, reciben evaluación de un LLM y
 reciben retroalimentación y los docentes crean grupos, asignan misiones y siguen el progreso.
 
+Documentación de funcionalidades: [`docs/VOCABULARIO.md`](docs/VOCABULARIO.md) — palabras
+interactivas, fichas con caché compartida, calentado en segundo plano y «Mi vocabulario».
+
 ---
 
 ## Stack
