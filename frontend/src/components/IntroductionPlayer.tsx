@@ -91,8 +91,9 @@ function CharacterStage({
         className={cn(
           // El ancho responde al viewport: en móvil manda el ancho de la
           // columna, en escritorio el alto de la pantalla (para que el busto
-          // nunca desplace la burbuja ni el pie en portátiles bajos).
-          'relative aspect-square w-[min(45vw,12rem,38vh)] sm:w-[min(30vw,24rem,40vh)] overflow-hidden rounded-2xl border-2 transition-all duration-500',
+          // nunca desplace la burbuja ni el pie en portátiles bajos). En
+          // pantallas altas se permite crecer más.
+          'relative aspect-square w-[min(46vw,12rem,40vh)] sm:w-[min(32vw,28rem,40vh)] [@media(min-height:840px)]:sm:w-[min(32vw,28rem,46vh)] overflow-hidden rounded-2xl border-2 transition-all duration-500',
           speaking ? theme.ring : 'border-white/10 opacity-55 grayscale',
         )}
       >
@@ -422,8 +423,8 @@ export function IntroductionPlayer({ introduction, cefrLevel, onFinish, onSkip }
 
       {/* Personajes: centrados verticalmente en el escenario, por encima de la
           burbuja (que vive en su propio bloque al pie). */}
-      <div className="relative z-10 flex-1 min-h-0 flex items-center justify-center px-3 sm:px-6 py-4">
-        <div className="grid w-full grid-cols-2 gap-2 sm:gap-16 items-end justify-items-center">
+      <div className="relative z-10 flex-1 min-h-0 flex items-center justify-center px-1 sm:px-6 py-4">
+        <div className="grid w-full grid-cols-2 gap-1 sm:gap-16 items-end justify-items-center">
           {introduction.characters.map(character => (
             <CharacterStage
               key={character.id}
