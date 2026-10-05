@@ -1,6 +1,29 @@
 import React, { useEffect, useRef } from 'react'
 
-export function Canvas3DBackground({ className }: { className?: string }) {
+/**
+ * Red de puntos unidos («grieta») en una zona concreta del fondo.
+ *
+ * La nube general de partículas se reparte sola y queda sutil; estas redes dan
+ * puntos de interés claros y controlables donde haga falta.
+ */
+export interface BackgroundCluster {
+  /** Centro en fracción del viewport (0-1), no en píxeles. */
+  fx: number
+  fy: number
+  /** Radio en píxeles. */
+  radius: number
+  /** Nodos de la red; por defecto 14. */
+  points?: number
+}
+
+export function Canvas3DBackground({
+  className,
+  clusters,
+}: {
+  className?: string
+  /** Configuración estable (constante del módulo): se lee al montar. */
+  clusters?: BackgroundCluster[]
+}) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
@@ -26,6 +49,27 @@ export function Canvas3DBackground({ className }: { className?: string }) {
             color: `hsla(${180 + Math.random() * 30}, 100%, 70%, Math.random())`
         })
     }
+
+    // Redes fijas de puntos unidos: nodos alrededor de un centro, con una
+    // rotación propia muy lenta. El centro se recalcula en cada fotograma
+    // (fracción del viewport), así el resize no las descoloca.
+    const graphs = (clusters ?? []).map(cluster => ({
+        fx: cluster.fx,
+        fy: cluster.fy,
+        radius: cluster.radius,
+        spin: (Math.random() - 0.5) * 0.00012,
+        nodes: Array.from({ length: cluster.points ?? 14 }, () => {
+            // sqrt para repartir por área y no amontonar en el centro
+            const angulo = Math.random() * Math.PI * 2
+            const distancia = Math.sqrt(Math.random()) * cluster.radius
+            return {
+                x: Math.cos(angulo) * distancia,
+                y: Math.sin(angulo) * distancia,
+                size: Math.random() * 1.4 + 1,
+                alpha: Math.random() * 0.5 + 0.5,
+            }
+        }),
+    }))
 
     let angleX = 0
     let angleY = 0
@@ -91,6 +135,44 @@ export function Canvas3DBackground({ className }: { className?: string }) {
             }
         }
 
+        // Redes de puntos unidos («grietas»): más marcadas que la nube general
+        const ahora = performance.now()
+        for (const graph of graphs) {
+            const cx = graph.fx * width
+            const cy = graph.fy * height
+            const giro = ahora * graph.spin
+            const cosG = Math.cos(giro)
+            const sinG = Math.sin(giro)
+            const nodos = graph.nodes.map(node => ({
+                x: cx + node.x * cosG - node.y * sinG,
+                y: cy + node.x * sinG + node.y * cosG,
+                size: node.size,
+                alpha: node.alpha,
+            }))
+
+            const limite = graph.radius * 0.6
+            ctx.lineWidth = 0.9
+            for (let i = 0; i < nodos.length; i++) {
+                for (let j = i + 1; j < nodos.length; j++) {
+                    const dist = Math.hypot(nodos[i].x - nodos[j].x, nodos[i].y - nodos[j].y)
+                    if (dist < limite) {
+                        ctx.strokeStyle = `rgba(6, 182, 212, ${(0.45 * (1 - dist / limite)).toFixed(3)})`
+                        ctx.beginPath()
+                        ctx.moveTo(nodos[i].x, nodos[i].y)
+                        ctx.lineTo(nodos[j].x, nodos[j].y)
+                        ctx.stroke()
+                    }
+                }
+            }
+
+            for (const nodo of nodos) {
+                ctx.beginPath()
+                ctx.arc(nodo.x, nodo.y, nodo.size, 0, Math.PI * 2)
+                ctx.fillStyle = `rgba(103, 232, 249, ${(0.85 * nodo.alpha).toFixed(3)})`
+                ctx.fill()
+            }
+        }
+
         animationFrameId = requestAnimationFrame(render)
     }
 
@@ -103,10 +185,10 @@ export function Canvas3DBackground({ className }: { className?: string }) {
 
     window.addEventListener('resize', handleResize)
     return () => {
-        window.removeEventListener('resize', handleResize)
-        cancelAnimationFrame(animationFrameId)
+      window.removeEventListener('resize', handleResize)
+      cancelAnimationFrame(animationFrameId)
     }
-  }, [])
+  }, [clusters])
 
   return (
     <canvas 
