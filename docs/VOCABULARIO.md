@@ -285,6 +285,9 @@ Piezas del módulo:
 - `englishUtterance(text)` → utterance en inglés (`en-US`, ritmo 0.95).
 - `speakNative(text)` → voz nativa.
 - `speakText(text, role)` → la cadena completa; corta lo anterior al empezar.
+- `isTtsAvailable()` → pregunta **una vez por sesión** a `GET /api/tts/status` si
+  el backend tiene clave de voz. Sin clave no se pide audio (ni se llena la
+  consola de 503): se va directo a la nativa.
 
 La escena narrativa reutiliza `speechUrl` y `englishUtterance`, pero mantiene su
 propio `speakNative` porque además enciende el estado que mueve la boca.

@@ -12,7 +12,7 @@ import { cn } from '@/lib/utils'
 import { TypewriterMessage } from './TypewriterMessage'
 import { InteractiveWords } from './InteractiveWords'
 import { warmWords } from '@/lib/word-cache'
-import { englishUtterance, speechUrl } from '@/lib/speech'
+import { englishUtterance, hasNativeVoice, isTtsAvailable, speechUrl } from '@/lib/speech'
 
 /** Milisegundos que espera el modo automático tras terminar la frase. */
 const AUTOPLAY_NEXT_DELAY_MS = 2400
@@ -151,6 +151,8 @@ export function IntroductionPlayer({ introduction, cefrLevel, onFinish, onSkip }
   const [finished, setFinished] = useState(false)
   /** Se pone a true cuando la frase actual termina de escribirse. */
   const [lineComplete, setLineComplete] = useState(false)
+  /** Ni TTS ni voces del sistema: se avisa en pantalla en vez de callarse. */
+  const [voiceUnavailable, setVoiceUnavailable] = useState(false)
   const voiceRef = useRef(voice)
   voiceRef.current = voice
   /** Audio en curso del backend; se corta al cambiar de frase. */
@@ -214,6 +216,11 @@ export function IntroductionPlayer({ introduction, cefrLevel, onFinish, onSkip }
   /** Reserva: la voz nativa del navegador, para móviles y equipos sin clave. */
   const speakNative = useCallback((text: string) => {
     if (!('speechSynthesis' in window)) return
+    // Sin ninguna voz instalada, hablar es imposible: se avisa una vez.
+    if (!hasNativeVoice()) {
+      setVoiceUnavailable(true)
+      return
+    }
     const utterance = englishUtterance(text)
     utterance.onstart = () => setAudioPlaying(true)
     utterance.onend = () => setAudioPlaying(false)
@@ -232,6 +239,11 @@ export function IntroductionPlayer({ introduction, cefrLevel, onFinish, onSkip }
   const speak = useCallback(
     async (text: string, role: 'A' | 'B') => {
       stopVoice()
+      // Sin TTS configurado no se pide audio al backend: directo a la nativa.
+      if (!(await isTtsAvailable())) {
+        speakNative(text)
+        return
+      }
       const audio = new Audio(speechUrl(text, role))
       audioRef.current = audio
       audio.addEventListener('ended', () => setAudioPlaying(false))
@@ -282,9 +294,16 @@ export function IntroductionPlayer({ introduction, cefrLevel, onFinish, onSkip }
   }, [lineText, lineSpeaker, speak, stopVoice])
 
   // Precalienta el MP3 de la siguiente frase: al llegar, suena sin espera.
+  // Sin TTS configurado no se pide nada.
   useEffect(() => {
     if (!voice || !nextLine) return
-    fetch(speechUrl(nextLine.text, nextLine.speaker)).catch(() => {})
+    let cancelled = false
+    void isTtsAvailable().then(available => {
+      if (available && !cancelled) fetch(speechUrl(nextLine.text, nextLine.speaker)).catch(() => {})
+    })
+    return () => {
+      cancelled = true
+    }
   }, [voice, nextLine])
 
   /**
@@ -588,6 +607,14 @@ export function IntroductionPlayer({ introduction, cefrLevel, onFinish, onSkip }
             </button>
           </div>
         </div>
+
+        {voiceUnavailable && (
+          <p role="status" className="text-[11px] text-amber leading-relaxed">
+            Tu equipo no tiene voces instaladas y el TTS está apagado, así que la narración no
+            sonará. En Linux:{' '}
+            <code className="text-amber/80">sudo apt install espeak-ng speech-dispatcher</code>
+          </p>
+        )}
 
         {finished && (
           <button

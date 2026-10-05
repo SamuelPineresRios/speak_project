@@ -70,6 +70,23 @@ function play(url: string): Promise<boolean> {
   })
 }
 
+/**
+ * ¿Tiene el backend el TTS configurado? Se pregunta una vez por sesión: sin
+ * clave, la escena y el vocabulario van directos a la voz nativa en lugar de
+ * pedir audio que responderá 503 (y llenar la consola de errores).
+ */
+let ttsProbe: Promise<boolean> | null = null
+
+export function isTtsAvailable(): Promise<boolean> {
+  if (!ttsProbe) {
+    ttsProbe = fetch('/api/tts/status')
+      .then(response => (response.ok ? response.json() : { configured: false }))
+      .then(data => Boolean((data as { configured?: boolean })?.configured))
+      .catch(() => false)
+  }
+  return ttsProbe
+}
+
 /** Una sola palabra en inglés: ni frases, ni números, ni signos sueltos. */
 const SINGLE_WORD = /^[\p{L}][\p{L}'’-]*$/u
 
@@ -89,7 +106,9 @@ export async function speakText(text: string, role: 'A' | 'B' = 'A'): Promise<bo
   const word = text.trim()
   if (SINGLE_WORD.test(word) && (await play(pronunciationUrl(word)))) return true
   if (!vigente()) return false
-  if (await play(speechUrl(text, role))) return true
-  if (!vigente()) return false
+  if (await isTtsAvailable()) {
+    if (await play(speechUrl(text, role))) return true
+    if (!vigente()) return false
+  }
   return speakNative(text)
 }
