@@ -2,11 +2,13 @@
  * Rutas HTTP de alumnos (montadas en `/api/students`).
  */
 import { Router } from 'express'
+import type { Request } from 'express'
 import { ownsResource } from '../../lib/authorization.ts'
 import { requireAuth, sessionOf } from '../../middleware/require-auth.ts'
 import { HttpError } from '../../utils/http-error.ts'
 import { queryInt, routeParam } from '../../utils/route-params.ts'
 import {
+  getDailyActivity,
   getSessionSummary,
   getStudentSkills,
   getWeeklyStats,
@@ -15,6 +17,19 @@ import {
 } from './service.ts'
 
 export const studentsRouter = Router()
+
+const DAY_PATTERN = /^\d{4}-\d{2}-\d{2}$/
+/** Tope del rango: un año largo. Evita consultas sin límite. */
+const MAX_RANGE_DAYS = 366
+
+/** Lee un parámetro de fecha `YYYY-MM-DD`; 400 si falta o está mal formado. */
+function queryDay(req: Request, name: string): string {
+  const value = req.query[name]
+  if (typeof value !== 'string' || !DAY_PATTERN.test(value) || Number.isNaN(Date.parse(value))) {
+    throw new HttpError(400, `${name} debe tener el formato YYYY-MM-DD`)
+  }
+  return value
+}
 
 studentsRouter.get('/groups', requireAuth, async (req, res) => {
   const session = sessionOf(req)
@@ -68,4 +83,27 @@ studentsRouter.get('/:id/session-summary', requireAuth, async (req, res) => {
   if (!ownsResource(session, studentId, ['teacher'])) throw new HttpError(403, 'Forbidden')
 
   res.json(await getSessionSummary(studentId, queryInt(req, 'week_offset', 0)))
+})
+
+/**
+ * Historial diario de actividad (misiones completadas, intentos y tiempo) del
+ * rango pedido. El cliente manda su zona horaria para que el día coincida con
+ * el suyo, no con el de la base de datos.
+ */
+studentsRouter.get('/:id/activity', requireAuth, async (req, res) => {
+  const session = sessionOf(req)
+  const studentId = routeParam(req, 'id')
+
+  if (!ownsResource(session, studentId, ['teacher'])) throw new HttpError(403, 'Forbidden')
+
+  const from = queryDay(req, 'from')
+  const to = queryDay(req, 'to')
+
+  if (from > to) throw new HttpError(400, 'from no puede ser posterior a to')
+  const rangeDays = (Date.parse(to) - Date.parse(from)) / 86_400_000
+  if (rangeDays > MAX_RANGE_DAYS) {
+    throw new HttpError(400, `El rango máximo es de ${MAX_RANGE_DAYS} días`)
+  }
+
+  res.json({ activity: await getDailyActivity(studentId, from, to, req.query.tz) })
 })

@@ -192,6 +192,75 @@ export async function getWeeklyStats(studentId: string) {
   }
 }
 
+/** Un día del historial de actividad. */
+export interface DailyActivity {
+  /** Fecha local del alumno en formato `YYYY-MM-DD`. */
+  date: string
+  /** Misiones completadas ese día (sin repetir una misma misión). */
+  missions: number
+  /** Envíos totales, incluidos los que no llegaron al umbral. */
+  attempts: number
+  /** Segundos de escritura sumados ese día. */
+  seconds: number
+}
+
+/** Zona horaria IANA válida, o null para usar la de la base de datos. */
+function safeTimeZone(value: unknown): string | null {
+  if (typeof value !== 'string' || value.length === 0 || value.length > 64) return null
+  try {
+    new Intl.DateTimeFormat('en-US', { timeZone: value })
+    return value
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Actividad diaria del alumno entre dos fechas (ambas incluidas).
+ *
+ * El día se calcula en la zona horaria que manda el cliente: sin ella, un
+ * envío de las 20:00 en Bogotá contaría al día siguiente si la base de datos
+ * vive en UTC.
+ *
+ * `missions` cuenta misiones completadas sin repetir dentro del mismo día
+ * (reintentar una misión no infla el historial); `attempts` cuenta todos los
+ * envíos, para distinguir "lo intenté tres veces" de "hice tres misiones".
+ */
+export async function getDailyActivity(
+  studentId: string,
+  from: string,
+  to: string,
+  timezone?: unknown,
+): Promise<DailyActivity[]> {
+  const tz = safeTimeZone(timezone)
+  // `::text` no es decorativo: `AT TIME ZONE $n` admite texto o intervalo y
+  // Postgres no puede inferir el tipo de un parámetro sin castigar en una
+  // consulta preparada (error "could not determine data type").
+  const day = tz
+    ? sql`((${responses.submitted_at} AT TIME ZONE ${tz}::text)::date)`
+    : sql`(${responses.submitted_at}::date)`
+
+  return db
+    .select({
+      date: sql<string>`to_char(${day}, 'YYYY-MM-DD')`,
+      missions: sql<number>`(count(distinct ${responses.mission_id}) filter (where ${responses.status} = 'completed'))::int`,
+      attempts: sql<number>`count(*)::int`,
+      seconds: sql<number>`coalesce(sum(${responses.time_taken_seconds}), 0)::int`,
+    })
+    .from(responses)
+    .where(
+      and(
+        eq(responses.student_id, studentId),
+        sql`${day} BETWEEN ${from}::date AND ${to}::date`,
+      ),
+    )
+    // Por posición, no repitiendo la expresión: cada incrustación de `day`
+    // lleva su propio parámetro ($1, $3...), y Postgres no reconoce que
+    // `AT TIME ZONE $1` y `AT TIME ZONE $3` son lo mismo al agrupar.
+    .groupBy(sql`1`)
+    .orderBy(sql`1`)
+}
+
 function generateSuggestion(topStructures: Array<{ structure: string; count: number }>): string {
   if (topStructures.length === 0) {
     return 'Completa tu primera misión para recibir sugerencias personalizadas.'

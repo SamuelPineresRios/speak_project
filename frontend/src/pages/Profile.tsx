@@ -4,6 +4,7 @@ import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer } fro
 import { Camera, Edit2, Shield, Award, Brain, Target, CheckCircle2, TrendingUp } from 'lucide-react'
 import { ResponsiveBackgroundSprites } from '@/components/ResponsiveBackgroundSprites'
 import { Canvas3DBackground } from '@/components/Canvas3DBackground'
+import { ActivityHistory } from '@/components/ActivityHistory'
 import { readJson } from '@/lib/api'
 
 interface Mission { id:string; title:string; description:string|null; cefr_level:string; status:string }
@@ -235,6 +236,9 @@ export default function ProfilePage() {
         </div>
       </div>
 
+      {/* Historial de actividad: misiones por día, semana y mes */}
+      {user?.id && <ActivityHistory studentId={user.id} />}
+
       {/* Story Mode + Missions + Stats */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
          {/* Recent Activity */}
@@ -292,7 +296,7 @@ export default function ProfilePage() {
                   <div className="bg-black/20 border border-white/10 rounded-2xl p-6">
                      <div className="flex items-center gap-2 mb-3">
                         <TrendingUp className="w-4 h-4 text-emerald-300" />
-                        <p className="text-[11px] uppercase tracking-wider text-slate-300 font-bold">Structures Tracker</p>
+                        <p className="text-[11px] uppercase tracking-wider text-slate-300 font-bold">Seguimiento de estructuras</p>
                      </div>
                   {skills && skills.top_structures.length > 0 ? (
                     <div className="flex flex-wrap gap-2">
