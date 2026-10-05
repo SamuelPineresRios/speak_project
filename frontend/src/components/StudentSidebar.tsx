@@ -69,16 +69,20 @@ export function StudentSidebar() {
               to={link.href}
               onClick={() => setIsOpen(false)}
               className={cn(
-                "flex items-center gap-3 px-4 py-3 rounded-lg text-xs font-mono tracking-wide transition-all duration-200 group relative",
-                isActive 
-                  ? "text-cyan bg-cyan/10 border border-cyan/20 shadow-[0_0_10px_-3px_rgba(6,182,212,0.3)]" 
-                  : "text-slate-400 hover:text-white hover:bg-white/5 border border-transparent"
+                "flex items-center gap-3 px-4 py-3 text-xs font-mono tracking-wide transition-all duration-200 group relative",
+                isActive
+                  ? // Pestaña que sobresale: blanca, pegada al borde derecho del
+                    // sidebar y con las esquinas derechas recortadas en curva
+                    // por una máscara (deja ver el fondo real del sidebar, que
+                    // es translúcido con desenfoque).
+                    "-mr-4 rounded-l-full bg-white text-cyan-900 " +
+                    "[mask-image:radial-gradient(circle_12px_at_top_right,transparent_12px,black_12.5px),radial-gradient(circle_12px_at_bottom_right,transparent_12px,black_12.5px)] " +
+                    "[-webkit-mask-image:radial-gradient(circle_12px_at_top_right,transparent_12px,black_12.5px),radial-gradient(circle_12px_at_bottom_right,transparent_12px,black_12.5px)] " +
+                    "[mask-composite:intersect] [-webkit-mask-composite:source-in]"
+                  : "rounded-lg text-slate-400 hover:text-white hover:bg-white/5 border border-transparent",
               )}
             >
-              {isActive && (
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-cyan rounded-r shadow-[0_0_8px_cyan]" />
-              )}
-              <link.icon className={cn("w-4 h-4", isActive ? "animate-pulse" : "opacity-70 group-hover:opacity-100")} />
+              <link.icon className={cn("w-4 h-4", isActive ? "text-cyan-700" : "opacity-70 group-hover:opacity-100")} />
               <span>{link.label}</span>
             </Link>
           )
