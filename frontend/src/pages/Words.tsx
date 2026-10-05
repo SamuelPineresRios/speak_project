@@ -299,9 +299,22 @@ export default function Words() {
                     <p className="text-[10px] uppercase tracking-widest text-slate-400 mb-2">Ejemplos de uso</p>
                     <ul className="space-y-2">
                       {selected.examples.map((example, index) => (
-                        <li key={index} className="rounded-lg border border-white/10 bg-white/5 px-3 py-2">
-                          <p className="text-sm text-white">{example.en}</p>
-                          <p className="text-xs text-slate-400 italic">{example.es}</p>
+                        <li
+                          key={index}
+                          className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 flex items-start gap-2"
+                        >
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm text-white">{example.en}</p>
+                            <p className="text-xs text-slate-400 italic">{example.es}</p>
+                          </div>
+                          <button
+                            onClick={() => speakText(example.en)}
+                            aria-label={`Escuchar: ${example.en}`}
+                            title="Escuchar la frase"
+                            className="shrink-0 rounded-lg border border-white/10 p-2 text-slate-500 hover:text-cyan hover:border-cyan/40 transition-colors"
+                          >
+                            <Volume2 className="h-3.5 w-3.5" />
+                          </button>
                         </li>
                       ))}
                     </ul>
@@ -317,7 +330,7 @@ export default function Words() {
                 {/* Atribución de las grabaciones (Wikimedia Commons es libre,
                     pero pide citar la fuente). */}
                 <p className="text-[10px] text-slate-600">
-                  Pronunciación: grabaciones libres de{' '}
+                  Palabras: grabaciones libres de{' '}
                   <a
                     href="https://commons.wikimedia.org"
                     target="_blank"
@@ -326,6 +339,7 @@ export default function Words() {
                   >
                     Wikimedia Commons
                   </a>
+                  . Frases: voz del navegador (o el TTS configurado).
                 </p>
               </section>
             )}

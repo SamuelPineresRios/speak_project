@@ -289,6 +289,14 @@ Piezas del módulo:
 La escena narrativa reutiliza `speechUrl` y `englishUtterance`, pero mantiene su
 propio `speakNative` porque además enciende el estado que mueve la boca.
 
+En el detalle de una palabra, **cada frase de ejemplo lleva su propio botón**.
+Las frases no existen como grabaciones libres (Wikimedia sólo tiene palabras y
+expresiones sueltas), así que van directas al TTS del backend y, si no está
+disponible, a la voz nativa. Con ElevenLabs apagado en desarrollo, para oírlas
+hace falta voz nativa en el sistema (en Linux: `sudo apt install espeak-ng
+speech-dispatcher`). Las frases quedan cacheadas en disco cuando el TTS sí
+funciona.
+
 #### Backend — `backend/src/modules/words/pronunciation.ts`
 
 - Busca en Wiktionary (`prop=images`) los audios de la palabra y **puntúa** los
