@@ -69,22 +69,22 @@ export function StudentSidebar() {
               to={link.href}
               onClick={() => setIsOpen(false)}
               className={cn(
-                "flex items-center gap-3 px-4 py-3 text-xs font-mono tracking-wide transition-all duration-200 group relative",
+                "group relative flex items-center gap-3 px-4 py-3 text-xs font-mono tracking-wide transition-colors duration-300",
+                // Muescas: dos cuartos de círculo del color del contenido, uno
+                // encima y otro debajo del extremo derecho del activo. Están
+                // siempre en el DOM (transparentes si el módulo no lo está) para
+                // que al cambiar de módulo las curvas se fundan, no salten.
+                "before:pointer-events-none before:absolute before:-top-5 before:right-0 before:h-5 before:w-5 before:rounded-bl-full before:content-[''] before:transition-colors before:duration-300",
+                "after:pointer-events-none after:absolute after:-bottom-5 after:right-0 after:h-5 after:w-5 after:rounded-tl-full after:content-[''] after:transition-colors after:duration-300",
                 isActive
-                  ? // Mismo resaltado de siempre; lo único nuevo es que la caja
-                    // llega hasta el borde derecho del sidebar y una máscara
-                    // recorta las esquinas en curva (deja ver el fondo real del
-                    // sidebar, que es translúcido con desenfoque).
-                    "-mr-4 rounded-l-lg text-cyan bg-cyan/10 border border-cyan/20 shadow-[0_0_10px_-3px_rgba(6,182,212,0.3)] " +
-                    "[mask-image:radial-gradient(circle_12px_at_top_right,transparent_12px,black_12.5px),radial-gradient(circle_12px_at_bottom_right,transparent_12px,black_12.5px)] " +
-                    "[-webkit-mask-image:radial-gradient(circle_12px_at_top_right,transparent_12px,black_12.5px),radial-gradient(circle_12px_at_bottom_right,transparent_12px,black_12.5px)] " +
-                    "[mask-composite:intersect] [-webkit-mask-composite:source-in]"
-                  : "rounded-lg text-slate-400 hover:text-white hover:bg-white/5 border border-transparent",
+                  ? // El fondo del contenido se cuela en el sidebar: franja del
+                    // color del área de contenido (slate-950, el que ya usan las
+                    // páginas), sin borde visible, pegada al borde derecho y con
+                    // las muescas curvas que dibujan las pseudoclases.
+                    "z-10 -mr-4 rounded-l-full rounded-r-none border border-transparent bg-slate-950 text-cyan before:bg-slate-950 after:bg-slate-950"
+                  : "rounded-lg border border-transparent text-slate-400 hover:text-white hover:bg-white/5 before:bg-transparent after:bg-transparent",
               )}
             >
-              {isActive && (
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-cyan rounded-r shadow-[0_0_8px_cyan]" />
-              )}
               <link.icon className={cn("w-4 h-4", isActive ? "animate-pulse" : "opacity-70 group-hover:opacity-100")} />
               <span>{link.label}</span>
             </Link>
