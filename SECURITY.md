@@ -1,4 +1,4 @@
-# Seguridad de VOX
+# Seguridad de Letoura
 
 Documento único de referencia.
 
