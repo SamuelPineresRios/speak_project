@@ -315,6 +315,18 @@ funciona.
 > Si algún día quieres TTS de pago también para palabras, basta invertir el
 > orden de la cadena en `speakText`; hoy la primera parada es la gratuita.
 
+**Decisión para las frases**: voz nativa del sistema y, cuando esté configurado,
+el TTS del backend. Se evaluó un TTS neuronal local en el navegador
+(Piper/VITS en WebAssembly) y se descartó: gratis y offline, pero ~80 MB de
+descarga la primera vez (modelo de 60,3 MB + runtime ONNX 10,6 MB +
+fonemizador), 150-300 MB de RAM, CPU alta por frase y riesgo en móvil; y el
+modo rápido multihilo exige cabeceras COOP/COEP que hoy no están.
+
+**Si el equipo no tiene voces** (Linux sin `espeak-ng`, por ejemplo), la
+interfaz lo avisa con un aviso ámbar al pulsar reproducir, en vez de quedarse
+en silencio: `speakText` resuelve `true` solo si algo llegó a sonar y las
+cadenas viejas se abandonan con un contador de generación.
+
 ---
 
 ## 6. El calentado en detalle

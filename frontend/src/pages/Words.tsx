@@ -50,6 +50,8 @@ export default function Words() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
+  /** Aviso cuando el equipo no tiene ninguna voz disponible. */
+  const [voiceNotice, setVoiceNotice] = useState<string | null>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -89,6 +91,26 @@ export default function Words() {
     })
   }, [words, query, posFilter])
 
+  // El aviso de «sin voz» se va solo a los pocos segundos.
+  useEffect(() => {
+    if (!voiceNotice) return
+    const timer = setTimeout(() => setVoiceNotice(null), 9000)
+    return () => clearTimeout(timer)
+  }, [voiceNotice])
+
+  /**
+   * Reproduce un texto y, si el equipo no tiene ninguna voz disponible (ni
+   * grabación, ni TTS, ni voces del sistema), lo dice en vez de callarse.
+   */
+  const pronounce = async (text: string) => {
+    const sounded = await speakText(text)
+    setVoiceNotice(
+      sounded
+        ? null
+        : 'Este equipo no tiene ninguna voz disponible. En Linux: sudo apt install espeak-ng speech-dispatcher; o configura el TTS del backend.',
+    )
+  }
+
   const selected = useMemo(
     () => filtered.find(word => word.saved_id === selectedId) ?? filtered[0] ?? null,
     [filtered, selectedId],
@@ -114,6 +136,15 @@ export default function Words() {
   return (
     <div className="relative min-h-[100vh] w-full bg-black/90">
       <Canvas3DBackground className="opacity-60" />
+
+      {voiceNotice && (
+        <div
+          role="status"
+          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 max-w-md rounded-xl border border-amber/40 bg-slate-950/95 px-4 py-3 text-[11px] text-amber shadow-[0_0_25px_-8px_rgba(245,158,11,0.6)]"
+        >
+          {voiceNotice}
+        </div>
+      )}
 
       {/* Contenido */}
       <div className="relative z-10 min-h-screen p-8 font-mono max-w-6xl mx-auto space-y-8 animate-fade-in pt-16 lg:pt-8">
@@ -229,7 +260,7 @@ export default function Words() {
                         </p>
                       </button>
                       <button
-                        onClick={() => speakText(word.word)}
+                        onClick={() => void pronounce(word.word)}
                         aria-label={`Escuchar ${word.word}`}
                         title="Escuchar cómo suena"
                         className="shrink-0 rounded-lg border border-white/10 p-2 text-slate-500 hover:text-cyan hover:border-cyan/40 transition-colors"
@@ -260,7 +291,7 @@ export default function Words() {
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     <button
-                      onClick={() => speakText(selected.word)}
+                      onClick={() => void pronounce(selected.word)}
                       aria-label={`Escuchar ${selected.word}`}
                       title="Escuchar cómo suena"
                       className="flex items-center gap-1.5 rounded-lg border border-cyan/40 bg-cyan/10 px-3 py-2 text-[10px] font-mono uppercase tracking-widest text-cyan hover:bg-cyan/20 transition-colors"
@@ -308,7 +339,7 @@ export default function Words() {
                             <p className="text-xs text-slate-400 italic">{example.es}</p>
                           </div>
                           <button
-                            onClick={() => speakText(example.en)}
+                            onClick={() => void pronounce(example.en)}
                             aria-label={`Escuchar: ${example.en}`}
                             title="Escuchar la frase"
                             className="shrink-0 rounded-lg border border-white/10 p-2 text-slate-500 hover:text-cyan hover:border-cyan/40 transition-colors"

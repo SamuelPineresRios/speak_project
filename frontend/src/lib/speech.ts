@@ -1,14 +1,19 @@
 /**
- * Voz compartida: audio del backend (ElevenLabs, cacheado en disco) con
- * reserva en la voz nativa del navegador.
+ * Voz compartida: grabación libre de Wikimedia (palabras), TTS del backend
+ * (ElevenLabs, cacheado) y reserva en la voz nativa del navegador.
  *
  * La escena narrativa tiene su propia versión con analizador de audio para
- * mover la boca; esta es la simple, para pronunciar palabras del vocabulario.
+ * mover la boca; esta es la simple, para el vocabulario.
  */
 
 /** URL del MP3 sintetizado por el backend (voz natural y cacheada). */
 export function speechUrl(text: string, role: 'A' | 'B' = 'A'): string {
   return `/api/tts?voice=${role.toLowerCase()}&text=${encodeURIComponent(text)}`
+}
+
+/** URL de la grabación libre de una palabra (Wikimedia, cacheada en el backend). */
+export function pronunciationUrl(word: string): string {
+  return `/api/words/pronunciation?word=${encodeURIComponent(word)}`
 }
 
 /**
@@ -22,14 +27,24 @@ export function englishUtterance(text: string): SpeechSynthesisUtterance {
   return utterance
 }
 
-/** Reserva: la voz nativa del navegador, para móviles y equipos sin clave. */
-export function speakNative(text: string): void {
-  if (!('speechSynthesis' in window)) return
+/** ¿Hay alguna voz instalada en el sistema? Sin motores, hablar es imposible. */
+export function hasNativeVoice(): boolean {
+  if (typeof window === 'undefined' || !('speechSynthesis' in window)) return false
+  return window.speechSynthesis.getVoices().length > 0
+}
+
+/** Reserva nativa. Devuelve false si el equipo no tiene voces instaladas. */
+export function speakNative(text: string): boolean {
+  if (!hasNativeVoice()) return false
   window.speechSynthesis.speak(englishUtterance(text))
+  return true
 }
 
 /** Audio en curso, para poder cortarlo al reproducir otro. */
 let current: HTMLAudioElement | null = null
+
+/** Sube en cada reproducción: las cadenas viejas se abandonan solas. */
+let generation = 0
 
 /** Corta la voz actual (la del backend o la nativa). */
 export function stopSpeaking(): void {
@@ -40,41 +55,41 @@ export function stopSpeaking(): void {
   window.speechSynthesis?.cancel()
 }
 
-/** URL de la grabación libre de una palabra (Wikimedia, cacheada en el backend). */
-export function pronunciationUrl(word: string): string {
-  return `/api/words/pronunciation?word=${encodeURIComponent(word)}`
+/** Reproduce una URL; true si el audio llegó a sonar. */
+function play(url: string): Promise<boolean> {
+  return new Promise(resolve => {
+    const audio = new Audio(url)
+    current = audio
+    audio.addEventListener('ended', () => {
+      if (current === audio) current = null
+    })
+    audio
+      .play()
+      .then(() => resolve(true))
+      .catch(() => resolve(false))
+  })
 }
 
 /** Una sola palabra en inglés: ni frases, ni números, ni signos sueltos. */
 const SINGLE_WORD = /^[\p{L}][\p{L}'’-]*$/u
 
-function play(url: string, onFail: () => void): void {
-  const audio = new Audio(url)
-  current = audio
-  audio.addEventListener('ended', () => {
-    if (current === audio) current = null
-  })
-  audio.play().catch(() => {
-    if (current === audio) onFail()
-  })
-}
-
-/** TTS del backend (ElevenLabs, cacheado) con reserva en la voz nativa. */
-function speakWithTts(text: string, role: 'A' | 'B'): void {
-  play(speechUrl(text, role), () => speakNative(text))
-}
-
 /**
  * Pronuncia un texto. Para **palabras sueltas** usa primero la grabación
  * humana y gratuita de Wikimedia; si no hay, cae al TTS del backend y luego a
  * la voz nativa. Las frases van directas al TTS.
+ *
+ * Resuelve `true` solo si algo llegó a sonar: con `false`, el equipo no tiene
+ * ni grabación, ni TTS y ni siquiera voces del sistema.
  */
-export function speakText(text: string, role: 'A' | 'B' = 'A'): void {
+export async function speakText(text: string, role: 'A' | 'B' = 'A'): Promise<boolean> {
   stopSpeaking()
+  const stamp = ++generation
+  const vigente = () => generation === stamp
+
   const word = text.trim()
-  if (SINGLE_WORD.test(word)) {
-    play(pronunciationUrl(word), () => speakWithTts(text, role))
-    return
-  }
-  speakWithTts(text, role)
+  if (SINGLE_WORD.test(word) && (await play(pronunciationUrl(word)))) return true
+  if (!vigente()) return false
+  if (await play(speechUrl(text, role))) return true
+  if (!vigente()) return false
+  return speakNative(text)
 }
