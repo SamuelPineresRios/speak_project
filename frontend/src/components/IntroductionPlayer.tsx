@@ -6,7 +6,7 @@
  * El texto se revela palabra a palabra y cada frase se puede escuchar.
  */
 import { type RefObject, useCallback, useEffect, useRef, useState } from 'react'
-import { Pause, Play, RotateCcw, Volume2, X, Languages, SkipForward } from 'lucide-react'
+import { Pause, Play, RotateCcw, Volume2, X, Languages, SkipForward, Loader2 } from 'lucide-react'
 import type { IntroductionCharacter, MissionIntroduction } from '@vox/shared'
 import { cn } from '@/lib/utils'
 import { TypewriterMessage } from './TypewriterMessage'
@@ -15,6 +15,12 @@ import { warmWords } from '@/lib/word-cache'
 
 /** Milisegundos que espera el modo automático tras terminar la frase. */
 const AUTOPLAY_NEXT_DELAY_MS = 2400
+
+/**
+ * Pausa en «Escena completada» antes de entrar sola al vocabulario: da tiempo
+ * a leer las expresiones desbloqueadas sin obligar a pulsar nada.
+ */
+const SCENE_AUTO_CONTINUE_MS = 2000
 
 function avatarUrl(name: string): string {
   return `https://api.dicebear.com/9.x/pixel-art/svg?seed=${encodeURIComponent(name)}`
@@ -370,6 +376,24 @@ export function IntroductionPlayer({ introduction, cefrLevel, onFinish, onSkip }
     return () => clearTimeout(timer)
   }, [autoPlay, finished, lineComplete, index, advance])
 
+  /**
+   * `onFinish` en un ref: la cuenta atrás de abajo no debe reiniciarse porque
+   * el padre vuelva a renderizar y entregue otra función.
+   */
+  const onFinishRef = useRef(onFinish)
+  useEffect(() => {
+    onFinishRef.current = onFinish
+  }, [onFinish])
+
+  // Terminada la escena se pasa solo al vocabulario: sin botón que pulsar.
+  // Si el alumno pulsa «Repetir» antes, el cambio a `finished = false` limpia
+  // el temporizador y se queda a ver la escena de nuevo.
+  useEffect(() => {
+    if (!finished) return
+    const timer = setTimeout(() => onFinishRef.current(), SCENE_AUTO_CONTINUE_MS)
+    return () => clearTimeout(timer)
+  }, [finished])
+
   // Espacio o flecha derecha avanzan, como en una novela visual.
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -596,12 +620,10 @@ export function IntroductionPlayer({ introduction, cefrLevel, onFinish, onSkip }
         </div>
 
         {finished && (
-          <button
-            onClick={onFinish}
-            className="w-full py-4 rounded-xl bg-white text-cyan-900 font-black text-lg uppercase tracking-wider transition-all hover:scale-[1.01] active:scale-95"
-          >
-            Preparar la misión →
-          </button>
+          <div className="w-full flex items-center justify-center gap-2 rounded-xl border border-cyan/30 bg-cyan/10 py-4 text-cyan font-mono text-sm uppercase tracking-widest">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Pasando al vocabulario…
+          </div>
         )}
       </footer>
     </div>
