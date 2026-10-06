@@ -2,7 +2,7 @@
  * Lógica de dominio de alumnos: grupos del alumno, unirse a un grupo y
  * agregados de escritura (semanal y de sesión).
  */
-import { and, desc, eq, gte, inArray, sql } from 'drizzle-orm'
+import { and, asc, desc, eq, gte, inArray, sql } from 'drizzle-orm'
 import { randomUUID } from 'node:crypto'
 import { db } from '../../db/client.ts'
 import {
@@ -336,6 +336,79 @@ export async function getStudentProgress(
     missions_completed: totals?.missions_completed ?? 0,
     writing_seconds: totals?.writing_seconds ?? 0,
     xp_today: totals?.xp_today ?? 0,
+  }
+}
+
+/** Métricas del ranking de grupo. */
+export type RankingMetric = 'xp' | 'missions' | 'time'
+
+export interface RankingEntry {
+  position: number
+  student_id: string
+  name: string
+  xp: number
+  missions: number
+  seconds: number
+}
+
+/**
+ * Ranking de un grupo por la métrica pedida.
+ *
+ * Se rankean las estadísticas **globales** de cada miembro (lo que ha hecho en
+ * toda la app), no solo lo hecho dentro del grupo: es lo que pide la frase
+ * «quién ha hecho más». Solo lo ve un miembro del grupo o un docente.
+ */
+export async function getGroupRanking(
+  groupId: string,
+  metric: RankingMetric,
+  requester: { userId: string; role: 'student' | 'teacher' },
+): Promise<{ metric: RankingMetric; entries: RankingEntry[] }> {
+  const [group] = await db.select({ id: groups.id }).from(groups).where(eq(groups.id, groupId)).limit(1)
+  if (!group) throw new HttpError(404, 'Group not found')
+
+  if (requester.role !== 'teacher') {
+    const [membership] = await db
+      .select({ id: group_members.id })
+      .from(group_members)
+      .where(and(eq(group_members.group_id, groupId), eq(group_members.student_id, requester.userId)))
+      .limit(1)
+    if (!membership) throw new HttpError(403, 'Forbidden')
+  }
+
+  const xpExpr = sql<number>`coalesce(sum(${evaluations.xp_awarded}), 0)::int`
+  const missionsExpr = sql<number>`count(distinct case when ${responses.status} = 'completed' then ${responses.mission_id} end)::int`
+  const secondsExpr = sql<number>`coalesce(sum(${responses.time_taken_seconds}), 0)::int`
+
+  const rows = await db
+    .select({
+      student_id: group_members.student_id,
+      name: users.full_name,
+      xp: xpExpr,
+      missions: missionsExpr,
+      seconds: secondsExpr,
+    })
+    .from(group_members)
+    .innerJoin(users, eq(users.id, group_members.student_id))
+    .leftJoin(responses, eq(responses.student_id, group_members.student_id))
+    .leftJoin(evaluations, eq(evaluations.response_id, responses.id))
+    .where(eq(group_members.group_id, groupId))
+    .groupBy(group_members.student_id, users.full_name)
+    .orderBy(
+      desc(metric === 'missions' ? missionsExpr : metric === 'time' ? secondsExpr : xpExpr),
+      desc(xpExpr),
+      asc(users.full_name),
+    )
+
+  return {
+    metric,
+    entries: rows.map((row, index) => ({
+      position: index + 1,
+      student_id: row.student_id,
+      name: row.name ?? 'Alumno',
+      xp: row.xp,
+      missions: row.missions,
+      seconds: row.seconds,
+    })),
   }
 }
 

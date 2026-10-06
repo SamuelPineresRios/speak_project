@@ -9,7 +9,9 @@ import { HttpError } from '../../utils/http-error.ts'
 import { queryInt, routeParam } from '../../utils/route-params.ts'
 import {
   getDailyActivity,
+  getGroupRanking,
   getStudentProgress,
+  type RankingMetric,
   getSessionSummary,
   getStudentSkills,
   getWeeklyStats,
@@ -84,6 +86,23 @@ studentsRouter.get('/:id/session-summary', requireAuth, async (req, res) => {
   if (!ownsResource(session, studentId, ['teacher'])) throw new HttpError(403, 'Forbidden')
 
   res.json(await getSessionSummary(studentId, queryInt(req, 'week_offset', 0)))
+})
+
+/** Métrica válida del ranking; por defecto XP. */
+function readRankingMetric(value: unknown): RankingMetric {
+  return value === 'missions' || value === 'time' ? value : 'xp'
+}
+
+/**
+ * Ranking del grupo: quién ha hecho más según la métrica (xp, misiones o
+ * tiempo). Solo lo ve un miembro del grupo o un docente.
+ */
+studentsRouter.get('/groups/:id/ranking', requireAuth, async (req, res) => {
+  const session = sessionOf(req)
+  const groupId = routeParam(req, 'id')
+  const metric = readRankingMetric(req.query.metric)
+
+  res.json(await getGroupRanking(groupId, metric, { userId: session.userId, role: session.role }))
 })
 
 /**
