@@ -49,6 +49,10 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
   const [isLastMessageTyping, setIsLastMessageTyping] = useState(false)
   const [timedOut, setTimedOut] = useState(false)
   const [showCompletionNotification, setShowCompletionNotification] = useState(false)
+  /** El titular terminó de escribirse: salen la línea y el subtítulo. */
+  const [completionTyped, setCompletionTyped] = useState(false)
+  /** Y un poco después, los botones. */
+  const [completionActions, setCompletionActions] = useState(false)
   const [hasNotifiedCompletion, setHasNotifiedCompletion] = useState(false)
   const [missionProgress, setMissionProgress] = useState(0)
   const [timerDuration, setTimerDuration] = useState(mission.base_duration_seconds)
@@ -304,6 +308,15 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
   const dismissStepHint = (id: string) => {
     setStepHints(current => current.filter(hint => hint.id !== id))
   }
+
+  // Revelado en cadena del aviso de misión completada: al terminar de
+  // escribirse el titular salen el subtítulo y, un momento después, los
+  // botones. Nada aparece de golpe.
+  useEffect(() => {
+    if (!completionTyped) return
+    const timer = setTimeout(() => setCompletionActions(true), 900)
+    return () => clearTimeout(timer)
+  }, [completionTyped])
 
   const handleCompleteMission = async () => {
     if (state !== 'active') return
@@ -756,53 +769,46 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
         </div>
       )}
 
-      {/* Full Screen Completion Overlay */}
+      {/* Misión completada: aviso sobrio que se revela en cadena */}
       {showCompletionNotification && (
-        <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-cyan-950/90 backdrop-blur-md animate-in fade-in duration-500">
-           {/* Animated Background Rays */}
-           <div className="absolute inset-0 overflow-hidden pointer-events-none">
-             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200%] h-[200%] bg-[conic-gradient(from_0deg,transparent_0deg,cyan_20deg,transparent_40deg)] opacity-10 animate-[spin_8s_linear_infinite]" />
-           </div>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/95 backdrop-blur-md animate-in fade-in duration-1000">
+          <div className="relative z-10 w-full max-w-md px-8 text-center">
+            {/* Titular que se escribe letra a letra; al terminar encadena el resto */}
+            <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-white">
+              <TypewriterMessage
+                text="Misión completada"
+                isActive
+                speed={75}
+                onComplete={() => setCompletionTyped(true)}
+              />
+            </h2>
 
-           <div className="relative z-10 text-center space-y-8 p-8 max-w-md w-full">
-               
-               {/* Big Icon */}
-               <div className="mx-auto w-24 h-24 bg-cyan-400/20 rounded-full flex items-center justify-center border-2 border-cyan-400 shadow-[0_0_30px_rgba(34,211,238,0.5)] animate-bounce">
-                  <span className="text-5xl">🏆</span>
-               </div>
-               
-               {/* Main Title */}
-               <div className="space-y-2">
-                 <h2 className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-cyan-200 uppercase tracking-tighter drop-shadow-lg animate-in zoom-in duration-500 delay-100">
-                    Mission<br/>Completed!
-                 </h2>
-                 <p className="text-cyan-200 font-body text-sm tracking-[0.2em] animate-pulse">
-                    OBJECTIVES 100% MET
-                 </p>
-               </div>
+            {completionTyped && (
+              <div className="animate-in fade-in duration-700">
+                <div className="mx-auto mt-8 h-px w-12 bg-cyan/40" />
+                <p className="mt-8 text-[11px] font-mono uppercase tracking-[0.3em] text-cyan-200/70">
+                  Objetivos al 100 %
+                </p>
+              </div>
+            )}
 
-               {/* Description */}
-               <p className="text-cyan-100/80 text-lg font-light leading-relaxed max-w-xs mx-auto">
-                 Excellent performance, Agent. The simulation was a success.
-               </p>
-
-               {/* Actions */}
-               <div className="flex flex-col gap-4 w-full pt-4">
-                  <button 
-                     onClick={handleCompleteMission}
-                     className="w-full py-4 rounded-xl bg-white text-cyan-900 font-black text-lg uppercase tracking-wider shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:scale-105 hover:shadow-[0_0_30px_rgba(255,255,255,0.5)] transition-all active:scale-95"
-                  >
-                     Submit Report
-                  </button>
-                  
-                  <button 
-                     onClick={() => setShowCompletionNotification(false)}
-                     className="w-full py-3 text-cyan-200/60 font-body text-xs uppercase tracking-widest hover:text-white hover:bg-white/10 rounded-lg transition-colors"
-                  >
-                     [ Continue Simulation ]
-                  </button>
-               </div>
-           </div>
+            {completionActions && (
+              <div className="mt-12 flex flex-col gap-3 animate-in fade-in duration-700">
+                <button
+                  onClick={handleCompleteMission}
+                  className="w-full rounded-xl bg-white py-3.5 text-sm font-bold uppercase tracking-widest text-cyan-950 transition-colors hover:bg-cyan-50 active:scale-[0.99]"
+                >
+                  Enviar informe
+                </button>
+                <button
+                  onClick={() => setShowCompletionNotification(false)}
+                  className="w-full rounded-xl py-3 text-[11px] font-mono uppercase tracking-widest text-slate-400 transition-colors hover:bg-white/5 hover:text-white"
+                >
+                  Seguir en la simulación
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
