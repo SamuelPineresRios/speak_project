@@ -12,6 +12,7 @@ import Login from '@/pages/Login'
 import MissionPage from '@/pages/MissionPage'
 import Missions from '@/pages/Missions'
 import Profile from '@/pages/Profile'
+import Ranking from '@/pages/Ranking'
 import SessionSummary from '@/pages/SessionSummary'
 import Signup from '@/pages/Signup'
 import Words from '@/pages/Words'
@@ -45,6 +46,7 @@ export function App() {
             <Route path="/groups" element={<StudentGroups />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/words" element={<Words />} />
+            <Route path="/ranking" element={<Ranking />} />
           </Route>
 
           <Route element={<ProtectedRoute teacherOnly />}>

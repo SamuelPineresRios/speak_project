@@ -34,6 +34,7 @@ export const STUDENT_PATHS = [
   '/groups',
   '/profile',
   '/words',
+  '/ranking',
 ] as const
 
 function matchesAnyPath(path: string, prefixes: readonly string[]): boolean {
