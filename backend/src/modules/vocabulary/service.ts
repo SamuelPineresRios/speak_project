@@ -24,21 +24,14 @@ export type VocabularyRow = typeof mission_vocabulary.$inferSelect
 
 /** El requisito es exacto: ni 5, ni 8. */
 export const REQUIRED_WORDS = 7
-/** Opciones incorrectas por palabra. */
-const REQUIRED_DISTRACTORS = 3
 /** Intentos de generación antes de rendirse. */
 const MAX_ATTEMPTS = 2
-
-/** Palabra con las opciones ya barajadas para pintar la actividad. */
-export interface VocabularyWordWithOptions extends VocabularyWord {
-  options: string[]
-}
 
 export interface VocabularyPayload {
   id: string
   mission_id: string
   version: number
-  words: VocabularyWordWithOptions[]
+  words: VocabularyWord[]
 }
 
 export async function findVocabularyByMission(missionId: string): Promise<VocabularyRow | null> {
@@ -50,28 +43,13 @@ export async function findVocabularyByMission(missionId: string): Promise<Vocabu
   return row ?? null
 }
 
-/** Baraja sin repetir posiciones: la correcta no cae siempre en el mismo sitio. */
-function shuffle<T>(items: T[]): T[] {
-  const copy = [...items]
-  for (let i = copy.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    const tmp = copy[i]!
-    copy[i] = copy[j]!
-    copy[j] = tmp
-  }
-  return copy
-}
-
-/** Convierte la fila en la respuesta de la API, barajando las opciones. */
+/** Convierte la fila en la respuesta de la API. */
 function toPayload(row: VocabularyRow): VocabularyPayload {
   return {
     id: row.id,
     mission_id: row.mission_id,
     version: row.version,
-    words: row.words.map(word => ({
-      ...word,
-      options: shuffle([word.translation, ...word.distractors]),
-    })),
+    words: row.words,
   }
 }
 
@@ -79,43 +57,37 @@ function toPayload(row: VocabularyRow): VocabularyPayload {
  * Valida la respuesta del modelo.
  *
  * La salida estructurada garantiza claves y tipos, pero no cuántas palabras
- * trae ni si sirven: aquí se normaliza y se exige el 7 exacto. Devuelve null
- * cuando hay que reintentar.
+ * trae ni si sirven: aquí se normaliza (palabra, traducción, ejemplo y
+ * traducción del ejemplo), se exige el 7 exacto y se rechazan repetidas.
+ * Devuelve null cuando hay que reintentar.
  */
 export function validateWords(raw: unknown): VocabularyWord[] | null {
   const words = (raw as { words?: unknown } | null)?.words
   if (!Array.isArray(words)) return null
 
   const clean: VocabularyWord[] = []
-  const seen = new Set<string>()
+  const seenWords = new Set<string>()
+  const seenTranslations = new Set<string>()
+
   for (const item of words) {
     const entry = item as Partial<VocabularyWord> | null
     const word = String(entry?.word ?? '').trim().toLowerCase()
     const translation = String(entry?.translation ?? '').trim()
-    const explanation = String(entry?.explanation ?? '').trim()
-    const distractors = Array.isArray(entry?.distractors)
-      ? entry.distractors.map(value => String(value ?? '').trim()).filter(Boolean)
-      : []
+    const example = String(entry?.example ?? '').trim()
+    const exampleTranslation = String(entry?.example_translation ?? '').trim()
 
-    if (!word || !translation || !explanation) return null
-    if (distractors.length !== REQUIRED_DISTRACTORS) return null
-    if (new Set(distractors).size !== REQUIRED_DISTRACTORS) return null
-    if (distractors.includes(translation)) return null
-    // Repetir una palabra dejaría la actividad por debajo de 7.
-    if (seen.has(word)) return null
-    seen.add(word)
+    if (!word || !translation || !example || !exampleTranslation) return null
+    // Repetir una palabra o un significado dejaría la actividad coja.
+    if (seenWords.has(word)) return null
+    if (seenTranslations.has(translation.toLowerCase())) return null
+    seenWords.add(word)
+    seenTranslations.add(translation.toLowerCase())
 
-    clean.push({ word, translation, distractors, explanation })
+    clean.push({ word, translation, example, example_translation: exampleTranslation })
   }
 
   // De más se recorta; de menos no hay nada que recortar.
   if (clean.length < REQUIRED_WORDS) return null
-
-  // Dos palabras con el mismo significado gastarían una de las 7 sin enseñar
-  // nada nuevo ("showing up" y "appear" son la misma cosa).
-  const translations = new Set(clean.map(item => item.translation.toLowerCase()))
-  if (translations.size !== clean.length) return null
-
   return clean.slice(0, REQUIRED_WORDS)
 }
 

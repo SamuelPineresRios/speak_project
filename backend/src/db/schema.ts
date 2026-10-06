@@ -266,16 +266,16 @@ export const saved_words = pgTable(
   ],
 )
 
-/** Una palabra clave de la misión, con su actividad de selección. */
+/** Una palabra clave de la misión: se estudia y luego se empareja. */
 export interface VocabularyWord {
   /** Palabra en inglés, normalizada a minúsculas. */
   word: string
-  /** Traducción correcta al español. */
+  /** Traducción al español. */
   translation: string
-  /** Exactamente 3 traducciones incorrectas pero verosímiles. */
-  distractors: string[]
-  /** Explicación corta en español del significado en esta situación. */
-  explanation: string
+  /** Frase de ejemplo en inglés, usada en esta situación. */
+  example: string
+  /** Traducción al español de la frase de ejemplo. */
+  example_translation: string
 }
 
 /**

@@ -51,17 +51,16 @@ export const VOCABULARY_SCHEMA: JsonSchema = {
             type: 'string',
             description: 'Traducción correcta al español.',
           },
-          distractors: {
-            type: 'array',
-            items: { type: 'string' },
-            description: 'Exactamente 3 traducciones incorrectas al español, verosímiles y de la misma categoría.',
-          },
-          explanation: {
+          example: {
             type: 'string',
-            description: 'Explicación corta en español del significado en esta situación (una frase).',
+            description: 'Frase de ejemplo en inglés que usa la palabra en una situación como la de la misión.',
+          },
+          example_translation: {
+            type: 'string',
+            description: 'Traducción al español de la frase de ejemplo.',
           },
         },
-        required: ['word', 'translation', 'distractors', 'explanation'],
+        required: ['word', 'translation', 'example', 'example_translation'],
         additionalProperties: false,
       },
     },
@@ -104,7 +103,7 @@ Rules:
 - The words must anticipate what the student will need when speaking to ${source.characterName ?? 'the character'}, not be a random vocabulary list.
 - Lowercase the English word. Single words only; short phrasal verbs are allowed from B1 up. No proper nouns or place names (cities, brands, people).
 - No two words may share the same Spanish meaning: each of the 7 must teach something different.
-- For each word: the correct Spanish translation, THREE wrong but plausible Spanish translations (same kind of word, clearly incorrect), and a one-sentence explanation in Spanish of what it means in this situation.
+- For each word: the Spanish translation, one example sentence in English that uses the word naturally in this situation (6-14 words, level-appropriate), and the Spanish translation of that example.
 
 Answer with JSON only.`
 }

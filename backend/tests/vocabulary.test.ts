@@ -44,8 +44,8 @@ function vocabularyResponse(count = 7): string {
     words: Array.from({ length: count }, (_, index) => ({
       word: `word${index}`,
       translation: `traducción ${index}`,
-      distractors: [`malo ${index}a`, `malo ${index}b`, `malo ${index}c`],
-      explanation: `Explicación de la palabra ${index}.`,
+      example: `This is example sentence number ${index}.`,
+      example_translation: `Esta es la frase de ejemplo número ${index}.`,
     })),
   })
 }
@@ -109,17 +109,19 @@ describe('GET /api/missions/:id/vocabulary', () => {
     expect(mockedCompleteChat).toHaveBeenCalledTimes(1)
   })
 
-  it('devuelve 4 opciones por palabra, con la correcta incluida y sin repetir', async () => {
+  it('cada palabra trae su ejemplo en inglés y su traducción', async () => {
     const student = await signupActor(app, 'student')
     const missionId = await createMission({ cefr_level: 'A1' })
 
     const res = await student.agent.get(`/api/missions/${missionId}/vocabulary`)
 
     for (const word of res.body.vocabulary.words) {
-      expect(word.options).toHaveLength(4)
-      expect(new Set(word.options).size).toBe(4)
-      expect(word.options).toContain(word.translation)
-      expect(word.distractors).toHaveLength(3)
+      expect(word.translation).toBeTruthy()
+      expect(word.example).toContain('example sentence')
+      expect(word.example_translation).toContain('frase de ejemplo')
+      // La actividad ya no usa opciones ni distractores.
+      expect(word.options).toBeUndefined()
+      expect(word.distractors).toBeUndefined()
     }
   })
 
@@ -209,66 +211,57 @@ describe('POST /api/missions/:id/vocabulary/regenerate', () => {
 })
 
 describe('validateWords', () => {
-  it('exige 3 distractores distintos y que no coincidan con la traducción', () => {
-    const base = {
-      word: 'help',
-      translation: 'ayudar',
-      distractors: ['comprar', 'esperar', 'viajar'],
-      explanation: 'Prestar ayuda.',
-    }
+  const base = {
+    translation: 'ayudar',
+    example: 'Can you help me?',
+    example_translation: '¿Puedes ayudarme?',
+  }
+  const sixMore = Array.from({ length: 6 }, (_, i) => ({
+    word: `w${i}`,
+    translation: `t${i}`,
+    example: `Example ${i}.`,
+    example_translation: `Ejemplo ${i}.`,
+  }))
 
-    expect(validateWords({ words: [base] })).toBeNull() // con una sola no llega a 7
-    expect(
-      validateWords({ words: Array.from({ length: 7 }, () => base) }),
-    ).toBeNull() // repetida
+  it('exige los cuatro campos de cada palabra', () => {
+    expect(validateWords({ words: [{ ...base, word: 'help' }] })).toBeNull() // una sola no llega a 7
     expect(
       validateWords({
-        words: [
-          { ...base, distractors: ['comprar', 'comprar', 'viajar'] },
-          ...Array.from({ length: 6 }, (_, i) => ({ ...base, word: `w${i}`, distractors: ['a', 'b', 'c'] })),
-        ],
+        words: [{ word: 'help', translation: 'ayudar' }, ...sixMore],
       }),
-    ).toBeNull() // distractores repetidos
+    ).toBeNull() // sin ejemplo
     expect(
       validateWords({
-        words: [
-          { ...base, distractors: ['ayudar', 'esperar', 'viajar'] },
-          ...Array.from({ length: 6 }, (_, i) => ({ ...base, word: `w${i}`, distractors: ['a', 'b', 'c'] })),
-        ],
+        words: [{ ...base, word: 'help', example: '' }, ...sixMore],
       }),
-    ).toBeNull() // un distractor es la propia traducción
+    ).toBeNull() // ejemplo vacío
   })
 
-  it('rechaza dos palabras que enseñan el mismo significado', () => {
-    const base = {
-      translation: 'aparecer',
-      distractors: ['a', 'b', 'c'],
-      explanation: 'e',
-    }
-    const words = [
-      { ...base, word: 'appear' },
-      { ...base, word: 'showing up' },
-      ...Array.from({ length: 5 }, (_, i) => ({
-        word: `w${i}`,
-        translation: `t${i}`,
-        distractors: [`a${i}`, `b${i}`, `c${i}`],
-        explanation: `e${i}`,
-      })),
-    ]
+  it('rechaza palabras o significados repetidos', () => {
+    expect(
+      validateWords({
+        words: [{ ...base, word: 'help' }, { ...base, word: 'help' }, ...sixMore],
+      }),
+    ).toBeNull() // palabra repetida
 
-    expect(validateWords({ words })).toBeNull()
+    expect(
+      validateWords({
+        words: [{ ...base, word: 'help' }, { ...base, word: 'aid' }, ...sixMore],
+      }),
+    ).toBeNull() // "help" y "aid" enseñan lo mismo
   })
 
   it('devuelve exactamente 7 cuando son válidas y recorta las de más', () => {
     const words = Array.from({ length: 9 }, (_, i) => ({
       word: `word${i}`,
       translation: `t${i}`,
-      distractors: [`a${i}`, `b${i}`, `c${i}`],
-      explanation: `e${i}`,
+      example: `Example ${i}.`,
+      example_translation: `Ejemplo ${i}.`,
     }))
 
     const valid = validateWords({ words })
     expect(valid).toHaveLength(7)
     expect(valid?.[0]?.word).toBe('word0')
+    expect(valid?.[0]?.example_translation).toBe('Ejemplo 0.')
   })
 })

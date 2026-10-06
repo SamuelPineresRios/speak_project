@@ -1,23 +1,23 @@
 /**
  * Vocabulario clave: la actividad entre la escena narrativa y la misión.
  *
- * Siete palabras de la escena en selección múltiple. Cada respuesta se corrige
- * al momento (con explicación cuando falla) y al final se ve el marcador antes
- * de pasar a la conversación. La evaluación es local: la opción correcta viene
- * en el payload para poder dar feedback sin ida y vuelta.
+ * Primero se estudian las 7 palabras (traducción y frase de ejemplo) y después
+ * se emparejan: todas las palabras inglesas en la columna izquierda y todas las
+ * traducciones barajadas en la derecha. La evaluación es local.
  */
 import { useEffect, useState } from 'react'
-import { ArrowRight, Check, Loader2, RotateCcw, X } from 'lucide-react'
+import { ArrowRight, Check, Eye, Loader2, RotateCcw, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { readJson } from '@/lib/api'
 
 interface VocabularyWord {
   word: string
   translation: string
-  distractors: string[]
-  explanation: string
-  options: string[]
+  example: string
+  example_translation: string
 }
+
+type Phase = 'study' | 'match' | 'summary'
 
 interface VocabularyQuizProps {
   missionId: string
@@ -25,9 +25,7 @@ interface VocabularyQuizProps {
   onFinish: () => void
 }
 
-const LETTERS = ['A', 'B', 'C', 'D']
-
-/** Rebaraja para el reintento: el orden del servidor ya se memorizó. */
+/** Baraja la columna de traducciones (y la rebaraja al repetir). */
 function shuffled<T>(items: T[]): T[] {
   const copy = [...items]
   for (let i = copy.length - 1; i > 0; i--) {
@@ -39,24 +37,28 @@ function shuffled<T>(items: T[]): T[] {
   return copy
 }
 
-/** Mensaje final según los aciertos. */
-function closingMessage(hits: number, total: number): string {
-  if (hits === total) return 'Perfecto: te las sabes todas. A por la conversación.'
-  if (hits >= total - 2) return 'Muy bien: repasa las que fallaron y entra a la misión.'
-  return 'Buen intento: las palabras volverán a aparecer en la conversación.'
+/** Mensaje final según los fallos. */
+function closingMessage(mistakes: number): string {
+  if (mistakes === 0) return 'Los 7 pares a la primera. A por la conversación.'
+  if (mistakes <= 3) return 'Buen trabajo: un par de fallos que ya conoces.'
+  return 'Vuelve a leer la lista si quieres y entra a la misión: estas palabras saldrán en la conversación.'
 }
 
 export function VocabularyQuiz({ missionId, cefrLevel, onFinish }: VocabularyQuizProps) {
   const [words, setWords] = useState<VocabularyWord[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [index, setIndex] = useState(0)
-  const [picked, setPicked] = useState<string | null>(null)
-  const [hits, setHits] = useState(0)
-  const [finished, setFinished] = useState(false)
-
-  /** Sube para volver a pedir el vocabulario tras un fallo. */
   const [reloadKey, setReloadKey] = useState(0)
+
+  const [phase, setPhase] = useState<Phase>('study')
+  const [rightColumn, setRightColumn] = useState<string[]>([])
+  const [selectedWord, setSelectedWord] = useState<string | null>(null)
+  const [selectedTranslation, setSelectedTranslation] = useState<string | null>(null)
+  /** Palabras ya emparejadas (el par se pinta en verde). */
+  const [matched, setMatched] = useState<string[]>([])
+  /** Par fallado, para el destello rojo antes de soltarlo. */
+  const [wrong, setWrong] = useState<{ word: string; translation: string } | null>(null)
+  const [mistakes, setMistakes] = useState(0)
 
   useEffect(() => {
     let cancelled = false
@@ -68,10 +70,13 @@ export function VocabularyQuiz({ missionId, cefrLevel, onFinish }: VocabularyQui
         const list: VocabularyWord[] = data?.vocabulary?.words ?? []
         if (list.length === 0) throw new Error('La actividad llegó vacía')
         setWords(list)
-        setIndex(0)
-        setPicked(null)
-        setHits(0)
-        setFinished(false)
+        setPhase('study')
+        setMatched([])
+        setMistakes(0)
+        setSelectedWord(null)
+        setSelectedTranslation(null)
+        setWrong(null)
+        setRightColumn(shuffled(list.map(entry => entry.translation)))
       })
       .catch(err => {
         if (!cancelled) setError((err as Error).message)
@@ -92,50 +97,73 @@ export function VocabularyQuiz({ missionId, cefrLevel, onFinish }: VocabularyQui
     setReloadKey(key => key + 1)
   }
 
-  const word = words[index]
-  const isCorrect = picked !== null && picked === word?.translation
-  const isLast = index >= words.length - 1
+  const matchedTranslations = new Set(
+    words.filter(entry => matched.includes(entry.word)).map(entry => entry.translation),
+  )
 
-  const choose = (option: string) => {
-    if (picked !== null) return
-    setPicked(option)
-    if (option === word.translation) setHits(value => value + 1)
-  }
+  const isMatchedWord = (word: string) => matched.includes(word)
 
-  const next = () => {
-    if (isLast) {
-      setFinished(true)
+  const evaluate = (word: string, translation: string) => {
+    const entry = words.find(item => item.word === word)
+    if (entry?.translation === translation) {
+      const pairs = [...matched, word]
+      setMatched(pairs)
+      setSelectedWord(null)
+      setSelectedTranslation(null)
+      if (pairs.length === words.length) {
+        setTimeout(() => setPhase('summary'), 450)
+      }
       return
     }
-    setPicked(null)
-    setIndex(value => value + 1)
+
+    setMistakes(value => value + 1)
+    setWrong({ word, translation })
+    // El destello rojo se suelta solo y deja elegir otra pareja.
+    setTimeout(() => {
+      setWrong(null)
+      setSelectedWord(null)
+      setSelectedTranslation(null)
+    }, 650)
   }
 
-  const retry = () => {
-    setWords(current => current.map(entry => ({ ...entry, options: shuffled(entry.options) })))
-    setIndex(0)
-    setPicked(null)
-    setHits(0)
-    setFinished(false)
-  }
-
-  // Atajos de teclado: 1-4 eligen, Enter continúa.
-  useEffect(() => {
-    if (loading || error || finished || !word) return
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Enter' && picked !== null) {
-        event.preventDefault()
-        next()
-        return
-      }
-      const position = Number.parseInt(event.key, 10) - 1
-      if (position >= 0 && position < word.options.length) {
-        choose(word.options[position]!)
-      }
+  const pickWord = (word: string) => {
+    if (isMatchedWord(word) || wrong) return
+    if (selectedTranslation) {
+      evaluate(word, selectedTranslation)
+      return
     }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  })
+    setSelectedWord(current => (current === word ? null : word))
+  }
+
+  const pickTranslation = (translation: string) => {
+    if (matchedTranslations.has(translation) || wrong) return
+    if (selectedWord) {
+      evaluate(selectedWord, translation)
+      return
+    }
+    setSelectedTranslation(current => (current === translation ? null : translation))
+  }
+
+  const startMatching = () => {
+    setPhase('match')
+    setMatched([])
+    setMistakes(0)
+    setSelectedWord(null)
+    setSelectedTranslation(null)
+    setWrong(null)
+    setRightColumn(shuffled(words.map(entry => entry.translation)))
+  }
+
+  const retryMatching = () => {
+    startMatching()
+  }
+
+  const backToStudy = () => {
+    setPhase('study')
+    setSelectedWord(null)
+    setSelectedTranslation(null)
+    setWrong(null)
+  }
 
   return (
     <div className="relative min-h-screen w-full bg-slate-950 font-body overflow-hidden flex flex-col">
@@ -177,40 +205,10 @@ export function VocabularyQuiz({ missionId, cefrLevel, onFinish }: VocabularyQui
           </div>
         )}
 
-        {!loading && !error && finished && (
-          <div className="w-full max-w-md rounded-2xl border border-white/10 bg-black/40 backdrop-blur-sm p-8 text-center space-y-4">
-            <p className="text-4xl">🏅</p>
-            <h2 className="text-xl font-bold text-white">¡Vocabulario listo!</h2>
-            <p className="text-sm text-slate-300">
-              {hits} de {words.length} aciertos
-            </p>
-            <div className="h-2 rounded-full bg-white/10 overflow-hidden">
-              <div
-                className="h-full bg-cyan shadow-[0_0_10px_rgba(6,182,212,0.6)] transition-all duration-700"
-                style={{ width: `${Math.round((hits / words.length) * 100)}%` }}
-              />
-            </div>
-            <p className="text-[12px] text-slate-400">{closingMessage(hits, words.length)}</p>
-            <div className="flex flex-col sm:flex-row gap-2 pt-2">
-              <button
-                onClick={onFinish}
-                className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-white text-cyan-900 font-black text-sm uppercase tracking-wider py-3 transition-transform hover:scale-[1.02] active:scale-95"
-              >
-                Ir a la misión <ArrowRight className="h-4 w-4" />
-              </button>
-              <button
-                onClick={retry}
-                className="flex items-center justify-center gap-2 rounded-xl border border-white/15 px-4 py-3 text-[11px] font-mono uppercase tracking-widest text-slate-300 hover:border-white/30 transition-colors"
-              >
-                <RotateCcw className="h-3.5 w-3.5" /> Repetir
-              </button>
-            </div>
-          </div>
-        )}
-
-        {!loading && !error && !finished && word && (
-          <div className="w-full max-w-xl">
-            <header className="flex items-center justify-between gap-4 mb-5">
+        {/* Fase 1: estudiar las palabras con su ejemplo */}
+        {!loading && !error && phase === 'study' && (
+          <div className="w-full max-w-2xl">
+            <header className="flex items-center justify-between gap-4 mb-2">
               <div>
                 <p className="text-[10px] text-cyan uppercase tracking-[0.25em]">Antes de la conversación</p>
                 <h2 className="text-xl font-bold text-white">Palabras clave</h2>
@@ -219,108 +217,139 @@ export function VocabularyQuiz({ missionId, cefrLevel, onFinish }: VocabularyQui
                 {cefrLevel}
               </span>
             </header>
+            <p className="text-[12px] text-slate-400 mb-4">
+              Estas son las 7 palabras de la escena, con su traducción y un ejemplo. Después las emparejarás.
+            </p>
 
-            {/* Progreso: un punto por palabra y el marcador de aciertos */}
-            <div className="flex items-center gap-2 mb-5">
-              <span className="text-[10px] font-mono uppercase tracking-widest text-slate-500">Palabra</span>
-              <div className="flex-1 flex items-center gap-1.5">
-                {words.map((_, position) => (
-                  <span
-                    key={position}
-                    className={cn(
-                      'h-1.5 flex-1 rounded-full transition-all duration-500',
-                      position < index
-                        ? 'bg-emerald'
-                        : position === index
-                          ? 'bg-cyan animate-pulse'
-                          : 'bg-slate-800',
-                    )}
-                  />
-                ))}
+            <ul className="space-y-2 mb-5">
+              {words.map(entry => (
+                <li
+                  key={entry.word}
+                  className="rounded-xl border border-white/10 bg-black/40 backdrop-blur-sm px-4 py-3"
+                >
+                  <div className="flex items-baseline justify-between gap-3">
+                    <p className="text-base font-bold text-white">{entry.word}</p>
+                    <p className="text-sm text-cyan">{entry.translation}</p>
+                  </div>
+                  <p className="mt-1 text-[13px] text-slate-200">{entry.example}</p>
+                  <p className="text-[12px] text-slate-500 italic">{entry.example_translation}</p>
+                </li>
+              ))}
+            </ul>
+
+            <button
+              onClick={startMatching}
+              className="w-full flex items-center justify-center gap-2 rounded-xl bg-cyan text-black font-bold text-xs uppercase tracking-widest py-3 transition-colors hover:bg-cyan-400"
+            >
+              Practicar el emparejamiento <ArrowRight className="h-4 w-4" />
+            </button>
+          </div>
+        )}
+
+        {/* Fase 2: emparejar palabra con traducción */}
+        {!loading && !error && phase === 'match' && (
+          <div className="w-full max-w-3xl">
+            <header className="flex items-center justify-between gap-4 mb-2">
+              <div>
+                <p className="text-[10px] text-cyan uppercase tracking-[0.25em]">Palabras clave</p>
+                <h2 className="text-xl font-bold text-white">Empareja cada palabra</h2>
               </div>
-              <span className="text-[10px] font-mono text-slate-400">
-                {index + 1}/{words.length} · {hits} ✓
+              <span className="text-xs px-2 py-1 rounded border font-bold border-cyan/50 bg-cyan/10 text-cyan">
+                {cefrLevel}
               </span>
-            </div>
+            </header>
+            <p className="text-[12px] text-slate-400 mb-4">
+              Toca una palabra y luego su traducción. Vas {matched.length} de {words.length}
+              {mistakes > 0 && <> · {mistakes} fallo{mistakes === 1 ? '' : 's'}</>}.
+            </p>
 
-            <div className="rounded-2xl border border-white/10 bg-black/40 backdrop-blur-sm p-6">
-              <p className="text-center text-[11px] uppercase tracking-widest text-slate-400 mb-2">
-                ¿Qué significa…?
-              </p>
-              <p className="text-center text-3xl font-bold text-white mb-1">{word.word}</p>
-              <p className="text-center text-[11px] text-slate-500 mb-6">
-                Elige la traducción correcta ({LETTERS.slice(0, word.options.length).join(', ')} o 1-
-                {word.options.length})
-              </p>
-
+            <div className="grid grid-cols-2 gap-3 mb-5">
               <div className="space-y-2">
-                {word.options.map((option, position) => {
-                  const isRight = option === word.translation
-                  const isPicked = picked === option
-                  const answered = picked !== null
+                {words.map(entry => {
+                  const done = isMatchedWord(entry.word)
+                  const failed = wrong?.word === entry.word
+                  const selected = selectedWord === entry.word
                   return (
                     <button
-                      key={option}
-                      onClick={() => choose(option)}
-                      disabled={answered}
+                      key={entry.word}
+                      onClick={() => pickWord(entry.word)}
+                      disabled={done || wrong !== null}
                       className={cn(
-                        'w-full flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition-colors',
-                        !answered && 'border-white/10 hover:border-cyan/40 hover:bg-white/5',
-                        answered && isRight && 'border-emerald/60 bg-emerald/10',
-                        answered && isPicked && !isRight && 'border-coral/60 bg-coral/10',
-                        answered && !isRight && !isPicked && 'border-white/5 opacity-50',
+                        'w-full flex items-center justify-between gap-2 rounded-xl border px-3 py-3 text-left text-sm font-bold transition-colors',
+                        done && 'border-emerald/50 bg-emerald/10 text-emerald-200',
+                        failed && 'border-coral/60 bg-coral/10 text-red-100',
+                        !done && !failed && selected && 'border-cyan/60 bg-cyan/10 text-cyan-100',
+                        !done && !failed && !selected && 'border-white/10 bg-white/5 text-white hover:border-cyan/40',
                       )}
                     >
-                      <span
-                        className={cn(
-                          'w-6 h-6 rounded-md border flex items-center justify-center text-[11px] font-bold shrink-0',
-                          answered && isRight
-                            ? 'border-emerald text-emerald'
-                            : answered && isPicked
-                              ? 'border-coral text-coral'
-                              : 'border-white/20 text-slate-400',
-                        )}
-                      >
-                        {LETTERS[position]}
-                      </span>
-                      <span className="text-sm text-white">{option}</span>
-                      {answered && isRight && <Check className="h-4 w-4 text-emerald ml-auto shrink-0" />}
-                      {answered && isPicked && !isRight && <X className="h-4 w-4 text-coral ml-auto shrink-0" />}
+                      {entry.word}
+                      {done && <Check className="h-4 w-4 text-emerald shrink-0" />}
+                      {failed && <X className="h-4 w-4 text-coral shrink-0" />}
                     </button>
                   )
                 })}
               </div>
 
-              {picked !== null && (
-                <div
-                  role="status"
-                  className={cn(
-                    'mt-5 rounded-xl border px-4 py-3 text-[13px] leading-relaxed',
-                    isCorrect
-                      ? 'border-emerald/40 bg-emerald/10 text-emerald-100'
-                      : 'border-coral/40 bg-coral/10 text-red-100',
-                  )}
-                >
-                  <p className="font-bold mb-0.5">{isCorrect ? '¡Correcto!' : 'No exactamente'}</p>
-                  {isCorrect ? (
-                    <p className="opacity-90">
-                      <span className="font-bold">{word.word}</span> = «{word.translation}».
-                    </p>
-                  ) : (
-                    <p className="opacity-90">
-                      <span className="font-bold">{word.word}</span> significa «{word.translation}».{' '}
-                      {word.explanation}
-                    </p>
-                  )}
-                </div>
-              )}
+              <div className="space-y-2">
+                {rightColumn.map(translation => {
+                  const done = matchedTranslations.has(translation)
+                  const failed = wrong?.translation === translation
+                  const selected = selectedTranslation === translation
+                  return (
+                    <button
+                      key={translation}
+                      onClick={() => pickTranslation(translation)}
+                      disabled={done || wrong !== null}
+                      className={cn(
+                        'w-full flex items-center justify-between gap-2 rounded-xl border px-3 py-3 text-left text-sm transition-colors',
+                        done && 'border-emerald/50 bg-emerald/10 text-emerald-200',
+                        failed && 'border-coral/60 bg-coral/10 text-red-100',
+                        !done && !failed && selected && 'border-cyan/60 bg-cyan/10 text-cyan-100',
+                        !done && !failed && !selected && 'border-white/10 bg-white/5 text-slate-200 hover:border-cyan/40',
+                      )}
+                    >
+                      {translation}
+                      {done && <Check className="h-4 w-4 text-emerald shrink-0" />}
+                      {failed && <X className="h-4 w-4 text-coral shrink-0" />}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
 
+            <button
+              onClick={backToStudy}
+              className="flex items-center gap-2 text-[11px] font-mono uppercase tracking-widest text-slate-400 hover:text-cyan transition-colors"
+            >
+              <Eye className="h-3.5 w-3.5" /> Ver las palabras otra vez
+            </button>
+          </div>
+        )}
+
+        {/* Fase 3: resumen */}
+        {!loading && !error && phase === 'summary' && (
+          <div className="w-full max-w-md rounded-2xl border border-white/10 bg-black/40 backdrop-blur-sm p-8 text-center space-y-4">
+            <p className="text-4xl">🏅</p>
+            <h2 className="text-xl font-bold text-white">¡Vocabulario listo!</h2>
+            <p className="text-sm text-slate-300">
+              {words.length} pares emparejados{mistakes > 0 && ` · ${mistakes} fallo${mistakes === 1 ? '' : 's'}`}
+            </p>
+            <div className="h-2 rounded-full bg-white/10 overflow-hidden">
+              <div className="h-full w-full bg-cyan shadow-[0_0_10px_rgba(6,182,212,0.6)]" />
+            </div>
+            <p className="text-[12px] text-slate-400">{closingMessage(mistakes)}</p>
+            <div className="flex flex-col sm:flex-row gap-2 pt-2">
               <button
-                onClick={next}
-                disabled={picked === null}
-                className="mt-5 w-full flex items-center justify-center gap-2 rounded-xl bg-cyan text-black font-bold text-xs uppercase tracking-widest py-3 transition-colors hover:bg-cyan-400 disabled:opacity-30 disabled:cursor-not-allowed"
+                onClick={onFinish}
+                className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-white text-cyan-900 font-black text-sm uppercase tracking-wider py-3 transition-transform hover:scale-[1.02] active:scale-95"
               >
-                {isLast ? 'Ver resultado' : 'Siguiente'} <ArrowRight className="h-4 w-4" />
+                Ir a la misión <ArrowRight className="h-4 w-4" />
+              </button>
+              <button
+                onClick={retryMatching}
+                className="flex items-center justify-center gap-2 rounded-xl border border-white/15 px-4 py-3 text-[11px] font-mono uppercase tracking-widest text-slate-300 hover:border-white/30 transition-colors"
+              >
+                <RotateCcw className="h-3.5 w-3.5" /> Repetir
               </button>
             </div>
           </div>
