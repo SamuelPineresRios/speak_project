@@ -16,6 +16,7 @@ import {
   users,
   weekly_aggregates,
 } from '../../db/schema.ts'
+import { missionXp } from '../../lib/xp.ts'
 import { HttpError } from '../../utils/http-error.ts'
 import { getWeekStart } from '../../utils/week.ts'
 import {
@@ -157,6 +158,7 @@ export async function submitResponse(input: SubmitInput): Promise<SubmitOutcome>
         detected_structures: evaluation.detected_structures,
         transcript: null,
         evaluated_at: new Date(),
+        xp_awarded: 0,
       })
     })
 
@@ -177,6 +179,20 @@ export async function submitResponse(input: SubmitInput): Promise<SubmitOutcome>
   const completed = evaluation.judgment === 'ADVANCE' || evaluation.comprehensibility_score >= threshold
   const weekStart = getWeekStart()
   const timeTaken = input.timeTakenSeconds ?? 0
+
+  // ¿Ya había completado esta misión antes? La primera vez paga el bonus;
+  // repetirla sólo da práctica (y evita farmear XP con la misma misión).
+  const firstCompletion = completed ? !(await hasCompletedMission(input.studentId, input.missionId)) : false
+  const xp = missionXp({
+    cefrLevel,
+    completed,
+    firstCompletion,
+    scores: [
+      evaluation.comprehensibility_score,
+      evaluation.grammar_score,
+      evaluation.lexical_richness_score,
+    ],
+  })
 
   await db.transaction(async tx => {
     await tx.insert(responses).values({
@@ -203,6 +219,7 @@ export async function submitResponse(input: SubmitInput): Promise<SubmitOutcome>
       detected_structures: evaluation.detected_structures,
       transcript: null,
       evaluated_at: new Date(),
+      xp_awarded: xp,
     })
 
     // Upsert del agregado semanal. La aritmética se hace en SQL (no en JS)
@@ -251,6 +268,22 @@ export async function submitResponse(input: SubmitInput): Promise<SubmitOutcome>
   }
 
   return { kind: 'evaluated', responseId, evaluationId, evaluation }
+}
+
+/** ¿Este alumno ya tiene una respuesta completada de esa misión? */
+async function hasCompletedMission(studentId: string, missionId: string): Promise<boolean> {
+  const [row] = await db
+    .select({ id: responses.id })
+    .from(responses)
+    .where(
+      and(
+        eq(responses.student_id, studentId),
+        eq(responses.mission_id, missionId),
+        eq(responses.status, 'completed'),
+      ),
+    )
+    .limit(1)
+  return Boolean(row)
 }
 
 interface NarrativeStateInput {

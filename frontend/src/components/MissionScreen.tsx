@@ -5,6 +5,8 @@ import { Timer } from './Timer'
 import { TypewriterMessage } from './TypewriterMessage'
 import { InteractiveWords } from './InteractiveWords'
 import { VocabularyQuiz } from './VocabularyQuiz'
+import { XpBar } from './XpBar'
+import { useProgress } from '@/lib/hooks/useProgress'
 import { warmWords } from '@/lib/word-cache'
 import { GrammarToastStack, HeartMeter, type GrammarNotice } from './GrammarToast'
 import { StepHintStack, type StepHint } from './StepHintToast'
@@ -48,6 +50,7 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
   const [isThinking, setIsThinking] = useState(false)
   const [isLastMessageTyping, setIsLastMessageTyping] = useState(false)
   const [timedOut, setTimedOut] = useState(false)
+  const { progress } = useProgress(user?.id)
   const [showCompletionNotification, setShowCompletionNotification] = useState(false)
   /** El titular terminó de escribirse: salen la línea y el subtítulo. */
   const [completionTyped, setCompletionTyped] = useState(false)
@@ -610,7 +613,8 @@ export function MissionScreen({ mission, studentId, groupId }: MissionScreenProp
         <div className="flex items-center gap-3 py-2">
           <button onClick={() => navigate(-1)} className="text-slate-light hover:text-foreground transition-colors">←</button>
           <div className="flex-1 text-center font-body text-cyan text-xs uppercase tracking-widest">{mission.title}</div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
+            <XpBar progress={progress} className="hidden sm:flex" />
             <button onClick={handleCompleteMission} className="text-xs text-emerald hover:text-emerald-400 border border-emerald/50 px-2 py-1 rounded bg-emerald/10 uppercase tracking-wide">
                Complete
             </button>

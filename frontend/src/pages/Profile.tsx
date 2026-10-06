@@ -5,6 +5,8 @@ import { Camera, Edit2, Shield, Award, Brain, Target, CheckCircle2, TrendingUp }
 import { ResponsiveBackgroundSprites } from '@/components/ResponsiveBackgroundSprites'
 import { Canvas3DBackground } from '@/components/Canvas3DBackground'
 import { ActivityHistory } from '@/components/ActivityHistory'
+import { XpBar } from '@/components/XpBar'
+import { useProgress } from '@/lib/hooks/useProgress'
 import { readJson } from '@/lib/api'
 
 interface Mission { id:string; title:string; description:string|null; cefr_level:string; status:string }
@@ -52,6 +54,7 @@ function statusFor(overall: number | null): string {
 
 export default function ProfilePage() {
   const { user, refetch } = useAuth()
+  const { progress } = useProgress(user?.id)
   const [missions, setMissions] = useState<Mission[]>([])
   const [skills, setSkills] = useState<StudentSkills | null>(null)
   const [, setLoading] = useState(true)
@@ -235,6 +238,15 @@ export default function ProfilePage() {
             )}
         </div>
       </div>
+
+      {/* Progreso: nivel, XP y racha */}
+      <section className="bg-black/20 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
+        <h3 className="text-sm font-bold text-slate-300 uppercase tracking-widest flex items-center gap-2 mb-4">
+          <TrendingUp className="w-4 h-4 text-cyan" />
+          Progreso
+        </h3>
+        <XpBar progress={progress} variant="full" />
+      </section>
 
       {/* Historial de actividad: misiones por día, semana y mes */}
       {user?.id && <ActivityHistory studentId={user.id} />}

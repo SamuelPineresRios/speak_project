@@ -15,6 +15,7 @@ import {
   users,
   weekly_aggregates,
 } from '../../db/schema.ts'
+import { levelProgress, streakFromDays, type LevelProgress } from '../../lib/xp.ts'
 import { HttpError } from '../../utils/http-error.ts'
 import { getWeekStart } from '../../utils/week.ts'
 
@@ -259,6 +260,83 @@ export async function getDailyActivity(
     // `AT TIME ZONE $1` y `AT TIME ZONE $3` son lo mismo al agrupar.
     .groupBy(sql`1`)
     .orderBy(sql`1`)
+}
+
+/** Progreso gamificado del alumno: XP, nivel, racha y totales. */
+export interface StudentProgress extends LevelProgress {
+  /** Días seguidos con actividad (hoy o ayer como último día). */
+  streak: number
+  missions_completed: number
+  writing_seconds: number
+  xp_today: number
+}
+
+/** Días hacia atrás que se miran para calcular la racha. */
+const STREAK_WINDOW_DAYS = 60
+
+/** `YYYY-MM-DD` de hoy en la zona del alumno (o en la del servidor). */
+function todayKeyIn(timeZone: string | null): string {
+  if (!timeZone) {
+    const now = new Date()
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+  }
+  // en-CA formatea justo como YYYY-MM-DD.
+  return new Intl.DateTimeFormat('en-CA', { timeZone }).format(new Date())
+}
+
+/** Resta días a una clave `YYYY-MM-DD` (en UTC, para no bailar con el DST). */
+function minusDays(key: string, days: number): string {
+  return new Date(Date.parse(`${key}T00:00:00Z`) - days * 86_400_000).toISOString().slice(0, 10)
+}
+
+/**
+ * Progreso del alumno. El XP sale de `evaluations.xp_awarded` y el nivel se
+ * deriva de la suma: no hay contadores que puedan desincronizarse.
+ */
+export async function getStudentProgress(
+  studentId: string,
+  timezone?: unknown,
+): Promise<StudentProgress> {
+  const tz = safeTimeZone(timezone)
+  const day = tz
+    ? sql`((${responses.submitted_at} AT TIME ZONE ${tz}::text)::date)`
+    : sql`(${responses.submitted_at}::date)`
+  const todayKey = todayKeyIn(tz)
+
+  const [totals] = await db
+    .select({
+      total_xp: sql<number>`coalesce(sum(${evaluations.xp_awarded}), 0)::int`,
+      missions_completed: sql<number>`count(distinct case when ${responses.status} = 'completed' then ${responses.mission_id} end)::int`,
+      writing_seconds: sql<number>`coalesce(sum(${responses.time_taken_seconds}), 0)::int`,
+      xp_today: sql<number>`coalesce(sum(${evaluations.xp_awarded}) filter (where ${day} = ${todayKey}::date), 0)::int`,
+    })
+    .from(responses)
+    .leftJoin(evaluations, eq(evaluations.response_id, responses.id))
+    .where(eq(responses.student_id, studentId))
+
+  // Días con actividad reciente: con ellos se calcula la racha.
+  const dayRows = await db
+    .select({ day: sql<string>`to_char(${day}, 'YYYY-MM-DD')` })
+    .from(responses)
+    .where(
+      and(
+        eq(responses.student_id, studentId),
+        sql`${day} >= ${minusDays(todayKey, STREAK_WINDOW_DAYS)}::date`,
+      ),
+    )
+    // Por posición: repetir la expresión con su parámetro rompe el GROUP BY.
+    .groupBy(sql`1`)
+
+  const days = new Set(dayRows.map(row => row.day))
+  const progress = levelProgress(totals?.total_xp ?? 0)
+
+  return {
+    ...progress,
+    streak: streakFromDays(days, todayKey, minusDays(todayKey, 1)),
+    missions_completed: totals?.missions_completed ?? 0,
+    writing_seconds: totals?.writing_seconds ?? 0,
+    xp_today: totals?.xp_today ?? 0,
+  }
 }
 
 function generateSuggestion(topStructures: Array<{ structure: string; count: number }>): string {

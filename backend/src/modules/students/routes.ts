@@ -9,6 +9,7 @@ import { HttpError } from '../../utils/http-error.ts'
 import { queryInt, routeParam } from '../../utils/route-params.ts'
 import {
   getDailyActivity,
+  getStudentProgress,
   getSessionSummary,
   getStudentSkills,
   getWeeklyStats,
@@ -83,6 +84,19 @@ studentsRouter.get('/:id/session-summary', requireAuth, async (req, res) => {
   if (!ownsResource(session, studentId, ['teacher'])) throw new HttpError(403, 'Forbidden')
 
   res.json(await getSessionSummary(studentId, queryInt(req, 'week_offset', 0)))
+})
+
+/**
+ * Progreso gamificado: XP total, nivel, racha, misiones y tiempo. La zona
+ * horaria del cliente decide qué cuenta como «hoy» para el XP del día.
+ */
+studentsRouter.get('/:id/xp', requireAuth, async (req, res) => {
+  const session = sessionOf(req)
+  const studentId = routeParam(req, 'id')
+
+  if (!ownsResource(session, studentId, ['teacher'])) throw new HttpError(403, 'Forbidden')
+
+  res.json({ progress: await getStudentProgress(studentId, req.query.tz) })
 })
 
 /**

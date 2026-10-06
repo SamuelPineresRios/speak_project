@@ -1,6 +1,8 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { cn } from '@/lib/utils'
+import { useAuth } from '@/lib/hooks/useAuth'
+import { useProgress } from '@/lib/hooks/useProgress'
 
 interface EvaluationPayload {
   comprehensibility_score: number
@@ -9,6 +11,8 @@ interface EvaluationPayload {
   judgment: 'ADVANCE' | 'PAUSE'
   feedback_text: string
   detected_structures: string[]
+  /** XP que otorgó este envío (0 si fue rechazado). */
+  xp_awarded: number | null
 }
 
 interface FeedbackScreenProps {
@@ -73,7 +77,15 @@ export function FeedbackScreen({
 }: FeedbackScreenProps) {
   const [visible, setVisible] = useState(false)
   const navigate = useNavigate()
+  const { user } = useAuth()
+  const { progress } = useProgress(user?.id)
   const isAdvance = missionCompleted
+  const xp = evaluation.xp_awarded ?? 0
+  // Si el XP ganado supera lo que había dentro del nivel, es que subió.
+  const leveledUp = Boolean(progress && xp > progress.level_xp)
+  const xpPercent = progress && progress.level_span > 0
+    ? Math.round((progress.level_xp / progress.level_span) * 100)
+    : 0
 
   useEffect(() => {
     const timer = setTimeout(() => setVisible(true), 100)
@@ -181,6 +193,41 @@ export function FeedbackScreen({
                   </div>
                 )
               })}
+            </div>
+          </section>
+        )}
+
+        {/* Experiencia ganada */}
+        {xp > 0 && (
+          <section className="mt-10">
+            <SectionTitle>Experiencia</SectionTitle>
+            <div className="space-y-3 rounded-xl border border-white/10 bg-white/[0.03] p-4">
+              <div className="flex items-baseline justify-between gap-3">
+                <p className="text-xl font-bold text-cyan">+{xp} XP</p>
+                {progress && (
+                  <p className="font-mono text-xs text-slate-400">
+                    Nivel {progress.level} · {progress.total_xp} XP
+                  </p>
+                )}
+              </div>
+              {leveledUp && (
+                <p className="text-[11px] font-bold uppercase tracking-widest text-emerald">¡Nuevo nivel!</p>
+              )}
+              {progress && (
+                <>
+                  <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
+                    <div
+                      className="h-full rounded-full bg-cyan transition-all duration-700"
+                      style={{ width: `${xpPercent}%` }}
+                    />
+                  </div>
+                  <p className="text-[10px] uppercase tracking-widest text-slate-500">
+                    {progress.xp_to_next === 0
+                      ? 'Nivel completo'
+                      : `Faltan ${progress.xp_to_next} XP para el nivel ${progress.level + 1}`}
+                  </p>
+                </>
+              )}
             </div>
           </section>
         )}
