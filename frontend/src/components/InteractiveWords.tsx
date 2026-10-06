@@ -140,7 +140,7 @@ export function InteractiveWords({ text, context, className }: InteractiveWordsP
             key={index}
             role="button"
             tabIndex={0}
-            className="cursor-help underline decoration-dotted decoration-current/30 underline-offset-4 transition-colors hover:text-cyan hover:decoration-cyan"
+            className="cursor-help transition-colors hover:text-cyan hover:underline hover:decoration-dotted hover:decoration-cyan/70 hover:underline-offset-4 focus-visible:underline focus-visible:decoration-dotted focus-visible:decoration-cyan/70 focus-visible:underline-offset-4"
             onMouseEnter={event => openFor(part, event.currentTarget)}
             onMouseLeave={scheduleClose}
             onClick={event => openFor(part, event.currentTarget)}

@@ -404,11 +404,11 @@ export function IntroductionPlayer({ introduction, cefrLevel, onFinish, onSkip }
 
   return (
     <div className="h-screen w-full flex flex-col bg-slate-950 font-body relative overflow-hidden">
-      {/* Fondo del escenario */}
+      {/* Fondo del escenario: sobrio, solo el degradado, la rejilla y las
+          «grietas» tenues. Sin nube de partículas: la escena es para leer. */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_35%,rgba(8,51,68,0.6)_0%,rgba(2,6,23,0.97)_100%)]" />
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#0e2a38_1px,transparent_1px),linear-gradient(to_bottom,#0e2a38_1px,transparent_1px)] bg-[size:56px_56px] opacity-20" />
-      {/* Las mismas «grietas» del resto de módulos, por encima del degradado */}
-      <Canvas3DBackground className="opacity-60" />
+      <Canvas3DBackground className="opacity-40" particles={false} />
 
       {/* Cabecera */}
       <header className="relative z-10 shrink-0 flex items-center justify-between gap-4 px-6 py-4">
@@ -431,7 +431,7 @@ export function IntroductionPlayer({ introduction, cefrLevel, onFinish, onSkip }
 
       {/* Escenario + personajes */}
       <div className="relative z-10 shrink-0 px-6">
-        <p className="text-[13px] text-cyan-50/75 leading-relaxed border-l-2 border-cyan/40 pl-3">
+        <p className="text-[13px] sm:text-[15px] text-cyan-50/90 leading-relaxed border-l-2 border-cyan/40 pl-3">
           {introduction.scene_description}
         </p>
       </div>
@@ -474,7 +474,7 @@ export function IntroductionPlayer({ introduction, cefrLevel, onFinish, onSkip }
               <>
                 <div className="flex items-center justify-between gap-3 mb-2">
                   <p className={cn('text-[10px] font-mono uppercase tracking-widest', speaker ? ROLE_THEME[speaker.id].label : 'text-cyan')}>
-                    {speaker?.emoji} {speaker?.name}
+                    {speaker?.name}
                   </p>
                   <div className="flex items-center gap-3">
                     {!lineComplete && (
@@ -496,7 +496,7 @@ export function IntroductionPlayer({ introduction, cefrLevel, onFinish, onSkip }
                   </div>
                 </div>
 
-                <p className={cn('text-lg leading-relaxed', speaker ? ROLE_THEME[speaker.id].text : 'text-slate-100')}>
+                <p className={cn('text-xl sm:text-2xl leading-relaxed font-medium', speaker ? ROLE_THEME[speaker.id].text : 'text-slate-100')}>
                   {lineComplete ? (
                     <InteractiveWords text={line.text} context={line.text} />
                   ) : (
@@ -505,7 +505,7 @@ export function IntroductionPlayer({ introduction, cefrLevel, onFinish, onSkip }
                 </p>
 
                 {showTranslations && lineComplete && (
-                  <p className="mt-3 pt-3 border-t border-white/10 text-[14px] italic text-emerald-300/85 animate-in fade-in duration-500">
+                  <p className="mt-3 pt-3 border-t border-white/10 text-[15px] italic text-emerald-200/90 animate-in fade-in duration-500">
                     {line.translation}
                   </p>
                 )}
@@ -514,9 +514,8 @@ export function IntroductionPlayer({ introduction, cefrLevel, onFinish, onSkip }
 
             {finished && (
               <div className="text-center space-y-2">
-                <p className="text-3xl">🏅</p>
-                <p className="text-emerald font-mono uppercase tracking-widest text-sm">Escena completada</p>
-                <p className="text-[12px] text-slate-400">
+                <p className="text-xl sm:text-2xl font-black text-emerald">Escena completada</p>
+                <p className="text-[13px] text-slate-300">
                   Desbloqueaste {introduction.useful_expressions.length} expresiones para la misión
                 </p>
               </div>
