@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { cn } from '@/lib/utils'
 
@@ -20,6 +20,50 @@ interface FeedbackScreenProps {
   onNextMission?: () => void
 }
 
+/** Título de sección minimalista: rótulo, línea y nada más. */
+function SectionTitle({ children }: { children: ReactNode }) {
+  return (
+    <div className="flex items-center gap-3 mb-3">
+      <h2 className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-400">{children}</h2>
+      <div className="h-px flex-1 bg-white/10" />
+    </div>
+  )
+}
+
+/**
+ * Convierte el bloque de mejoras en una lista de ideas.
+ *
+ * El modelo las manda en líneas con "- "; los informes antiguos traían un
+ * párrafo corrido, así que en ese caso se corta por frases.
+ */
+function improvementItems(text: string): string[] {
+  const clean = text.replace(/(CONTEXT|ACHIEVEMENT|IMPROVEMENT):/i, '').trim()
+
+  const lines = clean
+    .split('\n')
+    .map(line => line.replace(/^\s*(?:[-•*]|\d+[.)])\s*/, '').trim())
+    .filter(Boolean)
+  if (lines.length > 1) return lines
+
+  return clean
+    .split(/(?<=[.!?])\s+(?=[¿¡"A-ZÁÉÍÓÚÑ])/)
+    .map(sentence => sentence.trim())
+    .filter(Boolean)
+}
+
+/** Rótulo en español de cada bloque del análisis. */
+const PART_LABELS: Record<'context' | 'strength' | 'improvement', string> = {
+  context: 'Contexto',
+  strength: 'Lo que hiciste bien',
+  improvement: 'A mejorar',
+}
+
+const PART_COLORS: Record<'context' | 'strength' | 'improvement', string> = {
+  context: 'bg-blue-400',
+  strength: 'bg-emerald',
+  improvement: 'bg-amber',
+}
+
 export function FeedbackScreen({
   evaluation,
   missionTitle,
@@ -32,159 +76,139 @@ export function FeedbackScreen({
   const isAdvance = missionCompleted
 
   useEffect(() => {
-    setTimeout(() => setVisible(true), 100)
+    const timer = setTimeout(() => setVisible(true), 100)
+    return () => clearTimeout(timer)
   }, [])
 
-  // Parse feedback text
   const feedbackParts = evaluation.feedback_text.split('\n\n').filter(Boolean)
 
-  return (
-    <div className="fixed inset-0 z-[100] bg-slate-950/90 backdrop-blur-sm font-mono text-cyan-50 flex flex-col items-center justify-center p-6 selection:bg-cyan/30 selection:text-cyan-200 animate-in fade-in duration-500">
-      
-      {/* 🌌 Animated Background - Reduced opacity for overlay effect */}
-      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(15,23,42,0.5)_0%,rgba(2,6,23,0.8)_100%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(30,41,59,0.3)_1px,transparent_1px),linear-gradient(to_bottom,rgba(30,41,59,0.3)_1px,transparent_1px)] bg-[size:4rem_4rem]" />
-      </div>
+  const metrics = [
+    { label: 'Comunicación', score: evaluation.comprehensibility_score, stroke: 'stroke-cyan' },
+    { label: 'Gramática', score: evaluation.grammar_score, stroke: 'stroke-violet' },
+    { label: 'Vocabulario', score: evaluation.lexical_richness_score, stroke: 'stroke-amber' },
+  ]
 
-      <div 
+  return (
+    <div className="fixed inset-0 z-[100] overflow-y-auto bg-slate-950/95 font-mono text-slate-200 backdrop-blur-sm">
+      <div
         className={cn(
-          "relative z-10 w-full max-w-lg flex flex-col gap-6 transition-all duration-1000 ease-out max-h-[90vh] overflow-y-auto custom-scrollbar",
-          visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+          'mx-auto w-full max-w-lg px-6 py-12 transition-all duration-700 ease-out',
+          visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4',
         )}
       >
-        
-        {/* Header Badge */}
-        <div className="flex justify-center">
-            <div className={cn(
-                "px-6 py-2 rounded-lg border-2 backdrop-blur-md shadow-[0_0_30px_rgba(0,0,0,0.5)] flex items-center gap-3 animate-in zoom-in duration-500",
-                isAdvance 
-                    ? "bg-emerald-950/50 border-emerald-500 text-emerald-400 shadow-emerald-900/40" 
-                    : "bg-amber-950/50 border-amber-500 text-amber-400 shadow-amber-900/40"
-            )}>
-                <span className="text-2xl">{isAdvance ? '🏆' : '⚠️'}</span>
-                <div>
-                    <h1 className="text-xl font-black uppercase tracking-widest leading-none">
-                        {isAdvance ? 'Misión Completada' : 'Misión Fallida'}
-                    </h1>
-                    <p className="text-[10px] font-mono opacity-80 uppercase tracking-widest mt-1">
-                        {isAdvance ? 'Objetivo Logrado' : 'Reintentá'}
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        {/* Mission Info */}
-        <div className="text-center space-y-3 mb-2">
-            <p className="text-[10px] text-slate-500 uppercase tracking-[0.3em]">Debriefing Report // ID-2039</p>
-            <div className="flex items-center justify-center gap-2">
-              <h2 className="text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-white to-cyan-300 tracking-[0.15em] uppercase font-mono drop-shadow-[0_0_15px_rgba(34,211,238,0.6)]">
-                {missionTitle}
-              </h2>
-              <span className={cn(
-                "text-xs px-2 py-1 rounded border font-bold uppercase tracking-widest",
-                "bg-cyan-500/20 text-cyan-300 border-cyan-500/50"
-              )}>
-                📝 Text
-              </span>
-            </div>
-        </div>
-
-        {/* Scores Grid */}
-        <div className="grid grid-cols-3 gap-2">
-            {[
-                { label: 'Comunicación', score: evaluation.comprehensibility_score, color: 'text-cyan-400', stroke: 'stroke-cyan-500' },
-                { label: 'Gramática', score: evaluation.grammar_score, color: 'text-violet-400', stroke: 'stroke-violet-500' },
-                { label: 'Vocabulario', score: evaluation.lexical_richness_score, color: 'text-amber-400', stroke: 'stroke-amber-500' }
-            ].map((metric, i) => (
-                <div key={i} className="bg-slate-900/50 border border-slate-800 rounded-lg p-3 flex flex-col items-center justify-center backdrop-blur-sm">
-                    <div className="relative w-16 h-16 flex items-center justify-center mb-2">
-                        <svg className="w-full h-full -rotate-90">
-                            <circle cx="32" cy="32" r="28" className="stroke-slate-800" strokeWidth="4" fill="none" />
-                            <circle 
-                                cx="32" cy="32" r="28" 
-                                className={cn("transition-all duration-1000 ease-out", metric.stroke)}
-                                strokeWidth="4" 
-                                fill="none" 
-                                strokeDasharray={175}
-                                strokeDashoffset={visible ? 175 - (175 * metric.score) / 100 : 175}
-                                strokeLinecap="round"
-                            />
-                        </svg>
-                        <span className={cn("absolute text-sm font-bold", metric.color)}>{metric.score}</span>
-                    </div>
-                    <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">{metric.label}</span>
-                </div>
-            ))}
-        </div>
-
-        {/* System Logs (Feedback) */}
-        <div className="space-y-4">
-            <div className="flex items-center gap-2 mb-2">
-                <div className="w-1 h-1 bg-cyan rounded-full animate-pulse" />
-                <h3 className="text-xs font-bold text-cyan uppercase tracking-widest">Performance Analysis</h3>
-                <div className="h-[1px] bg-cyan/20 flex-1" />
-            </div>
-
-            {feedbackParts.map((part, idx) => {
-               // Determine part type based on index or content if structured
-               // Assuming API returns: Context, Strength, Improvement order
-               const type = idx === 0 ? 'context' : idx === 1 ? 'strength' : 'improvement';
-               const colors = {
-                 context: 'bg-blue-500',
-                 strength: 'bg-emerald-500',
-                 improvement: 'bg-amber-500'
-               };
-               
-               return (
-                <div 
-                    key={idx}
-                    className={cn(
-                        "p-4 pl-5 rounded-xl border border-white/5 bg-white/5 backdrop-blur-sm relative overflow-hidden transition-all duration-500",
-                        visible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4"
-                    )}
-                    style={{ transitionDelay: `${idx * 150}ms` }}
-                >
-                    <div className={cn("absolute top-0 left-0 w-1 h-full", colors[type as keyof typeof colors])} />
-                    
-                    <p className="text-[10px] uppercase tracking-widest mb-1 opacity-60 font-bold">
-                        {type}
-                    </p>
-                    <p className="text-sm leading-relaxed text-slate-300">
-                        {part.replace(/(CONTEXT|ACHIEVEMENT|IMPROVEMENT):/i, '').trim()}
-                    </p>
-                </div>
-            )})}
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex flex-col gap-3 mt-4 pb-8">
-            {isAdvance ? (
-                <button
-                    onClick={onNextMission ?? (() => navigate('/missions'))}
-                    className="w-full py-4 bg-cyan hover:bg-cyan-400 text-black font-bold uppercase tracking-widest rounded-xl transition-all hover:scale-[1.02] active:scale-95 shadow-[0_0_20px_rgba(6,182,212,0.3)] flex items-center justify-center gap-2 group"
-                >
-                    <span>Next Mission</span>
-                    <span className="group-hover:translate-x-1 transition-transform">→</span>
-                </button>
-            ) : (
-                <button
-                    onClick={onTryAgain}
-                    className="w-full py-4 bg-amber hover:bg-amber-400 text-black font-bold uppercase tracking-widest rounded-xl transition-all hover:scale-[1.02] active:scale-95 shadow-[0_0_20px_rgba(245,158,11,0.3)] flex items-center justify-center gap-2 group"
-                >
-                    <span>Re-Initialize</span>
-                    <span className="group-hover:rotate-180 transition-transform">↻</span>
-                </button>
+        {/* Cabecera: estado y misión */}
+        <header className="text-center space-y-3">
+          <p className="text-[10px] uppercase tracking-[0.3em] text-slate-500">Informe de la misión</p>
+          <div
+            className={cn(
+              'inline-flex items-center rounded-full border px-3 py-1 text-[11px] uppercase tracking-widest',
+              isAdvance
+                ? 'border-emerald/40 bg-emerald/10 text-emerald'
+                : 'border-amber/40 bg-amber/10 text-amber',
             )}
-            
-            <button
-                onClick={() => navigate('/missions')}
-                className="w-full py-3 bg-transparent border border-white/10 hover:bg-white/5 text-slate-400 hover:text-white uppercase text-xs tracking-widest rounded-xl transition-colors"
-            >
-                Return to Base
-            </button>
-        </div>
+          >
+            {isAdvance ? 'Misión completada' : 'Objetivo no alcanzado'}
+          </div>
+          <h1 className="text-2xl md:text-3xl font-bold text-white">{missionTitle}</h1>
+        </header>
 
+        {/* Puntuaciones */}
+        <section className="mt-10">
+          <SectionTitle>Resultados</SectionTitle>
+          <div className="grid grid-cols-3 gap-3">
+            {metrics.map(metric => (
+              <div
+                key={metric.label}
+                className="flex flex-col items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] p-4"
+              >
+                <div className="relative flex h-14 w-14 items-center justify-center">
+                  <svg className="h-full w-full -rotate-90">
+                    <circle cx="28" cy="28" r="24" className="stroke-white/10" strokeWidth="3" fill="none" />
+                    <circle
+                      cx="28"
+                      cy="28"
+                      r="24"
+                      className={cn('transition-all duration-1000 ease-out', metric.stroke)}
+                      strokeWidth="3"
+                      fill="none"
+                      strokeDasharray={151}
+                      strokeDashoffset={visible ? 151 - (151 * metric.score) / 100 : 151}
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                  <span className="absolute text-sm font-bold text-white">{metric.score}</span>
+                </div>
+                <span className="text-[10px] uppercase tracking-wider text-slate-400">{metric.label}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Análisis del evaluador */}
+        {feedbackParts.length > 0 && (
+          <section className="mt-10">
+            <SectionTitle>Análisis</SectionTitle>
+            <div className="space-y-3">
+              {feedbackParts.map((part, index) => {
+                // La API devuelve contexto, logro y mejora en ese orden.
+                const type = index === 0 ? 'context' : index === 1 ? 'strength' : 'improvement'
+
+                return (
+                  <div
+                    key={index}
+                    className={cn(
+                      'relative rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 transition-all duration-500',
+                      visible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-3',
+                    )}
+                    style={{ transitionDelay: `${index * 120}ms` }}
+                  >
+                    <span className={cn('absolute left-0 top-3 bottom-3 w-0.5 rounded-full', PART_COLORS[type])} />
+                    <p className="mb-1 text-[10px] uppercase tracking-widest text-slate-500">{PART_LABELS[type]}</p>
+                    {type === 'improvement' ? (
+                      <ul className="space-y-1.5">
+                        {improvementItems(part).map((item, itemIndex) => (
+                          <li key={itemIndex} className="flex gap-2 text-[13px] leading-relaxed text-slate-200">
+                            <span className="mt-[7px] h-1 w-1 shrink-0 rounded-full bg-amber" />
+                            <span>{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-[13px] leading-relaxed text-slate-200">
+                        {part.replace(/(CONTEXT|ACHIEVEMENT|IMPROVEMENT):/i, '').trim()}
+                      </p>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          </section>
+        )}
+
+        {/* Acciones */}
+        <div className="mt-10 flex flex-col gap-3 pb-8">
+          {isAdvance ? (
+            <button
+              onClick={onNextMission ?? (() => navigate('/missions'))}
+              className="w-full rounded-xl bg-cyan py-3.5 text-xs font-bold uppercase tracking-widest text-black transition-colors hover:bg-cyan-400 active:scale-[0.99]"
+            >
+              Siguiente misión
+            </button>
+          ) : (
+            <button
+              onClick={onTryAgain}
+              className="w-full rounded-xl bg-amber py-3.5 text-xs font-bold uppercase tracking-widest text-black transition-colors hover:bg-amber-light active:scale-[0.99]"
+            >
+              Reintentar la misión
+            </button>
+          )}
+          <button
+            onClick={() => navigate('/missions')}
+            className="w-full rounded-xl border border-white/10 py-3 text-[11px] uppercase tracking-widest text-slate-400 transition-colors hover:border-white/25 hover:text-white"
+          >
+            Volver a misiones
+          </button>
+        </div>
       </div>
     </div>
   )

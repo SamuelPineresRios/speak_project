@@ -30,7 +30,7 @@ export const EVALUATION_SCHEMA: JsonSchema = {
     feedback_text: {
       type: 'string',
       description:
-        'Retroalimentación en el idioma indicado, con las tres partes: resultado narrativo, acierto y una mejora concreta.',
+        'Retroalimentación en el idioma indicado: tres partes separadas por una línea en blanco (resultado, acierto y mejoras). Las mejoras van una por línea, cada una empezando por "- ".',
     },
     detected_structures: {
       type: 'array',
@@ -66,7 +66,7 @@ CRITICAL SCORING RULES:
 5. feedback_text MUST follow this exact 3-part structure (separated by \\n\\n):
    PART 1 (2 sentences max): Narrative result — did the character understand the student? State clearly whether the objective was achieved.
    PART 2 (2 sentences max): One thing the student did correctly.
-   PART 3 (2-3 sentences max): WHAT THEY MUST FIX — quote 1 SPECIFIC phrase the student actually wrote that was wrong or weak, say exactly what was wrong, and give the corrected version. If everything was correct, say so and give one concrete way to level up.
+   PART 3 (2 to 4 SHORT lines, one per line, each starting with "- "): WHAT THEY MUST FIX — cada línea señala un problema concreto (cita la frase del alumno que falla y su versión correcta) o una mejora. Nunca un párrafo corrido: una idea por línea. Si todo está bien, una sola línea con una forma concreta de subir de nivel.
 
 SCORING GUIDELINES:
 - Minimum score for ANY valid attempt: 50 (must answer the question meaningfully)
