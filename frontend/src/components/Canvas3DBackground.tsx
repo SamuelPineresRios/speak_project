@@ -31,13 +31,10 @@ export const DEFAULT_CLUSTERS: BackgroundCluster[] = [
 export function Canvas3DBackground({
   className,
   clusters = DEFAULT_CLUSTERS,
-  particles = true,
 }: {
   className?: string
   /** Configuración estable (constante del módulo): se lee al montar. */
   clusters?: BackgroundCluster[]
-  /** Nube de puntos flotantes; se apaga en fondos que deben ser más sobrios. */
-  particles?: boolean
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
@@ -51,12 +48,12 @@ export function Canvas3DBackground({
     let height = (canvas.height = window.innerHeight)
     
     // Simulate 3D particles in a rotating sphere or space
-    const particles3d: any[] = []
-    const particleCount = particles ? 120 : 0
+    const particles: any[] = []
+    const particleCount = 120
     const fov = 250 // Field of view
 
     for (let i = 0; i < particleCount; i++) {
-        particles3d.push({
+        particles.push({
             x: Math.random() * 2000 - 1000,
             y: Math.random() * 2000 - 1000,
             z: Math.random() * 2000 - 1000,
@@ -104,7 +101,7 @@ export function Canvas3DBackground({
 
         const points2d: {x: number, y: number, z: number}[] = []
 
-        particles3d.forEach((p) => {
+        particles.forEach((p) => {
             // Rotate around x-axis
             const y1 = p.y * cosX - p.z * sinX
             const z1 = p.y * sinX + p.z * cosX
@@ -203,7 +200,7 @@ export function Canvas3DBackground({
       window.removeEventListener('resize', handleResize)
       cancelAnimationFrame(animationFrameId)
     }
-  }, [clusters, particles])
+  }, [clusters])
 
   return (
     <canvas 
