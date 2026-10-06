@@ -95,7 +95,7 @@ function CharacterStage({
           // columna, en escritorio el alto de la pantalla (para que el busto
           // nunca desplace la burbuja ni el pie en portátiles bajos). En
           // pantallas altas se permite crecer más.
-          'relative aspect-square w-[min(46vw,12rem,40vh)] sm:w-[min(32vw,28rem,40vh)] [@media(min-height:840px)]:sm:w-[min(32vw,28rem,46vh)] overflow-hidden rounded-2xl border-2 transition-all duration-500',
+          'relative aspect-square w-[min(38vw,9.5rem,32vh)] sm:w-[min(26vw,22rem,34vh)] [@media(min-height:840px)]:sm:w-[min(26vw,22rem,38vh)] overflow-hidden rounded-2xl border-2 transition-all duration-500',
           speaking ? theme.ring : 'border-white/10 opacity-55 grayscale',
         )}
       >
