@@ -107,10 +107,21 @@ function toSource(mission: NonNullable<Awaited<ReturnType<typeof getMissionById>
 
 function toScene(introduction: Awaited<ReturnType<typeof findIntroductionByMission>>): VocabularyScene | null {
   if (!introduction) return null
+
+  // El id de la línea (A/B) apunta a un personaje; saber cuál es del alumno
+  // permite pedirle al modelo las palabras que él tendrá que producir.
+  const studentIds = new Set(
+    introduction.characters.filter(character => character.played_by === 'student').map(character => character.id),
+  )
+
   return {
     title: introduction.scene_title,
     description: introduction.scene_description,
-    lines: introduction.lines.map(line => ({ text: line.text, translation: line.translation })),
+    lines: introduction.lines.map(line => ({
+      speaker: studentIds.has(line.speaker) ? ('student' as const) : ('ai' as const),
+      text: line.text,
+      translation: line.translation,
+    })),
     expressions: introduction.useful_expressions,
   }
 }

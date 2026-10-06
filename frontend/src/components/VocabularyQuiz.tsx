@@ -37,6 +37,36 @@ function shuffled<T>(items: T[]): T[] {
   return copy
 }
 
+/** Escapa lo que iría dentro de una expresión regular (apóstrofos, guiones...). */
+function escapeRegExp(text: string): string {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+/**
+ * Frase de ejemplo con la palabra clave en negrita.
+ *
+ * El modelo tiene que devolver el ejemplo con la palabra tal cual; aun así, si
+ * no aparece, la frase se pinta sin resaltar en vez de romperse.
+ */
+function ExampleText({ text, word }: { text: string; word: string }) {
+  const pattern = new RegExp(`\\b(${escapeRegExp(word)})\\b`, 'gi')
+  const chunks = text.split(pattern)
+
+  return (
+    <>
+      {chunks.map((chunk, index) =>
+        chunk.toLowerCase() === word.toLowerCase() ? (
+          <strong key={index} className="font-bold text-white">
+            {chunk}
+          </strong>
+        ) : (
+          <span key={index}>{chunk}</span>
+        ),
+      )}
+    </>
+  )
+}
+
 /** Mensaje final según los fallos. */
 function closingMessage(mistakes: number): string {
   if (mistakes === 0) return 'Los 7 pares a la primera. A por la conversación.'
@@ -221,18 +251,29 @@ export function VocabularyQuiz({ missionId, cefrLevel, onFinish }: VocabularyQui
               Estas son las 7 palabras de la escena, con su traducción y un ejemplo. Después las emparejarás.
             </p>
 
-            <ul className="space-y-2 mb-5">
-              {words.map(entry => (
+            <ul className="space-y-3 mb-6">
+              {words.map((entry, position) => (
                 <li
                   key={entry.word}
-                  className="rounded-xl border border-white/10 bg-black/40 backdrop-blur-sm px-4 py-3"
+                  className="rounded-xl border border-white/10 bg-black/40 backdrop-blur-sm p-4 transition-colors hover:border-cyan/30"
                 >
-                  <div className="flex items-baseline justify-between gap-3">
-                    <p className="text-base font-bold text-white">{entry.word}</p>
-                    <p className="text-sm text-cyan">{entry.translation}</p>
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <span className="w-6 h-6 rounded-md border border-cyan/30 bg-cyan/10 text-cyan text-[10px] font-mono flex items-center justify-center shrink-0">
+                        {String(position + 1).padStart(2, '0')}
+                      </span>
+                      <p className="text-lg font-bold text-white truncate">{entry.word}</p>
+                    </div>
+                    <span className="text-xs px-2 py-1 rounded-md border border-cyan/30 bg-cyan/10 text-cyan shrink-0">
+                      {entry.translation}
+                    </span>
                   </div>
-                  <p className="mt-1 text-[13px] text-slate-200">{entry.example}</p>
-                  <p className="text-[12px] text-slate-500 italic">{entry.example_translation}</p>
+                  <div className="mt-3 ml-[34px] border-l-2 border-cyan/25 pl-3">
+                    <p className="text-[14px] leading-relaxed text-slate-200">
+                      <ExampleText text={entry.example} word={entry.word} />
+                    </p>
+                    <p className="mt-1 text-[12px] text-slate-500 italic">{entry.example_translation}</p>
+                  </div>
                 </li>
               ))}
             </ul>

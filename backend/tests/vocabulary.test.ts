@@ -181,9 +181,13 @@ describe('GET /api/missions/:id/vocabulary', () => {
     await student.agent.get(`/api/missions/${missionId}/vocabulary`)
 
     const prompt = mockedCompleteChat.mock.calls[0]?.[0]?.messages?.[0]?.content ?? ''
-    expect(prompt).toContain('Turn right at the corner, please.')
     expect(prompt).toContain('Pidiendo direcciones')
     expect(prompt).toContain('EXACTLY 7')
+    // El diálogo llega anotado: S lo que dirá el alumno, C lo del personaje.
+    expect(prompt).toContain('- S: Thank you very much!')
+    expect(prompt).toContain('- C: Turn right at the corner, please.')
+    // Y la regla de priorizar lo que el alumno tiene que producir.
+    expect(prompt).toContain('PRIORITISE what the STUDENT has to say')
   })
 })
 
